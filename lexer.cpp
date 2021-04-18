@@ -38,6 +38,8 @@ std::string Lexer::nextToken()
                 token.push_back(curChar);
             }
         }
+        // EOF reached
+        return std::string(token.begin(), token.end());
     }
     return ""; // TODO: Throw an error or something
 }
