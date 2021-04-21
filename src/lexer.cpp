@@ -1,22 +1,9 @@
+#include "lexer.h"
 #include <string>
-#include <iostream>
-#include <fstream>
 #include <vector>
+#include <fstream>
+#include <iostream>
 #include <algorithm>
-
-class Lexer
-{
-    std::ifstream file_;
-    std::vector<std::string> tokens_; // May need to store tokens in a buffer
-
-    const static std::vector<std::string> DELIMITERS;
-    const static int DELIMITER_MAX_LENGTH = 2;
-
-public:
-    Lexer(std::string);
-    ~Lexer();
-    std::string nextToken();
-};
 
 // All possible SQF token delimiters
 const std::vector<std::string> Lexer::DELIMITERS = {"\\\n", "\r\n", ">>", "/*", "*/", "//", "||", "!=", "<=", ">=", "==", "\"", "'", " ", "=", ":", "{", "}", "(", ")", "[", "]", ";", ",", "!", "\n", "\t", "/", "*", "+", "-", "%", "^", ">", "<"};
