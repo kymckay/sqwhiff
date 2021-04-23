@@ -18,7 +18,8 @@ class Lexer
     int line_ = 1;
 
     std::string::size_type findNextBoundary(const std::string &);
-    int bufferedCharCount(const char c);
+    int bufferedCharCount(const char);
+    bool isDelimiter(const std::string &);
 
 public:
     Lexer(std::string);

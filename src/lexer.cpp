@@ -87,7 +87,7 @@ std::string::size_type Lexer::findNextBoundary(const std::string& text)
     {
         for (int i = len; i > 0; i--)
         {
-            if (std::find(DELIMITERS.begin(), DELIMITERS.end(), text.substr(0, i)) != DELIMITERS.end())
+            if (isDelimiter(text.substr(0, i)))
             {
                 return i;
             }
@@ -99,7 +99,7 @@ std::string::size_type Lexer::findNextBoundary(const std::string& text)
         for (int i = MAX_DELIM_LENGTH; i > 0; i--)
         {
             std::string::size_type s_pos = len - i;
-            if (std::find(DELIMITERS.begin(), DELIMITERS.end(), text.substr(s_pos)) != DELIMITERS.end())
+            if (isDelimiter(text.substr(s_pos)))
             {
                 return s_pos;
             }
@@ -111,6 +111,10 @@ std::string::size_type Lexer::findNextBoundary(const std::string& text)
 
 int Lexer::bufferedCharCount(const char c) {
     return std::count(text_buffer_.begin(), text_buffer_.end(), c);
+}
+
+bool Lexer::isDelimiter(const std::string& text) {
+    return std::find(DELIMITERS.begin(), DELIMITERS.end(), text) != DELIMITERS.end();
 }
 
 int main()
