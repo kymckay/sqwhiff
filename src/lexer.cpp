@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "token.h"
 #include <string>
 #include <vector>
 #include <fstream>
@@ -23,7 +24,7 @@ Lexer::~Lexer()
 }
 
 // Get the next token, reads through the file until a delimiter is found or EOF is hit
-std::string Lexer::nextToken()
+Token Lexer::nextToken()
 {
     // Characters may have previously been read to the buffer
     std::string text = text_buffer_;
@@ -38,6 +39,9 @@ std::string Lexer::nextToken()
         {
             text.push_back(cur_char);
 
+            // Increment the line whenever a newline is found
+            if (cur_char == '\n') line_++;
+
             // More text can follow, can't check for delimiters until enough characters exist to match the longest
             if (text.length() < MAX_DELIM_LENGTH)
             {
@@ -48,7 +52,8 @@ std::string Lexer::nextToken()
             if (b_pos != std::string::npos)
             {
                 text_buffer_ = text.substr(b_pos);
-                return text.substr(0, b_pos);
+                // Newlines may have been processed to buffer already and updated the line count
+                return Token(text.substr(0, b_pos), line_ - bufferedCharCount('\n'));
             }
         }
 
@@ -63,12 +68,13 @@ std::string Lexer::nextToken()
         if (b_pos != std::string::npos)
         {
             text_buffer_ = text.substr(b_pos);
-            return text.substr(0, b_pos);
+            // Newlines may have been processed to buffer already and updated the line count
+            return Token(text.substr(0, b_pos), line_ - bufferedCharCount('\n'));
         }
     }
 
     // Will be empty string after buffer is depleted and EOF reached
-    return text;
+    return Token(text, line_);
 }
 
 // Returns the index of the first token boundary encountered
@@ -103,13 +109,17 @@ std::string::size_type Lexer::findNextBoundary(const std::string& text)
     return std::string::npos;
 }
 
+int Lexer::bufferedCharCount(const char c) {
+    return std::count(text_buffer_.begin(), text_buffer_.end(), c);
+}
+
 int main()
 {
     Lexer test("test.txt");
-    std::string t;
+    Token t;
     do
     {
         t = test.nextToken();
-        std::cout << t << "\n";
-    } while (t != "");
+        std::cout << t.line << ": " << t.content << "\n";
+    } while (t.content != "");
 }
