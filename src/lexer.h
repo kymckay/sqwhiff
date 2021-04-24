@@ -1,6 +1,5 @@
 #pragma once
 #include "token.h"
-#include <filesystem>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -23,7 +22,7 @@ class Lexer
     bool isDelimiter(const std::string &);
 
 public:
-    Lexer(const std::filesystem::path &);
+    Lexer(std::string);
     ~Lexer();
     Token nextToken();
 };
