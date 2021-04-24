@@ -1,13 +1,13 @@
 #include "lexer.h"
 #include "token.h"
 #include <string>
-#include <vector>
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 
 // All possible SQF token delimiters
-const std::vector<std::string> Lexer::DELIMITERS = {"\\\n", "\r\n", ">>", "/*", "*/", "//", "||", "!=", "<=", ">=", "==", "\"", "'", " ", "=", ":", "{", "}", "(", ")", "[", "]", ";", ",", "!", "\n", "\t", "/", "*", "+", "-", "%", "^", ">", "<"};
+const std::array<std::string, NUM_DELIMITERS> Lexer::delimiters_ = {"\\\n", "\r\n", ">>", "/*", "*/", "//", "||", "!=", "<=", ">=", "==", "\"", "'", " ", "=", ":", "{", "}", "(", ")", "[", "]", ";", ",", "!", "\n", "\t", "/", "*", "+", "-", "%", "^", ">", "<"};
 
 // Open the file resource immediately for reading
 // A lexer should never be instantiated unless the intention is to read the file so this is expected
@@ -114,7 +114,7 @@ int Lexer::bufferedCharCount(const char c) {
 }
 
 bool Lexer::isDelimiter(const std::string& text) {
-    return std::find(DELIMITERS.begin(), DELIMITERS.end(), text) != DELIMITERS.end();
+    return std::find(delimiters_.begin(), delimiters_.end(), text) != delimiters_.end();
 }
 
 int main()
@@ -124,6 +124,6 @@ int main()
     do
     {
         t = test.nextToken();
-        std::cout << t.line << ": " << t.content << "\n";
-    } while (t.content != "");
+        std::cout << t.line << ": " << t.raw << "\n";
+    } while (t.raw != "");
 }

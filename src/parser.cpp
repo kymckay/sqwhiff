@@ -6,19 +6,19 @@
 void Parser::parse(Lexer &scanner) {
 
     Token thisToken = scanner.nextToken();
-    while (!thisToken.content.empty())
+    while (!thisToken.raw.empty())
     {
         // Strings and comment contexts consume other tokens until they end
-        if (lineComment_ || blockComment_ || !inString_.content.empty())
+        if (lineComment_ || blockComment_ || !inString_.raw.empty())
         {
-            if (lineComment_ && thisToken.content == "\n")
+            if (lineComment_ && thisToken.raw == "\n")
                 lineComment_ = false;
-            else if (blockComment_ && thisToken.content == "*/")
+            else if (blockComment_ && thisToken.raw == "*/")
                 blockComment_ = false;
-            else if (!inString_.content.empty())
+            else if (!inString_.raw.empty())
             {
-                inString_.content.append(thisToken.content);
-                if (thisToken.content.back() == inString_.content.front())
+                inString_.raw.append(thisToken.raw);
+                if (thisToken.raw.back() == inString_.raw.front())
                     // TODO string completed
             }
 
@@ -27,11 +27,11 @@ void Parser::parse(Lexer &scanner) {
         }
 
         // Strings and comment beginnings
-        if (thisToken.content == "//")
+        if (thisToken.raw == "//")
             lineComment_ = true;
-        else if (thisToken.content == "/*")
+        else if (thisToken.raw == "/*")
             blockComment_ = true;
-        else if (thisToken.content == "'" || thisToken.content == "\"")
+        else if (thisToken.raw == "'" || thisToken.raw == "\"")
             inString_ = thisToken;
     }
 }

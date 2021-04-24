@@ -1,14 +1,15 @@
 #pragma once
 #include "token.h"
 #include <string>
-#include <vector>
+#include <array>
 #include <fstream>
 
+#define NUM_DELIMITERS 35
 #define MAX_DELIM_LENGTH 2
 
 class Lexer
 {
-    const static std::vector<std::string> DELIMITERS;
+    const static std::array<std::string, NUM_DELIMITERS> delimiters_;
 
     std::ifstream file_;
     std::string text_buffer_; // Multiple character delimiters introduce need to buffer text while parsing
