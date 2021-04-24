@@ -12,14 +12,8 @@ const std::array<char, NUM_DELIMITERS> Lexer::delimiters_ = {'\\', '>', '|', '\"
 
 // Open the file resource immediately for reading
 // A lexer should never be instantiated unless the intention is to read the file so this is expected
-Lexer::Lexer(std::string file)
+Lexer::Lexer(std::ifstream &file) : file_(file)
 {
-    file_ = std::ifstream(file);
-
-    // Current line lexer has reached in the text
-    // Used to give a position to errors
-    line_ = 0;
-
     // Read in the first character
     if (file_.is_open())
         advance();
@@ -121,33 +115,4 @@ Token Lexer::nextToken()
     }
 
     return Token(TokenType::end_of_file, "", line_);
-}
-
-int main()
-{
-    Lexer test("test.txt");
-    Token t;
-    do
-    {
-        t = test.nextToken();
-        switch (t.type)
-        {
-        case TokenType::plus:
-            std::cout << "plus ";
-            break;
-        case TokenType::minus:
-            std::cout << "minus ";
-            break;
-        case TokenType::number:
-            std::cout << "number ";
-            break;
-        case TokenType::end_of_file:
-            std::cout << "eof ";
-            break;
-        default:
-            std::cout << "unknown ";
-            break;
-        }
-        std::cout << t.line << ": " << t.raw << "\n";
-    } while (t.type != TokenType::end_of_file);
 }

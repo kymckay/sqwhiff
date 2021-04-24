@@ -10,9 +10,14 @@ class Lexer
 {
     const static std::array<char, NUM_DELIMITERS> delimiters_;
 
-    std::ifstream file_;
+    // This is a reference member because ifstream has no copy constructor
+    // which would prevent Lexer being used as a parameter elsewhere
+    std::ifstream &file_;
+
     char current_char_;
-    int line_;
+    // Current line lexer has reached in the text
+    // Used to give a position to errors
+    int line_ = 0;
 
     void error();
     void advance();
@@ -21,7 +26,7 @@ class Lexer
     bool isDelimiter(const char);
 
 public:
-    Lexer(std::string);
+    Lexer(std::ifstream&);
     ~Lexer();
     Token nextToken();
 };
