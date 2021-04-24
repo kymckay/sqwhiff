@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "token.h"
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -9,9 +10,8 @@
 // All possible SQF token delimiters
 const std::vector<std::string> Lexer::DELIMITERS = {"\\\n", "\r\n", ">>", "/*", "*/", "//", "||", "!=", "<=", ">=", "==", "\"", "'", " ", "=", ":", "{", "}", "(", ")", "[", "]", ";", ",", "!", "\n", "\t", "/", "*", "+", "-", "%", "^", ">", "<"};
 
-// Open the file resource immediately for reading
-// A lexer should never be instantiated unless the intention is to read the file so this is expected
-Lexer::Lexer(std::string file)
+// Open the file resource immediately for reading (expected by innate purpose of lexer)
+Lexer::Lexer(const std::filesystem::path &file)
 {
     file_ = std::ifstream(file);
 }
@@ -109,10 +109,13 @@ std::string::size_type Lexer::findNextBoundary(const std::string& text)
     return std::string::npos;
 }
 
+// Returns the number of occurences of the input char in the current text buffer
 int Lexer::bufferedCharCount(const char c) {
     return std::count(text_buffer_.begin(), text_buffer_.end(), c);
 }
 
+
+// Returns whether the input string is a delimiter recognised by the lexer
 bool Lexer::isDelimiter(const std::string& text) {
     return std::find(DELIMITERS.begin(), DELIMITERS.end(), text) != DELIMITERS.end();
 }
