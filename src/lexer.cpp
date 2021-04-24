@@ -32,6 +32,12 @@ Lexer::~Lexer()
         file_.close();
 }
 
+void Lexer::error()
+{
+    // TODO
+    std::cout << "Unexpected character: " << current_char_;
+}
+
 void Lexer::advance()
 {
     file_.get(current_char_);
@@ -56,6 +62,7 @@ void Lexer::skipWhitespace()
     }
 }
 
+// TODO Handle decimals and scientific notation
 std::string Lexer::number()
 {
     std::string result;
@@ -110,7 +117,7 @@ Token Lexer::nextToken()
             return Token(TokenType::div, "/", line_);
         }
 
-        // TODO error
+        error();
     }
 
     return Token(TokenType::end_of_file, "", line_);

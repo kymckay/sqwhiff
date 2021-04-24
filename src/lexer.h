@@ -14,6 +14,7 @@ class Lexer
     char current_char_;
     int line_;
 
+    void error();
     void advance();
     void skipWhitespace();
     std::string number();
