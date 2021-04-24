@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-#include <utility>
+#include <cctype>
 
 // All possible SQF token delimiting characters (some of these form parts of larger operators, that structuring is handled by parser)
 const std::array<char, NUM_DELIMITERS> Lexer::delimiters_ = {'\\', '>', '|', '\"', '\'', ' ', '\t', '\r', '\n', '=', ':', '{', '}', '(', ')', '[', ']', ';', ',', '!', '/', '*', '+', '-', '%', '^', '>', '<'};
@@ -15,6 +15,14 @@ const std::array<char, NUM_DELIMITERS> Lexer::delimiters_ = {'\\', '>', '|', '\"
 Lexer::Lexer(std::string file)
 {
     file_ = std::ifstream(file);
+
+    // Current line lexer has reached in the text
+    // Used to give a position to errors
+    line_ = 0;
+
+    // Read in the first character
+    if (file_.is_open())
+        advance();
 }
 
 // Close the file resource upon destruction
@@ -24,73 +32,88 @@ Lexer::~Lexer()
         file_.close();
 }
 
+void Lexer::advance()
+{
+    file_.get(current_char_);
+
+    // Be sure to close the file when done with it
+    if (file_.eof())
+    {
+        file_.close();
+        current_char_ = '\0';
+    }
+
+    // Increment the line whenever a newline is found
+    if (current_char_ == '\n')
+        line_++;
+}
+
+void Lexer::skipWhitespace()
+{
+    while (current_char_ != '\0' && std::isspace(current_char_))
+    {
+        advance();
+    }
+}
+
+std::string Lexer::number()
+{
+    std::string result;
+    while (current_char_ != '\0' && std::isdigit(current_char_))
+    {
+        result.push_back(current_char_);
+        advance();
+    }
+    return result;
+}
+
+bool Lexer::isDelimiter(const char c)
+{
+    return std::find(delimiters_.begin(), delimiters_.end(), c) != delimiters_.end();
+}
+
 Token Lexer::nextToken()
 {
-    Token base = nextRawToken();
-
-    if (base.raw == "+")
-        base.type = TokenType::plus;
-    else if (base.raw == "-")
-        base.type = TokenType::minus;
-    else if (base.raw == "/")
-        base.type = TokenType::div;
-    else if (base.raw == "*")
-        base.type = TokenType::mul;
-    else if (base.raw.empty())
-        base.type = TokenType::end_of_file;
-    else
-        base.type = TokenType::number;
-
-    return base;
-}
-
-// Get the next token, reads through the file until a delimiter is found or EOF is hit
-Token Lexer::nextRawToken()
-{
-    // Delimiter used to produce previous token is itself a token
-    if (delimiter_ != nullptr)
+    while (current_char_ != '\0')
     {
-        Token toke = Token(std::string(delimiter_), line_);
-        delimiter_ = nullptr;
-        return toke;
-    }
-
-    std::string text = "";
-    if (file_.is_open())
-    {
-
-        while (file_.get(current_char_))
+        // Whitespace is irrelevant in SQF
+        if (std::isspace(current_char_))
         {
-            // Increment the line whenever a newline is found
-            if (current_char_ == '\n')
-                line_++;
-
-            if (isDelimiter(current_char_))
-            {
-                if (text.empty())
-                {
-                    return Token(std::string(&current_char_), line_);
-                }
-                else
-                {
-                    delimiter_ = &current_char_;
-                    return Token(text, line_);
-                }
-            }
-
-            text.push_back(current_char_);
+            skipWhitespace();
+            continue;
         }
 
-        // EOF was reached
-        file_.close();
+        if (std::isdigit(current_char_))
+            return Token(TokenType::number, number(), line_);
+
+        if (current_char_ == '+')
+        {
+            advance();
+            return Token(TokenType::plus, "+", line_);
+        }
+
+        if (current_char_ == '-')
+        {
+            advance();
+            return Token(TokenType::minus, "-", line_);
+        }
+
+        if (current_char_ == '*')
+        {
+            advance();
+            return Token(TokenType::mul, "*", line_);
+        }
+
+        if (current_char_ == '/')
+        {
+            advance();
+            return Token(TokenType::div, "/", line_);
+        }
+
+        // TODO error
     }
 
-    // EOF reached
-    return Token(text, line_);
-}
-
-bool Lexer::isDelimiter(const char c) {
-    return std::find(delimiters_.begin(), delimiters_.end(), c) != delimiters_.end();
+    return Token(TokenType::end_of_file, "", line_);
 }
 
 int main()
