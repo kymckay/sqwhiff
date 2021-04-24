@@ -18,6 +18,7 @@ class Lexer
     // Used to give tokens a position for later parsing errors
     int line_ = 1;
 
+    Token nextRawToken();
     std::string::size_type findNextBoundary(const std::string &);
     int bufferedCharCount(const char);
     bool isDelimiter(const std::string &);

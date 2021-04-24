@@ -23,8 +23,26 @@ Lexer::~Lexer()
         file_.close();
 }
 
-// Get the next token, reads through the file until a delimiter is found or EOF is hit
 Token Lexer::nextToken()
+{
+    Token base = nextRawToken();
+
+    if (base.raw == "+")
+        base.type = TokenType::plus;
+    else if (base.raw == "-")
+        base.type = TokenType::minus;
+    else if (base.raw == "/")
+        base.type = TokenType::div;
+    else if (base.raw == "*")
+        base.type = TokenType::mul;
+    else
+        base.type = TokenType::number;
+
+    return base;
+}
+
+// Get the next token, reads through the file until a delimiter is found or EOF is hit
+Token Lexer::nextRawToken()
 {
     // Characters may have previously been read to the buffer
     std::string text = text_buffer_;
@@ -124,6 +142,21 @@ int main()
     do
     {
         t = test.nextToken();
+        switch (t.type)
+        {
+        case TokenType::plus:
+            std::cout << "+ ";
+            break;
+        case TokenType::minus:
+            std::cout << "- ";
+            break;
+        case TokenType::number:
+            std::cout << "number ";
+            break;
+        default:
+            std::cout << "unknown ";
+            break;
+        }
         std::cout << t.line << ": " << t.raw << "\n";
     } while (t.raw != "");
 }

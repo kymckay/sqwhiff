@@ -1,15 +1,33 @@
 #pragma once
 #include <string>
 
+enum class TokenType {
+    unknown,
+    number,
+    plus,
+    minus,
+    mul,
+    div,
+    end_of_file
+};
+
 struct Token {
-    std::string content;
+    TokenType type = TokenType::unknown;
+    std::string raw;
     int line; // Line and column of first character in overall text
 
     Token() {}
 
     Token(std::string raw, int line)
     {
-        content = raw;
+        this->raw = raw;
+        this->line = line;
+    }
+
+    Token(TokenType type, std::string raw, int line)
+    {
+        this->type = type;
+        this->raw = raw;
         this->line = line;
     }
 };
