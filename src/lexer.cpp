@@ -5,9 +5,10 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <utility>
 
-// All possible SQF token delimiters
-const std::array<std::string, NUM_DELIMITERS> Lexer::delimiters_ = {"\\\n", "\r\n", ">>", "/*", "*/", "//", "||", "!=", "<=", ">=", "==", "\"", "'", " ", "=", ":", "{", "}", "(", ")", "[", "]", ";", ",", "!", "\n", "\t", "/", "*", "+", "-", "%", "^", ">", "<"};
+// All possible SQF token delimiting characters (some of these form parts of larger operators, that structuring is handled by parser)
+const std::array<char, NUM_DELIMITERS> Lexer::delimiters_ = {'\\', '>', '|', '\"', '\'', ' ', '\t', '\r', '\n', '=', ':', '{', '}', '(', ')', '[', ']', ';', ',', '!', '/', '*', '+', '-', '%', '^', '>', '<'};
 
 // Open the file resource immediately for reading
 // A lexer should never be instantiated unless the intention is to read the file so this is expected
@@ -35,6 +36,8 @@ Token Lexer::nextToken()
         base.type = TokenType::div;
     else if (base.raw == "*")
         base.type = TokenType::mul;
+    else if (base.raw.empty())
+        base.type = TokenType::end_of_file;
     else
         base.type = TokenType::number;
 
@@ -44,95 +47,50 @@ Token Lexer::nextToken()
 // Get the next token, reads through the file until a delimiter is found or EOF is hit
 Token Lexer::nextRawToken()
 {
-    // Characters may have previously been read to the buffer
-    std::string text = text_buffer_;
-    text_buffer_.clear();
+    // Delimiter used to produce previous token is itself a token
+    if (delimiter_ != nullptr)
+    {
+        Token toke = Token(std::string(delimiter_), line_);
+        delimiter_ = nullptr;
+        return toke;
+    }
 
+    std::string text = "";
     if (file_.is_open())
     {
-        // Read next character into this variable
-        char cur_char;
 
-        while (file_.get(cur_char))
+        while (file_.get(current_char_))
         {
-            text.push_back(cur_char);
-
             // Increment the line whenever a newline is found
-            if (cur_char == '\n') line_++;
+            if (current_char_ == '\n')
+                line_++;
 
-            // More text can follow, can't check for delimiters until enough characters exist to match the longest
-            if (text.length() < MAX_DELIM_LENGTH)
+            if (isDelimiter(current_char_))
             {
-                continue;
+                if (text.empty())
+                {
+                    return Token(std::string(&current_char_), line_);
+                }
+                else
+                {
+                    delimiter_ = &current_char_;
+                    return Token(text, line_);
+                }
             }
 
-            std::string::size_type b_pos = findNextBoundary(text);
-            if (b_pos != std::string::npos)
-            {
-                text_buffer_ = text.substr(b_pos);
-                // Newlines may have been processed to buffer already and updated the line count
-                return Token(text.substr(0, b_pos), line_ - bufferedCharCount('\n'));
-            }
+            text.push_back(current_char_);
         }
 
         // EOF was reached
         file_.close();
     }
 
-    // Process any remining buffered characters
-    if (!text.empty())
-    {
-        std::string::size_type b_pos = findNextBoundary(text);
-        if (b_pos != std::string::npos)
-        {
-            text_buffer_ = text.substr(b_pos);
-            // Newlines may have been processed to buffer already and updated the line count
-            return Token(text.substr(0, b_pos), line_ - bufferedCharCount('\n'));
-        }
-    }
-
-    // Will be empty string after buffer is depleted and EOF reached
+    // EOF reached
     return Token(text, line_);
 }
 
-// Returns the index of the first token boundary encountered
-std::string::size_type Lexer::findNextBoundary(const std::string& text)
-{
-    int len = text.length();
-
-    // When the text is short, check for delimiters from the start
-    if (len <= MAX_DELIM_LENGTH)
-    {
-        for (int i = len; i > 0; i--)
-        {
-            if (isDelimiter(text.substr(0, i)))
-            {
-                return i;
-            }
-        }
-    }
-    // Beyond the delimiter length we only need to check the end of the text
-    else
-    {
-        for (int i = MAX_DELIM_LENGTH; i > 0; i--)
-        {
-            std::string::size_type s_pos = len - i;
-            if (isDelimiter(text.substr(s_pos)))
-            {
-                return s_pos;
-            }
-        }
-    }
-
-    return std::string::npos;
-}
-
-int Lexer::bufferedCharCount(const char c) {
-    return std::count(text_buffer_.begin(), text_buffer_.end(), c);
-}
-
-bool Lexer::isDelimiter(const std::string& text) {
-    return std::find(delimiters_.begin(), delimiters_.end(), text) != delimiters_.end();
+bool Lexer::isDelimiter(const char c) {
+    return std::find(delimiters_.begin(), delimiters_.end(), c) != delimiters_.end();
 }
 
 int main()
@@ -145,18 +103,21 @@ int main()
         switch (t.type)
         {
         case TokenType::plus:
-            std::cout << "+ ";
+            std::cout << "plus ";
             break;
         case TokenType::minus:
-            std::cout << "- ";
+            std::cout << "minus ";
             break;
         case TokenType::number:
             std::cout << "number ";
+            break;
+        case TokenType::end_of_file:
+            std::cout << "eof ";
             break;
         default:
             std::cout << "unknown ";
             break;
         }
         std::cout << t.line << ": " << t.raw << "\n";
-    } while (t.raw != "");
+    } while (t.type != TokenType::end_of_file);
 }
