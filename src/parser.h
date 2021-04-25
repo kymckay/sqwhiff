@@ -11,9 +11,10 @@ class Parser
 
     void error();
     void eat(TokenType);
+    int term();
     int factor();
 
 public:
-    Parser(Lexer&);
-    void parse();
+    Parser(Lexer &);
+    int expr();
 };

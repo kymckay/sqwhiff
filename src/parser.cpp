@@ -26,6 +26,8 @@ void Parser::eat(TokenType type)
     }
 };
 
+// Interprets a numerical term
+// factor: NUMBER
 int Parser::factor()
 {
     Token t = current_token_;
@@ -33,3 +35,52 @@ int Parser::factor()
     return std::stoi(t.raw);
 };
 
+// Interprets a mul or div factor
+// term: factor ((MUL|DIV) factor)*
+int Parser::term()
+{
+    int result = factor();
+
+    while (
+        current_token_.type == TokenType::div || current_token_.type == TokenType::mul)
+    {
+        Token t = current_token_;
+        if (t.type == TokenType::div)
+        {
+            eat(TokenType::div);
+            result /= factor();
+        }
+        else
+        {
+            eat(TokenType::mul);
+            result *= factor();
+        }
+    }
+
+    return result;
+};
+
+// Interprets an arithmetic expression
+// expr: term ((PLUS|MINUS) term)*
+int Parser::expr()
+{
+    int result = term();
+
+    while (
+        current_token_.type == TokenType::plus || current_token_.type == TokenType::minus)
+    {
+        Token t = current_token_;
+        if (t.type == TokenType::plus)
+        {
+            eat(TokenType::plus);
+            result += term();
+        }
+        else
+        {
+            eat(TokenType::minus);
+            result -= term();
+        }
+    }
+
+    return result;
+};
