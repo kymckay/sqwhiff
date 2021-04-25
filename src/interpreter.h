@@ -1,6 +1,8 @@
 #pragma once
 #include "node_visitor.h"
 #include "parser.h"
+#include "binary_op.h"
+#include "number.h"
 
 class Interpreter : NodeVisitor
 {
