@@ -5,11 +5,15 @@
 
 class Parser
 {
-    bool lineComment_ = false; // whether the parser is in a single-line comment
-    bool blockComment_ = false; // whether the parser is in a block comment
-    Token inString_; // the currently parsed string's content
+    // Reference member, no need to copy the supplied lexer
+    Lexer &lexer_;
+    Token current_token_;
+
+    void error();
+    void eat(TokenType);
+    int factor();
 
 public:
-    Parser();
-    void parse(Lexer &);
+    Parser(Lexer&);
+    void parse();
 };

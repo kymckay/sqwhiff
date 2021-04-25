@@ -10,8 +10,7 @@ class Lexer
 {
     const static std::array<char, NUM_DELIMITERS> delimiters_;
 
-    // This is a reference member because ifstream has no copy constructor
-    // which would prevent Lexer being used as a parameter elsewhere
+    // Reference member, ifstream has no copy constructor but we want to supply one to the lexer
     std::ifstream &file_;
 
     char current_char_;
