@@ -1,9 +1,13 @@
 #include "parser.h"
 #include "lexer.h"
 #include "token.h"
-#include <string>
+#include "ast.h"
+#include "number.h"
+#include "binary_op.h"
+#include <memory>
+#include <utility>
 
-// Consume a file's tokens and structure them together (parse the file)
+// Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer)
 {
     current_token_ = lexer_.nextToken();
@@ -28,28 +32,28 @@ void Parser::eat(TokenType type)
 
 // Interprets a numerical term
 // factor: NUMBER | LPAREN expr RPAREN
-int Parser::factor()
+std::unique_ptr<AST> Parser::factor()
 {
     Token t = current_token_;
     if (t.type == TokenType::number)
     {
         eat(TokenType::number);
-        return std::stoi(t.raw);
+        return std::unique_ptr<AST>(new Number(t));
     }
     else
     {
         eat(TokenType::lparen);
-        int result = expr();
+        std::unique_ptr<AST> node = expr();
         eat(TokenType::rparen);
-        return result;
+        return node;
     }
 };
 
 // Interprets a mul or div factor
 // term: factor ((MUL|DIV) factor)*
-int Parser::term()
+std::unique_ptr<AST> Parser::term()
 {
-    int result = factor();
+    std::unique_ptr<AST> node = factor();
 
     while (
         current_token_.type == TokenType::div || current_token_.type == TokenType::mul)
@@ -58,23 +62,23 @@ int Parser::term()
         if (t.type == TokenType::div)
         {
             eat(TokenType::div);
-            result /= factor();
         }
         else
         {
             eat(TokenType::mul);
-            result *= factor();
         }
+
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, factor()));
     }
 
-    return result;
+    return node;
 };
 
 // Interprets an arithmetic expression
 // expr: term ((PLUS|MINUS) term)*
-int Parser::expr()
+std::unique_ptr<AST> Parser::expr()
 {
-    int result = term();
+    std::unique_ptr<AST> node = term();
 
     while (
         current_token_.type == TokenType::plus || current_token_.type == TokenType::minus)
@@ -83,14 +87,14 @@ int Parser::expr()
         if (t.type == TokenType::plus)
         {
             eat(TokenType::plus);
-            result += term();
         }
         else
         {
             eat(TokenType::minus);
-            result -= term();
         }
+
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, term()));
     }
 
-    return result;
+    return node;
 };

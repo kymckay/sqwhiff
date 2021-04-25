@@ -1,7 +1,8 @@
 #pragma once
 #include "lexer.h"
 #include "token.h"
-#include <string>
+#include "ast.h"
+#include <memory>
 
 class Parser
 {
@@ -11,10 +12,16 @@ class Parser
 
     void error();
     void eat(TokenType);
-    int term();
-    int factor();
+
+    // Member functions for internal and terminal nodes
+    // Dynamic allocation is needed for AST interface types
+
+    std::unique_ptr<AST> term();
+    std::unique_ptr<AST> factor();
 
 public:
     Parser(Lexer &);
-    int expr();
+
+    // Root node member function
+    std::unique_ptr<AST> expr();
 };

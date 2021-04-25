@@ -9,6 +9,5 @@ int main()
     std::ifstream file_in("test.txt");
     Lexer lex(file_in);
     Parser par(lex);
-
-    std::cout << par.expr();
+    par.expr();
 }
