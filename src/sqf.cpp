@@ -1,11 +1,13 @@
 #include "lexer.h"
+#include "token.h"
 #include "parser.h"
 #include <iostream>
 #include <fstream>
 
 int main()
 {
-    Lexer test(std::ifstream("test.txt"));
+    std::ifstream file_in("test.txt");
+    Lexer test(file_in);
     Token t;
     do
     {
