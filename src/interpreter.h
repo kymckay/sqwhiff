@@ -10,6 +10,10 @@ class Interpreter : NodeVisitor
 
 public:
     Interpreter(Parser &);
+    void interpret();
+
+    // Visitor interface implementation
+
     void visit(BinaryOp &) override;
     void visit(Number &) override;
 };
