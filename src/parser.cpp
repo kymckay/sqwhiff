@@ -27,12 +27,22 @@ void Parser::eat(TokenType type)
 };
 
 // Interprets a numerical term
-// factor: NUMBER
+// factor: NUMBER | LPAREN expr RPAREN
 int Parser::factor()
 {
     Token t = current_token_;
-    eat(TokenType::number);
-    return std::stoi(t.raw);
+    if (t.type == TokenType::number)
+    {
+        eat(TokenType::number);
+        return std::stoi(t.raw);
+    }
+    else
+    {
+        eat(TokenType::lparen);
+        int result = expr();
+        eat(TokenType::rparen);
+        return result;
+    }
 };
 
 // Interprets a mul or div factor

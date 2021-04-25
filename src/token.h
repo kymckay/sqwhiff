@@ -8,6 +8,8 @@ enum class TokenType {
     minus,
     mul,
     div,
+    lparen,
+    rparen,
     end_of_file
 };
 

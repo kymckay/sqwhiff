@@ -109,6 +109,18 @@ Token Lexer::nextToken()
             return Token(TokenType::div, "/", line_);
         }
 
+        if (current_char_ == '(')
+        {
+            advance();
+            return Token(TokenType::lparen, "(", line_);
+        }
+
+        if (current_char_ == ')')
+        {
+            advance();
+            return Token(TokenType::rparen, ")", line_);
+        }
+
         error();
     }
 
