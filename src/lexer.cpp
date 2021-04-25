@@ -3,7 +3,6 @@
 #include <string>
 #include <array>
 #include <fstream>
-#include <iostream>
 #include <algorithm>
 #include <cctype>
 
@@ -28,8 +27,7 @@ Lexer::~Lexer()
 
 void Lexer::error()
 {
-    // TODO
-    std::cout << "Unexpected character: " << current_char_;
+    throw "Unexpected character: " + current_char_;
 }
 
 void Lexer::advance()
