@@ -13,15 +13,14 @@ class Parser
     void error();
     void eat(TokenType);
 
-    // Member functions for internal and terminal nodes
+    // Member functions for AST nodes
     // Dynamic allocation is needed for AST interface types
 
+    std::unique_ptr<AST> expr();
     std::unique_ptr<AST> term();
     std::unique_ptr<AST> factor();
 
 public:
     Parser(Lexer &);
-
-    // Root node member function
-    std::unique_ptr<AST> expr();
+    std::unique_ptr<AST> parse();
 };

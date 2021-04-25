@@ -98,3 +98,9 @@ std::unique_ptr<AST> Parser::expr()
 
     return node;
 };
+
+// Parses the file and returns the root node of the AST
+std::unique_ptr<AST> Parser::parse()
+{
+    return expr();
+}
