@@ -19,13 +19,13 @@ The parser produces an intermediate representation (the AST) according to the fo
 | Head  | Body |
 | --- | --- |
 |program|`statement_list EOF`|
-|statement_list|`statement | statement SEMI statement_list | statement COMMA statement_list`|
-|statement|`assignment_statement | empty`|
+|statement_list|`statement \| statement SEMI statement_list \| statement COMMA statement_list`|
+|statement|`assignment_statement \| empty`|
 |assignment_statement|`variable ASSIGN expr`|
 |variable|`ID`|
-|expr|`term ((PLUS|MINUS) term)*`|
-|term|`factor ((MUL|DIV) factor)*`|
-|factor|`PLUS factor | MINUS factor | NUMBER | LPAREN expr RPAREN | variable`|
+|expr|`term ((PLUS\|MINUS) term)*`|
+|term|`factor ((MUL\|DIV) factor)*`|
+|factor|`PLUS factor \| MINUS factor \| NUMBER \| LPAREN expr RPAREN \| variable`|
 |empty|``|
 
 ## Notable Mentions
