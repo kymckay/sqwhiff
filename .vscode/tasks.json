@@ -10,6 +10,8 @@
                 "${fileDirname}\\**.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-I",
+                "${workspaceFolder}/src/includes"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
