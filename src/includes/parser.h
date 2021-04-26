@@ -16,9 +16,15 @@ class Parser
     // Member functions for AST nodes
     // Dynamic allocation is needed for AST interface types
 
+    std::unique_ptr<AST> program();
+    std::unique_ptr<AST> statement_list();
+    std::unique_ptr<AST> statement();
+    std::unique_ptr<AST> assignment_statement();
+    std::unique_ptr<AST> variable();
     std::unique_ptr<AST> expr();
     std::unique_ptr<AST> term();
     std::unique_ptr<AST> factor();
+    std::unique_ptr<AST> empty();
 
 public:
     Parser(Lexer &);

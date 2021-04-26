@@ -6,9 +6,6 @@
 #include <algorithm>
 #include <cctype>
 
-// All possible SQF token delimiting characters (some of these form parts of larger operators, that structuring is handled by parser)
-const std::array<char, NUM_DELIMITERS> Lexer::delimiters_ = {'\\', '>', '|', '\"', '\'', ' ', '\t', '\r', '\n', '=', ':', '{', '}', '(', ')', '[', ']', ';', ',', '!', '/', '*', '+', '-', '%', '^', '>', '<'};
-
 // Open the file resource immediately for reading
 // A lexer should never be instantiated unless the intention is to read the file so this is expected
 Lexer::Lexer(std::ifstream &file) : file_(file)
@@ -28,6 +25,12 @@ Lexer::~Lexer()
 void Lexer::error()
 {
     throw "Unexpected character: " + current_char_;
+}
+
+// Preview the next character in order to differentiate tokens that start the same
+char Lexer::peek()
+{
+    return file_.peek();
 }
 
 void Lexer::advance()
@@ -54,6 +57,26 @@ void Lexer::skipWhitespace()
     }
 }
 
+Token Lexer::_id()
+{
+    std::string result;
+    while (current_char_ != '\0' && (std::isalnum(current_char_) || current_char_ == '_'))
+    {
+        result.push_back(current_char_);
+        advance();
+    }
+
+    // TODO check for keywords
+    if (false)
+    {
+        return Token();
+    }
+    else
+    {
+        return Token(TokenType::id, result, line_);
+    }
+}
+
 // TODO Handle decimals and scientific notation
 std::string Lexer::number()
 {
@@ -64,11 +87,6 @@ std::string Lexer::number()
         advance();
     }
     return result;
-}
-
-bool Lexer::isDelimiter(const char c)
-{
-    return std::find(delimiters_.begin(), delimiters_.end(), c) != delimiters_.end();
 }
 
 Token Lexer::nextToken()
@@ -119,6 +137,29 @@ Token Lexer::nextToken()
         {
             advance();
             return Token(TokenType::rparen, ")", line_);
+        }
+
+        if (std::isalpha(current_char_) || current_char_ == '_')
+        {
+            return _id();
+        }
+
+        if (current_char_ == '=')
+        {
+            advance();
+            return Token(TokenType::assign, "=", line_);
+        }
+
+        if (current_char_ == ';')
+        {
+            advance();
+            return Token(TokenType::semi, ";", line_);
+        }
+
+        if (current_char_ == ',')
+        {
+            advance();
+            return Token(TokenType::comma, ",", line_);
         }
 
         error();

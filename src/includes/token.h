@@ -10,6 +10,10 @@ enum class TokenType {
     div,
     lparen,
     rparen,
+    assign,
+    semi,
+    comma,
+    id, // variable or keyword
     end_of_file
 };
 

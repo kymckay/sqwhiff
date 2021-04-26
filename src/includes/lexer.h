@@ -4,12 +4,8 @@
 #include <array>
 #include <fstream>
 
-#define NUM_DELIMITERS 28
-
 class Lexer
 {
-    const static std::array<char, NUM_DELIMITERS> delimiters_;
-
     // Reference member, ifstream has no copy constructor but we want to supply one to the lexer
     std::ifstream &file_;
 
@@ -19,10 +15,11 @@ class Lexer
     int line_ = 0;
 
     void error();
+    char peek();
     void advance();
     void skipWhitespace();
+    Token _id();
     std::string number();
-    bool isDelimiter(const char);
 
 public:
     Lexer(std::ifstream&);
