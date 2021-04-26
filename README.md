@@ -26,7 +26,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |expr|`term ((PLUS\|MINUS) term)*`|
 |term|`factor ((MUL\|DIV) factor)*`|
 |factor|`PLUS factor \| MINUS factor \| NUMBER \| LPAREN expr RPAREN \| variable`|
-|empty|``|
+|empty||
 
 ## Notable Mentions
 
