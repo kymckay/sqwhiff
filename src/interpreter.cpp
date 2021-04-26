@@ -13,7 +13,13 @@ void Interpreter::interpret(){
 void Interpreter::visit(BinaryOp &op)
 {
     // TODO: recursive visitor accept calls
-    std::cout << "operator";
+    std::cout << "binary operator";
+};
+
+void Interpreter::visit(UnaryOp &op)
+{
+    // TODO: recursive visitor accept calls
+    std::cout << "unary operator";
 };
 
 void Interpreter::visit(Number &num)

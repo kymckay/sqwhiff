@@ -3,6 +3,7 @@
 #include "token.h"
 #include "ast.h"
 #include "number.h"
+#include "unary_op.h"
 #include "binary_op.h"
 #include <memory>
 #include <utility>
@@ -31,21 +32,33 @@ void Parser::eat(TokenType type)
 };
 
 // Interprets a numerical term
-// factor: NUMBER | LPAREN expr RPAREN
+// factor: (PLUS|MINUS)factor | NUMBER | LPAREN expr RPAREN
 std::unique_ptr<AST> Parser::factor()
 {
     Token t = current_token_;
-    if (t.type == TokenType::number)
+    switch (t.type)
+    {
+    case TokenType::plus:
+    case TokenType::minus:
+    {
+        eat(t.type);
+        return std::unique_ptr<AST>(new UnaryOp(t, factor()));
+    }
+    case TokenType::number:
     {
         eat(TokenType::number);
         return std::unique_ptr<AST>(new Number(t));
     }
-    else
+    case TokenType::lparen:
     {
         eat(TokenType::lparen);
         std::unique_ptr<AST> node = expr();
         eat(TokenType::rparen);
         return node;
+    }
+    default:
+        error();
+        return nullptr;
     }
 };
 

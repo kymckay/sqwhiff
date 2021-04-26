@@ -1,6 +1,7 @@
 #pragma once
 #include "node_visitor.h"
 #include "parser.h"
+#include "unary_op.h"
 #include "binary_op.h"
 #include "number.h"
 
@@ -15,5 +16,6 @@ public:
     // Visitor interface implementation
 
     void visit(BinaryOp &) override;
+    void visit(UnaryOp &) override;
     void visit(Number &) override;
 };
