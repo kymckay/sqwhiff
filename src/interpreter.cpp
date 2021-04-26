@@ -12,17 +12,18 @@ void Interpreter::interpret(){
 
 void Interpreter::visit(BinaryOp &op)
 {
-    // TODO: recursive visitor accept calls
-    std::cout << "binary operator";
+    op.left->accept(*this);
+    std::cout << op.op.raw;
+    op.right->accept(*this);
 };
 
 void Interpreter::visit(UnaryOp &op)
 {
-    // TODO: recursive visitor accept calls
-    std::cout << "unary operator";
+    std::cout << op.op.raw;
+    op.expr->accept(*this);
 };
 
 void Interpreter::visit(Number &num)
 {
-    std::cout << "number";
+    std::cout << num.token.raw;
 };

@@ -6,10 +6,10 @@
 
 class UnaryOp : public AST
 {
+public:
     Token op;
     std::unique_ptr<AST> expr;
 
-public:
     UnaryOp(const Token &op, std::unique_ptr<AST> expr) : op(op), expr(std::move(expr)){};
     void accept(NodeVisitor &visitor) override
     {

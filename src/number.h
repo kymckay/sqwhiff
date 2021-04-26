@@ -5,10 +5,10 @@
 
 class Number : public AST
 {
-    Token token_;
-
 public:
-    Number(const Token &t) : token_(t) {};
+    Token token;
+
+    Number(const Token &t) : token(t) {};
     void accept(NodeVisitor &visitor) override
     {
         visitor.visit(*this);
