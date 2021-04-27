@@ -4,9 +4,9 @@ A C++ implementation of a lexer, parser and interpreter for SQF.
 
 The lexer produces tokens from an input file. The parser consumes the tokens and constructs an abstract syntax tree (AST). The interpreter traverses the AST by means of the visitor pattern and mutates its own state accordingly.
 
-### Author Note
+**Author Note**
 
-This is the first C++ I've ever written. My intentions for this project are:
+This is the first C++ I have ever written. My intentions for this project are:
 
 - To familarising myself with C++.
 - To learning about how parsers and interpreters work.
@@ -22,6 +22,8 @@ This is the first C++ I've ever written. My intentions for this project are:
 ## Implemented Grammar Rules
 
 The parser produces an intermediate representation (the AST) according to the following SQF grammar. Each rule has a corresponding member function in the parser. Elements in capitals are terminal tokens and should be self explanatory.
+
+**Note:** The grammar was produced by myself and does not necessarily correspond to how the Real Virtuality engine truly parses SQF code.
 
 | Head  | Body |
 | --- | --- |
