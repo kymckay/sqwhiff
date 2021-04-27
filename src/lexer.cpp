@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "token.h"
+#include "keywords.h"
 #include <string>
 #include <array>
 #include <fstream>
@@ -91,10 +92,10 @@ Token Lexer::_id()
         advance();
     }
 
-    // TODO check for keywords
-    if (false)
+    // SQF has a lot of reserved keywords
+    if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
-        return Token();
+        return Token(TokenType::keyword, result, line_);
     }
     else
     {

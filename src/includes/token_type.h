@@ -14,5 +14,6 @@ enum class TokenType
     semi,
     comma,
     id, // variable name
+    keyword, // sqf command name
     end_of_file
 };
