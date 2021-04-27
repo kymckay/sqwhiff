@@ -57,6 +57,31 @@ void Lexer::skipWhitespace()
     }
 }
 
+void Lexer::skipComment()
+{
+    if (peek() == '/')
+    {
+        while (current_char_ != '\0' && current_char_ != '\n')
+        {
+            advance();
+        }
+
+        // Skip past the EOL
+        advance();
+    }
+    else if (peek() == '*')
+    {
+        while (current_char_ != '\0' && !(current_char_ == '*' && peek() == '/'))
+        {
+            advance();
+        }
+
+        // Skip past the block end: */
+        advance();
+        advance();
+    }
+}
+
 Token Lexer::_id()
 {
     std::string result;
@@ -100,6 +125,18 @@ Token Lexer::nextToken()
             continue;
         }
 
+        // Comments are irrelevant (block and line)
+        if (current_char_ == '/' && (peek() == '/' || peek() == '*'))
+        {
+            skipComment();
+            continue;
+        }
+
+        if (std::isalpha(current_char_) || current_char_ == '_')
+        {
+            return _id();
+        }
+
         if (std::isdigit(current_char_))
             return Token(TokenType::number, number(), line_);
 
@@ -137,11 +174,6 @@ Token Lexer::nextToken()
         {
             advance();
             return Token(TokenType::rparen, ")", line_);
-        }
-
-        if (std::isalpha(current_char_) || current_char_ == '_')
-        {
-            return _id();
         }
 
         if (current_char_ == '=')

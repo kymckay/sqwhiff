@@ -18,6 +18,7 @@ class Lexer
     char peek();
     void advance();
     void skipWhitespace();
+    void skipComment();
     Token _id();
     std::string number();
 
