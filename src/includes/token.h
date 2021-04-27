@@ -1,21 +1,6 @@
 #pragma once
+#include "token_type.h"
 #include <string>
-
-enum class TokenType {
-    unknown,
-    number,
-    plus,
-    minus,
-    mul,
-    div,
-    lparen,
-    rparen,
-    assign,
-    semi,
-    comma,
-    id, // variable or keyword
-    end_of_file
-};
 
 struct Token {
     TokenType type;
