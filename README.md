@@ -14,7 +14,7 @@ This is the first C++ I have ever written. My intentions for this project are:
 
 ## Lexical Analysis
 
-- In SQF a program consists of a sequence of expressions. The end of an expression is marked by a `,` or `;` character except where such characters are allowed by syntax (e.g. commas within an array literal).
+- In SQF a program consists of a sequence of statements. The end of a statement (except from the very last) is marked by a `,` or `;` character except where such characters are allowed by syntax (e.g. commas within an array literal).
 - A comment starts with a `//` or `/*` character pair that is not part of a string literal, and ends at the end of the physical line or with a `*/` character pair, respectively.
 - Outside of string literals, whitespace characters are used to seperate tokens (only necessary if their concatenation could otherwise be interpreted as a different token).
 
@@ -33,8 +33,8 @@ This is the first C++ I have ever written. My intentions for this project are:
   - Hexadecimal literals being with either a `$` or `0x` prefix, followed by digits `0` through `9` and letters `A` through `F` (case insensitive).
   - Scientific notation can extend either of the above literal with the letter `e`, an optional `+` or `-` sign and further allowable characters for the respective type.
 - String literals are enclosed in matching single or double quotes (`'` or `"`). To use the enclosing character within the string it must be doubled (unlike many languages, `\` cannot be used to escape characters within a string).
-- Array literals are enclosed by `[` and `]` characters with elements separated by `,` characters.
-- Code literals are enclosed by `{` and `}` characters and contain a sequence of expressions.
+- Array literals are enclosed by `[` and `]` characters with expressions separated by `,` characters. There can be no trailing `,` after the last expression.
+- Code literals are enclosed by `{` and `}` characters and contain a sequence of statements.
 
 ### Operators and Delimiters
 
