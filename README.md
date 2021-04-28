@@ -1,4 +1,4 @@
-# sqf-cpp
+# cpp-sqf
 
 A C++ implementation of a lexer, parser and interpreter for SQF.
 
