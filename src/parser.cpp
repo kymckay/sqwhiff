@@ -125,7 +125,7 @@ std::unique_ptr<AST> Parser::term()
     return node;
 }
 
-// factor: (PLUS|MINUS)factor | NUMBER | LPAREN expr RPAREN
+// factor: (PLUS|MINUS)factor | HEX_LITERAL | DEC_LITERAL | LPAREN expr RPAREN
 std::unique_ptr<AST> Parser::factor()
 {
     Token t = current_token_;
@@ -137,9 +137,10 @@ std::unique_ptr<AST> Parser::factor()
         eat(t.type);
         return std::unique_ptr<AST>(new UnaryOp(t, factor()));
     }
-    case TokenType::number:
+    case TokenType::dec_literal:
+    case TokenType::hex_literal:
     {
-        eat(TokenType::number);
+        eat(t.type);
         return std::unique_ptr<AST>(new Number(t));
     }
     case TokenType::lparen:

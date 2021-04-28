@@ -103,16 +103,85 @@ Token Lexer::_id()
     }
 }
 
-// TODO Handle decimals and scientific notation
-std::string Lexer::number()
+Token Lexer::number()
 {
-    std::string result;
-    while (current_char_ != '\0' && std::isdigit(current_char_))
+    // First determine the type of numeric literal
+    TokenType type = TokenType::dec_literal;
+    if (current_char_ == '$')
     {
-        result.push_back(current_char_);
+        type = TokenType::hex_literal;
         advance();
     }
-    return result;
+    else if (current_char_ == '0' && peek() == 'x')
+    {
+        type = TokenType::hex_literal;
+        advance();
+        advance();
+    }
+
+    // Read the characters according to the literal type
+    std::string value;
+    if (type == TokenType::hex_literal)
+    {
+        while (current_char_ != '\0' && std::isxdigit(current_char_))
+        {
+            value.push_back(current_char_);
+            advance();
+        }
+    }
+    else
+    {
+        // Integer part (may not be present)
+        while (current_char_ != '\0' && std::isdigit(current_char_))
+        {
+            value.push_back(current_char_);
+            advance();
+        }
+
+        // Possible decimal point (can appear at the start or end)
+        if (current_char_ == '.')
+        {
+            value.push_back(current_char_);
+            advance();
+        }
+
+        // Possible fractional part
+        while (current_char_ != '\0' && std::isdigit(current_char_))
+        {
+            value.push_back(current_char_);
+            advance();
+        }
+
+        // Optional scientific notation suffix
+        if (std::tolower(current_char_) == 'e') {
+            value.push_back(current_char_);
+            advance();
+
+            // Can be followed by an optional + or -
+            if (current_char_ == '+' || current_char_ == '-')
+            {
+                value.push_back(current_char_);
+                advance();
+            }
+
+            // *Must* be followed by digits if present
+            if (std::isdigit(current_char_))
+            {
+                while (current_char_ != '\0' && std::isdigit(current_char_))
+                {
+                    value.push_back(current_char_);
+                    advance();
+                }
+            }
+            else
+            {
+                error();
+            }
+
+        }
+    }
+
+    return Token(type, value, line_);
 }
 
 Token Lexer::nextToken()
@@ -138,8 +207,16 @@ Token Lexer::nextToken()
             return _id();
         }
 
-        if (std::isdigit(current_char_))
-            return Token(TokenType::number, number(), line_);
+        // Multiple numeric literal formats
+        if (
+            std::isdigit(current_char_)
+            // Decimal literals can start with the decimal point
+            || (current_char_ == '.' && std::isdigit(peek()))
+            // Hexadecimal literals can start with the dollar sign (or 0x)
+            || (current_char_ == '$' && std::isxdigit(peek())))
+        {
+            return number();
+        }
 
         if (current_char_ == '+')
         {

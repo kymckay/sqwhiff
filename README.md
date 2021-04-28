@@ -31,7 +31,7 @@ This is the first C++ I have ever written. My intentions for this project are:
 - Numeric literals
   - Decimal literals consist of the digits `0` through `9`. Optionally, a single decimal point `.` can also appear anywhere in the literal (start and end included).
   - Hexadecimal literals being with either a `$` or `0x` prefix, followed by digits `0` through `9` and letters `A` through `F` (case insensitive).
-  - Scientific notation can extend either of the above literal with the letter `e`, an optional `+` or `-` sign and further allowable characters for the respective type.
+  - Scientific notation can extend a decimal literal with the letter `e` (case insensitive), an optional `+` or `-` sign and then further digit characters (must follow).
 - String literals are enclosed in matching single or double quotes (`'` or `"`). To use the enclosing character within the string it must be doubled (unlike many languages, `\` cannot be used to escape characters within a string).
 - Array literals are enclosed by `[` and `]` characters with expressions separated by `,` characters. There can be no trailing `,` after the last expression.
 - Code literals are enclosed by `{` and `}` characters and contain a sequence of statements.
@@ -56,7 +56,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |variable|`ID`|
 |expr|`term ((PLUS\|MINUS) term)*`|
 |term|`factor ((MUL\|DIV) factor)*`|
-|factor|`PLUS factor \| MINUS factor \| NUMBER \| LPAREN expr RPAREN \| variable`|
+|factor|`PLUS factor \| MINUS factor \| HEX_LITERAL | DEC_LITERAL \| LPAREN expr RPAREN \| variable`|
 |empty||
 
 ## Notable Mentions
