@@ -83,7 +83,7 @@ The following table summarizes the operator precedence in SQF, from highest prec
 |`if boolean then code else code`|If – else structure|
 |`expression commandName expression`|Binary operator|
 |`==`, `!=`, `>`, `<`, `<=`, `>=`, `config >> string`|Comparison, arrow config accessor|
-|`bool || bool`, `bool or bool`|Logical OR|
+|`bool \|\| bool`, `bool or bool`|Logical OR|
 |`bool && bool`, `bool and bool`|Logical AND|
 
 ## Notable Mentions
