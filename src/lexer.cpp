@@ -113,6 +113,16 @@ Token Lexer::_id()
         return Token(TokenType::not, result, line_);
     }
 
+    if (result == "or")
+    {
+        return Token(TokenType::or, result, line_);
+    }
+
+    if (result == "and")
+    {
+        return Token(TokenType::and, result, line_);
+    }
+
     // SQF has a lot of reserved keywords
     if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
@@ -237,6 +247,20 @@ Token Lexer::nextToken()
             || (current_char_ == '$' && std::isxdigit(peek())))
         {
             return number();
+        }
+
+        if (current_char_ == '|' && peek() == '|')
+        {
+            advance();
+            advance();
+            return Token(TokenType::or, "||", line_);
+        }
+
+        if (current_char_ == '&' && peek() == '&')
+        {
+            advance();
+            advance();
+            return Token(TokenType::and, "&&", line_);
         }
 
         if (current_char_ == '+')

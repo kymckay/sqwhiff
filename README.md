@@ -52,16 +52,16 @@ The parser produces an intermediate representation (the AST) according to the fo
 |program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
 |statement|`expr \| assignment_statement \| empty`|
-|expr|`and ((PIPE\|OR) and)*`|
-|and|`comp ((AMP\|AND) comp)*`|
+|expr|`and (OR and)*`|
+|and|`comp (AND comp)*`|
 |comp|`binary ((EQEQ\|NTEQ\|GT\|LT\|GTEQ\|LTEQ\|GTGT) binary)*`|
 |binary|`conditional (KEYWORD conditional)*`|
 |conditional|`term (ELSE term)*`|
 |term|`factor ((PLUS\|MINUS\|MIN\|MAX) factor)*`|
-|factor|`power ((MUL\|DIV\|MOD\|PERC\|ATAN2) power)*`|
-|power|`hash_select (CARET hash_select)*`|
+|factor|`power ((MUL\|DIV\|MOD\|ATAN2) power)*`|
+|power|`hash_select (POW hash_select)*`|
 |hash_select|`unary (HASH unary)*`|
-|unary|`PLUS unary \| MINUS unary \| NOT unary \| EXCLM unary \| KEYWORD unary \| nullary`|
+|unary|`PLUS unary \| MINUS unary \| NOT unary \| KEYWORD unary \| nullary`|
 |nullary|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
 |literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
 |array|`LSQB expr (, expr)* RSQB`|

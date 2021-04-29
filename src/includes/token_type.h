@@ -17,6 +17,8 @@ enum class TokenType
     mod,
     hash,
     not,
+    or,
+    and,
     // delimiters
     lparen,
     rparen,
