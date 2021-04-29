@@ -249,6 +249,59 @@ Token Lexer::nextToken()
             return number();
         }
 
+        if (current_char_ == '=')
+        {
+            advance();
+            if (current_char_ == '=')
+            {
+                advance();
+                return Token(TokenType::eql, "==", line_);
+            }
+
+            return Token(TokenType::assign, "=", line_);
+        }
+
+        if (current_char_ == '!')
+        {
+            advance();
+            if (current_char_ == '=')
+            {
+                advance();
+                return Token(TokenType::neql, "!=", line_);
+            }
+
+            return Token(TokenType::not, "!", line_);
+        }
+
+        if (current_char_ == '>')
+        {
+            advance();
+            if (current_char_ == '=')
+            {
+                advance();
+                return Token(TokenType::gteql, ">=", line_);
+            }
+            if (current_char_ == '>')
+            {
+                advance();
+                return Token(TokenType::gtgt, ">>", line_);
+            }
+
+            return Token(TokenType::gt, ">", line_);
+        }
+
+        if (current_char_ == '<')
+        {
+            advance();
+            if (current_char_ == '=')
+            {
+                advance();
+                return Token(TokenType::lteql, "<=", line_);
+            }
+
+            return Token(TokenType::lt, "<", line_);
+        }
+
         if (current_char_ == '|' && peek() == '|')
         {
             advance();
@@ -305,12 +358,6 @@ Token Lexer::nextToken()
             return Token(TokenType::hash, "#", line_);
         }
 
-        if (current_char_ == '!')
-        {
-            advance();
-            return Token(TokenType::not, "!", line_);
-        }
-
         if (current_char_ == '(')
         {
             advance();
@@ -321,12 +368,6 @@ Token Lexer::nextToken()
         {
             advance();
             return Token(TokenType::rparen, ")", line_);
-        }
-
-        if (current_char_ == '=')
-        {
-            advance();
-            return Token(TokenType::assign, "=", line_);
         }
 
         if (current_char_ == ';')

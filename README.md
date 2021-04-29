@@ -54,7 +54,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |statement|`expr \| assignment_statement \| empty`|
 |expr|`and (OR and)*`|
 |and|`comp (AND comp)*`|
-|comp|`binary ((EQEQ\|NTEQ\|GT\|LT\|GTEQ\|LTEQ\|GTGT) binary)*`|
+|comp|`binary ((EQL\|NEQL\|GT\|LT\|GTEQL\|LTEQL\|GTGT) binary)*`|
 |binary|`conditional (KEYWORD conditional)*`|
 |conditional|`term (ELSE term)*`|
 |term|`factor ((PLUS\|MINUS\|MIN\|MAX) factor)*`|

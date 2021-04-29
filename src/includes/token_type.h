@@ -19,6 +19,13 @@ enum class TokenType
     not,
     or,
     and,
+    eql,
+    neql,
+    gt,
+    lt,
+    gteql,
+    lteql,
+    gtgt,
     // delimiters
     lparen,
     rparen,
