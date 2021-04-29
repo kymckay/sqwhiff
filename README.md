@@ -38,8 +38,8 @@ This is the first C++ I have ever written. My intentions for this project are:
 
 ### Operators and Delimiters
 
-- The following tokens are operators: `+  -  /  *`
-- The following tokens serve as delimiters in the grammar: `(  )  ;  ,  =`
+- The following tokens are operators: `+  -  /  *  ^  %  >>  ||  &&  ==  !=  >  <  >=  <=  !  #`
+- The following tokens serve as delimiters in the grammar: `(  )  [  ]  {  }  ;  ,  =  :`
 
 ## Implemented Grammar Rules
 
@@ -64,7 +64,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |unary|`PLUS unary \| MINUS unary \| NOT unary \| EXCLM unary \| KEYWORD unary \| nullary`|
 |nullary|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
 |literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
-|array|`LSQR expr (, expr)* RSQR`|
+|array|`LSQB expr (, expr)* RSQB`|
 |code|`LCURL statement_list RCURL`|
 |assignment_statement|`variable ASSIGN expr`|
 |variable|`ID`|
