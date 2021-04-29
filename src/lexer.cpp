@@ -110,17 +110,17 @@ Token Lexer::_id()
 
     if (result == "not")
     {
-        return Token(TokenType::not, result, line_);
+        return Token(TokenType::negation, result, line_);
     }
 
     if (result == "or")
     {
-        return Token(TokenType::or, result, line_);
+        return Token(TokenType::disjunction, result, line_);
     }
 
     if (result == "and")
     {
-        return Token(TokenType::and, result, line_);
+        return Token(TokenType::conjunction, result, line_);
     }
 
     // SQF has a lot of reserved keywords
@@ -270,7 +270,7 @@ Token Lexer::nextToken()
                 return Token(TokenType::neql, "!=", line_);
             }
 
-            return Token(TokenType::not, "!", line_);
+            return Token(TokenType::negation, "!", line_);
         }
 
         if (current_char_ == '>')
@@ -306,14 +306,14 @@ Token Lexer::nextToken()
         {
             advance();
             advance();
-            return Token(TokenType::or, "||", line_);
+            return Token(TokenType::disjunction, "||", line_);
         }
 
         if (current_char_ == '&' && peek() == '&')
         {
             advance();
             advance();
-            return Token(TokenType::and, "&&", line_);
+            return Token(TokenType::conjunction, "&&", line_);
         }
 
         if (current_char_ == '+')

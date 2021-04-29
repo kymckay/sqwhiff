@@ -52,8 +52,8 @@ The parser produces an intermediate representation (the AST) according to the fo
 |program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
 |statement|`expr \| assignment_statement \| empty`|
-|expr|`and (OR and)*`|
-|and|`comp (AND comp)*`|
+|expr|`and (DISJUNCTION and)*`|
+|and|`comp (CONJUNCTION comp)*`|
 |comp|`binary ((EQL\|NEQL\|GT\|LT\|GTEQL\|LTEQL\|GTGT) binary)*`|
 |binary|`conditional (KEYWORD conditional)*`|
 |conditional|`term (ELSE term)*`|
@@ -61,7 +61,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |factor|`power ((MUL\|DIV\|MOD\|ATAN2) power)*`|
 |power|`hash_select (POW hash_select)*`|
 |hash_select|`unary (HASH unary)*`|
-|unary|`PLUS unary \| MINUS unary \| NOT unary \| KEYWORD unary \| nullary`|
+|unary|`PLUS unary \| MINUS unary \| NEGATION unary \| KEYWORD unary \| nullary`|
 |nullary|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
 |literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
 |array|`LSQB expr (, expr)* RSQB`|
