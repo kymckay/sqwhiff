@@ -270,6 +270,12 @@ Token Lexer::nextToken()
             return Token(TokenType::mod, "%", line_);
         }
 
+        if (current_char_ == '#')
+        {
+            advance();
+            return Token(TokenType::hash, "#", line_);
+        }
+
         if (current_char_ == '(')
         {
             advance();
