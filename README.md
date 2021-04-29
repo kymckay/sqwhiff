@@ -26,15 +26,15 @@ This is the first C++ I have ever written. My intentions for this project are:
   - Identifiers that begin with a letter are so-called "global variables" and are shared across all running scripts (thus can be used without being initalised in script).
 - Many identifiers are reserved as keywords of SQF. Being an unusual language, SQF has many keywords, for an up-to-date list see [the wiki](https://community.bistudio.com/wiki/Category:Scripting_Commands).
 
-### Literals
+### Literals and Displays
 
 - Numeric literals
   - Decimal literals consist of the digits `0` through `9`. Optionally, a single decimal point `.` can also appear anywhere in the literal (start and end included).
   - Hexadecimal literals being with either a `$` or `0x` prefix, followed by digits `0` through `9` and letters `A` through `F` (case insensitive).
   - Scientific notation can extend a decimal literal with the letter `e` (case insensitive), an optional `+` or `-` sign and then further digit characters (must follow).
 - String literals are enclosed in matching single or double quotes (`'` or `"`). To use the enclosing character within the string it must be doubled (unlike many languages, `\` cannot be used to escape characters within a string).
-- Array literals are enclosed by `[` and `]` characters with expressions separated by `,` characters. There can be no trailing `,` after the last expression.
-- Code literals are enclosed by `{` and `}` characters and contain a sequence of statements.
+- Array displays are enclosed by `[` and `]` characters with expressions separated by `,` characters. There can be no trailing `,` after the last expression.
+- Code displays are enclosed by `{` and `}` characters and contain a sequence of statements.
 
 ### Operators and Delimiters
 
@@ -51,13 +51,40 @@ The parser produces an intermediate representation (the AST) according to the fo
 | --- | --- |
 |program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
-|statement|`assignment_statement \| empty`|
+|statement|`expr \| assignment_statement \| empty`|
+|expr|`and ((PIPE\|OR) and)*`|
+|and|`comp ((AMP\|AND) comp)*`|
+|comp|`binary ((EQEQ\|NTEQ\|GT\|LT\|GTEQ\|LTEQ\|GTGT) binary)*`|
+|binary|`conditional (KEYWORD conditional)*`|
+|conditional|`term (ELSE term)*`|
+|term|`factor ((PLUS\|MINUS\|MIN\|MAX) factor)*`|
+|factor|`power ((MUL\|DIV\|MOD\|PERC\|ATAN2) power)*`|
+|power|`hash_select (CARET hash_select)*`|
+|hash_select|`unary (HASH unary)*`|
+|unary|`PLUS unary \| MINUS unary \| NOT unary \| EXCLM unary \| KEYWORD unary \| nullary`|
+|nullary|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
+|literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
+|array|`LSQR expr (, expr)* RSQR`|
+|code|`LCURL statement_list RCURL`|
 |assignment_statement|`variable ASSIGN expr`|
 |variable|`ID`|
-|expr|`term ((PLUS\|MINUS) term)*`|
-|term|`factor ((MUL\|DIV) factor)*`|
-|factor|`PLUS factor \| MINUS factor \| HEX_LITERAL | DEC_LITERAL \| LPAREN expr RPAREN \| variable`|
 |empty||
+
+The following table summarizes the operator precedence in SQF, from highest precedence (most binding) to lowest precedence (least binding). Operators in the same row are equivalent precedence and left associative.
+
+| Operator  | Description |
+| --- | --- |
+|`commandName`, `(expressions...)`, `[expressions...]`, `{expressions...}`|Nullary operator, parenthesized expression, array display, code display|
+|`commandName expression`, `+array`, `!boolean`, `+number`, `-number`|Unary operator|
+|`array # number`|Hash select operator|
+|`number ^ number`|Exponentiation|
+|`*`, `/`, `%`, `mod`, `atan2`, `config / string`|Multiplication, division, modulo, atan2, slash config accessor|
+|`+`, `-`, `string + string`, `number min number`, `number max number`|Addition, subtraction, concatenation, min, max|
+|`if boolean then code else code`|If – else structure|
+|`expression commandName expression`|Binary operator|
+|`==`, `!=`, `>`, `<`, `<=`, `>=`, `config >> string`|Comparison, arrow config accessor|
+|`bool || bool`, `bool or bool`|Logical OR|
+|`bool && bool`, `bool and bool`|Logical AND|
 
 ## Notable Mentions
 
