@@ -29,6 +29,10 @@ enum class TokenType
     // delimiters
     lparen,
     rparen,
+    lsqb,
+    rsqb,
+    lcurl,
+    rcurl,
     assign,
     semi,
     comma,

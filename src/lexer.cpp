@@ -370,6 +370,30 @@ Token Lexer::nextToken()
             return Token(TokenType::rparen, ")", line_);
         }
 
+        if (current_char_ == '[')
+        {
+            advance();
+            return Token(TokenType::lsqb, "[", line_);
+        }
+
+        if (current_char_ == ']')
+        {
+            advance();
+            return Token(TokenType::rsqb, "]", line_);
+        }
+
+        if (current_char_ == '{')
+        {
+            advance();
+            return Token(TokenType::lcurl, "{", line_);
+        }
+
+        if (current_char_ == '}')
+        {
+            advance();
+            return Token(TokenType::rcurl, "}", line_);
+        }
+
         if (current_char_ == ';')
         {
             advance();
