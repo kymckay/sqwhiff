@@ -108,6 +108,11 @@ Token Lexer::_id()
         return Token(TokenType::atan2, result, line_);
     }
 
+    if (result == "not")
+    {
+        return Token(TokenType::not, result, line_);
+    }
+
     // SQF has a lot of reserved keywords
     if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
@@ -274,6 +279,12 @@ Token Lexer::nextToken()
         {
             advance();
             return Token(TokenType::hash, "#", line_);
+        }
+
+        if (current_char_ == '!')
+        {
+            advance();
+            return Token(TokenType::not, "!", line_);
         }
 
         if (current_char_ == '(')

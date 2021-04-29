@@ -16,6 +16,7 @@ enum class TokenType
     pow,
     mod,
     hash,
+    not,
     // delimiters
     lparen,
     rparen,
