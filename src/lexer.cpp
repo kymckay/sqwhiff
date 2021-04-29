@@ -92,6 +92,22 @@ Token Lexer::_id()
         advance();
     }
 
+    // SQF is not case sensitive
+    for (auto c : result)
+    {
+        std::tolower(c);
+    }
+
+    if (result == "mod")
+    {
+        return Token(TokenType::mod, result, line_);
+    }
+
+    if (result == "atan2")
+    {
+        return Token(TokenType::atan2, result, line_);
+    }
+
     // SQF has a lot of reserved keywords
     if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
@@ -246,6 +262,12 @@ Token Lexer::nextToken()
         {
             advance();
             return Token(TokenType::pow, "^", line_);
+        }
+
+        if (current_char_ == '%')
+        {
+            advance();
+            return Token(TokenType::mod, "%", line_);
         }
 
         if (current_char_ == '(')

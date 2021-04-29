@@ -3,20 +3,27 @@
 // Tokens the parser must know about to create the AST structure
 enum class TokenType
 {
+    // misc
     unknown,
-    dec_literal,
-    hex_literal,
+    id,      // variable name
+    keyword, // generic sqf command
+    end_of_file,
+    // operators
     plus,
     minus,
     mul,
     div,
     pow,
+    mod,
+    // delimiters
     lparen,
     rparen,
     assign,
     semi,
     comma,
-    id, // variable name
-    keyword, // sqf command name
-    end_of_file
+    // literals
+    dec_literal,
+    hex_literal,
+    // reserved keywords with different precedence
+    atan2
 };
