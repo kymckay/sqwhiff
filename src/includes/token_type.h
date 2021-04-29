@@ -8,13 +8,16 @@ enum class TokenType
     id,      // variable name
     keyword, // generic sqf command
     end_of_file,
-    // operators
+    // operations
     plus,
     minus,
     mul,
     div,
     pow,
     mod,
+    atan2,
+    min,
+    max,
     hash,
     negation,
     disjunction,
@@ -38,7 +41,5 @@ enum class TokenType
     comma,
     // literals
     dec_literal,
-    hex_literal,
-    // reserved keywords with different precedence
-    atan2
+    hex_literal
 };

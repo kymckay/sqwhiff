@@ -108,6 +108,16 @@ Token Lexer::_id()
         return Token(TokenType::atan2, result, line_);
     }
 
+    if (result == "min")
+    {
+        return Token(TokenType::min, result, line_);
+    }
+
+    if (result == "max")
+    {
+        return Token(TokenType::max, result, line_);
+    }
+
     if (result == "not")
     {
         return Token(TokenType::negation, result, line_);
