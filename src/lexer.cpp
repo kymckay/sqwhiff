@@ -242,6 +242,12 @@ Token Lexer::nextToken()
             return Token(TokenType::div, "/", line_);
         }
 
+        if (current_char_ == '^')
+        {
+            advance();
+            return Token(TokenType::pow, "^", line_);
+        }
+
         if (current_char_ == '(')
         {
             advance();

@@ -10,6 +10,7 @@ enum class TokenType
     minus,
     mul,
     div,
+    pow,
     lparen,
     rparen,
     assign,
