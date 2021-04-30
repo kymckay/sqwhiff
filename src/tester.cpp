@@ -34,7 +34,7 @@ void Tester::visit(NullaryOp &op)
 
 void Tester::visit(UnaryOp &op)
 {
-    code_.append("(" + op.op.raw);
+    code_.append("(" + op.op.raw + " ");
     op.expr->accept(*this);
     code_.append(")");
 };

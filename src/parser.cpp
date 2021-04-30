@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer)
@@ -244,7 +245,8 @@ std::unique_ptr<AST> Parser::hash_select()
     return node;
 }
 
-// unary_op : (PLUS|MINUS|NEGATION|KEYWORD)factor | nullary_op
+// unary_op : (PLUS|MINUS|NEGATION|KEYWORD) factor | nullary_op
+const std::vector<TokenType> higher_than_unary{TokenType::lparen, TokenType::lcurl, TokenType::lsqb, TokenType::str_literal, TokenType::dec_literal, TokenType::hex_literal, TokenType::keyword, TokenType::id};
 std::unique_ptr<AST> Parser::unary_op()
 {
     Token t = current_token_;
@@ -253,10 +255,23 @@ std::unique_ptr<AST> Parser::unary_op()
     case TokenType::plus:
     case TokenType::minus:
     case TokenType::negation:
-    case TokenType::keyword:
     {
         eat(t.type);
         return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
+    }
+    case TokenType::keyword:
+    {
+        eat(TokenType::keyword);
+
+        // If the next token is higher precedence then this is a unary operator (see issue #7)
+        if (std::find(higher_than_unary.begin(), higher_than_unary.end(), current_token_.type) != higher_than_unary.end())
+        {
+            return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
+        }
+        else
+        {
+            return std::unique_ptr<AST>(new NullaryOp(t));
+        }
     }
     default:
         return nullary_op();
@@ -269,10 +284,6 @@ std::unique_ptr<AST> Parser::nullary_op()
     Token t = current_token_;
     switch (t.type)
     {
-    case TokenType::keyword:
-    {
-        return std::unique_ptr<AST>(new NullaryOp(t));
-    }
     case TokenType::lparen:
     {
         eat(TokenType::lparen);
