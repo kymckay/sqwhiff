@@ -16,6 +16,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <deque>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer)
@@ -32,13 +33,34 @@ void Parser::eat(TokenType type)
 {
     if (current_token_.type == type)
     {
-        current_token_ = lexer_.nextToken();
+        // Pull from the buffer first if any peek has occured
+        if (!peek_buffer_.empty())
+        {
+            current_token_ = peek_buffer_.front();
+            peek_buffer_.pop_front();
+        }
+        else
+        {
+            current_token_ = lexer_.nextToken();
+        }
     }
     else
     {
         std::cout << "mismatched token: " << current_token_.raw;
         error();
     }
+}
+
+// Allows looking ahead to future tokens as required due to grammar structures
+Token Parser::peek(int peek_by = 1)
+{
+    while (peek_buffer_.size() < peek_by)
+    {
+        peek_buffer_.push_back(lexer_.nextToken());
+    }
+
+    // Convert peek request to 0-indexed
+    return peek_buffer_.at(peek_by - 1);
 }
 
 // program : statement_list EOF
@@ -70,11 +92,26 @@ std::unique_ptr<AST> Parser::statement()
 {
     switch (current_token_.type)
     {
-    // TODO assignment is tricky
-    // case TokenType::id:
-    // {
-    //     return assignment();
-    // }
+    // Private keyword can modify assignment operation, but could also just be an expression, requires peeking to differentiate
+    case TokenType::private_op:
+    {
+        if (peek(2).type == TokenType::assign && peek().type == TokenType::id) {
+            return assignment();
+        }
+
+        // This is not a private assignment modifier, just regular keyword
+        current_token_.type = TokenType::keyword;
+        return expr();
+    }
+    // A variable could be the start of an assignment, but could also just be an expression, requires peeking to differentiate
+    case TokenType::id:
+    {
+        if (peek().type == TokenType::assign)
+        {
+            return assignment();
+        }
+        return expr();
+    }
     case TokenType::semi:
     case TokenType::comma:
     {
@@ -88,11 +125,17 @@ std::unique_ptr<AST> Parser::statement()
 // assignment : [PRIVATE] variable ASSIGN expr
 std::unique_ptr<AST> Parser::assignment()
 {
+    bool isPrivate = false;
+    if (current_token_.type == TokenType::private_op) {
+        isPrivate = true;
+        eat(TokenType::private_op);
+    }
+
     std::unique_ptr<AST> left = variable();
     Token t = current_token_;
     eat(TokenType::assign);
 
-    return std::unique_ptr<AST>(new Assign(std::move(left), t, expr()));
+    return std::unique_ptr<AST>(new Assign(isPrivate, std::move(left), t, expr()));
 }
 
 // expr: conjunction (DISJUNCTION conjunction)*

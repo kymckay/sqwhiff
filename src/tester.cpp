@@ -50,6 +50,8 @@ void Tester::visit(BinaryOp &op)
 
 void Tester::visit(Assign &op)
 {
+    if (op.isPrivate)
+        code_.append("<p=>");
     op.left->accept(*this);
     code_.append(" = (");
     op.right->accept(*this);

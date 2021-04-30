@@ -7,6 +7,7 @@ enum class TokenType
     unknown,
     id,      // variable name
     keyword, // generic sqf command
+    private_op, // private is special and can be an assignment modifier
     end_of_file,
     // operations
     plus,

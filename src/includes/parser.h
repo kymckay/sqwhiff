@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "token.h"
 #include "ast.h"
+#include <deque>
 #include <memory>
 
 class Parser
@@ -9,9 +10,11 @@ class Parser
     // Reference member, no need to copy the supplied lexer
     Lexer &lexer_;
     Token current_token_;
+    std::deque<Token> peek_buffer_;
 
     void error();
     void eat(TokenType);
+    Token peek(int);
 
     // Member functions for AST nodes
     // Dynamic allocation is needed for AST interface types

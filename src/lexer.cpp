@@ -99,6 +99,11 @@ Token Lexer::_id()
         std::tolower(c);
     }
 
+    if (result == "private")
+    {
+        return Token(TokenType::private_op, result, line_);
+    }
+
     if (result == "mod")
     {
         return Token(TokenType::mod, result, line_);
