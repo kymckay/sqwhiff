@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 
 // Open the file resource immediately for reading
 // A lexer should never be instantiated unless the intention is to read the file so this is expected
@@ -25,7 +26,7 @@ Lexer::~Lexer()
 
 void Lexer::error()
 {
-    throw "Unexpected character: " + current_char_;
+    throw current_char_;
 }
 
 // Preview the next character in order to differentiate tokens that start the same
@@ -216,6 +217,7 @@ Token Lexer::number()
             }
             else
             {
+                std::cout << "unfinished scientific notation";
                 error();
             }
 
@@ -223,6 +225,40 @@ Token Lexer::number()
     }
 
     return Token(type, value, line_);
+}
+
+Token Lexer::string()
+{
+    char enclosing = current_char_;
+    int line = line_; // Token line at starting character pos
+    std::string result;
+
+    // Skip past beginning enclosing character
+    advance();
+
+    // Doubled enclosing character becomes single within string
+    while (current_char_ != enclosing || peek() == enclosing)
+    {
+        // Unclosed string cannot be tokenised
+        if (current_char_ == '\0')
+        {
+            std::cout << "unclosed string";
+            error();
+        }
+
+        if (current_char_ == enclosing && peek() == enclosing)
+        {
+            advance();
+        }
+
+        result.push_back(current_char_);
+        advance();
+    }
+
+    // Skip past end enclosing character
+    advance();
+
+    return Token(TokenType::str_literal, result, line);
 }
 
 Token Lexer::nextToken()
@@ -257,6 +293,11 @@ Token Lexer::nextToken()
             || (current_char_ == '$' && std::isxdigit(peek())))
         {
             return number();
+        }
+
+        if (current_char_ == '"' || current_char_ == '\'')
+        {
+            return string();
         }
 
         if (current_char_ == '=')
@@ -416,6 +457,7 @@ Token Lexer::nextToken()
             return Token(TokenType::comma, ",", line_);
         }
 
+        std::cout << "unexpected character: " << current_char_;
         error();
     }
 

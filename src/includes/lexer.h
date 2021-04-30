@@ -21,6 +21,7 @@ class Lexer
     void skipComment();
     Token _id();
     Token number();
+    Token string();
 
 public:
     Lexer(std::ifstream&);

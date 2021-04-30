@@ -49,3 +49,8 @@ void Interpreter::visit(Number &num)
 {
     std::cout << num.token.raw;
 };
+
+void Interpreter::visit(StringLiteral &s)
+{
+    std::cout << s.token.raw;
+};

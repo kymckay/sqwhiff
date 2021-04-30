@@ -8,6 +8,7 @@ class BinaryOp;
 class Assign;
 class Variable;
 class Number;
+class StringLiteral;
 
 class NodeVisitor
 {
@@ -23,4 +24,5 @@ public:
     virtual void visit(Assign &) = 0;
     virtual void visit(Variable &) = 0;
     virtual void visit(Number &) = 0;
+    virtual void visit(StringLiteral &) = 0;
 };

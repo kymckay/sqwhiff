@@ -24,6 +24,7 @@ class Parser
     std::unique_ptr<AST> expr();
     std::unique_ptr<AST> term();
     std::unique_ptr<AST> factor();
+    std::unique_ptr<AST> literal();
     std::unique_ptr<AST> empty();
 
 public:

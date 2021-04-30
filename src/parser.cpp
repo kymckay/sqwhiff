@@ -9,9 +9,11 @@
 #include "assign.h"
 #include "variable.h"
 #include "number.h"
+#include "string_literal.h"
 #include <memory>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer)
@@ -32,6 +34,7 @@ void Parser::eat(TokenType type)
     }
     else
     {
+        std::cout << "mismatched token: " << current_token_.raw;
         error();
     }
 }
@@ -143,12 +146,47 @@ std::unique_ptr<AST> Parser::factor()
         eat(t.type);
         return std::unique_ptr<AST>(new Number(t));
     }
+    case TokenType::str_literal:
+    {
+        eat(t.type);
+        return std::unique_ptr<AST>(new StringLiteral(t));
+    }
     case TokenType::lparen:
     {
         eat(TokenType::lparen);
         std::unique_ptr<AST> node = expr();
         eat(TokenType::rparen);
         return node;
+    }
+    default:
+        return variable();
+    }
+}
+
+// literal : STR_LITERAL | HEX_LITERAL | DEC_LITERAL | array | code
+std::unique_ptr<AST> Parser::literal()
+{
+    Token t = current_token_;
+    switch (t.type)
+    {
+    case TokenType::dec_literal:
+    case TokenType::hex_literal:
+    {
+        eat(t.type);
+        return std::unique_ptr<AST>(new Number(t));
+    }
+    case TokenType::str_literal:
+    {
+        eat(t.type);
+        return std::unique_ptr<AST>(new StringLiteral(t));
+    }
+    case TokenType::lsqb:
+    {
+        // TODO array displays
+    }
+    case TokenType::lcurl:
+    {
+        // TODO code displays
     }
     default:
         return variable();

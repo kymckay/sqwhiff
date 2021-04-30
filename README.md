@@ -52,17 +52,17 @@ The parser produces an intermediate representation (the AST) according to the fo
 |program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
 |statement|`expr \| assignment_statement \| empty`|
-|expr|`and (DISJUNCTION and)*`|
-|and|`comp (CONJUNCTION comp)*`|
-|comp|`binary ((EQL\|NEQL\|GT\|LT\|GTEQL\|LTEQL\|GTGT) binary)*`|
-|binary|`conditional (KEYWORD conditional)*`|
+|expr|`conjunction (DISJUNCTION conjunction)*`|
+|conjunction|`comparison (CONJUNCTION comparison)*`|
+|comparison|`binary_op ((EQL\|NEQL\|GT\|LT\|GTEQL\|LTEQL\|GTGT) binary_op)*`|
+|binary_op|`conditional (KEYWORD conditional)*`|
 |conditional|`term (ELSE term)*`|
 |term|`factor ((PLUS\|MINUS\|MIN\|MAX) factor)*`|
 |factor|`power ((MUL\|DIV\|MOD\|ATAN2) power)*`|
 |power|`hash_select (POW hash_select)*`|
-|hash_select|`unary (HASH unary)*`|
-|unary|`PLUS unary \| MINUS unary \| NEGATION unary \| KEYWORD unary \| nullary`|
-|nullary|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
+|hash_select|`unary_op (HASH unary_op)*`|
+|unary_op|`PLUS unary_op \| MINUS unary_op \| NEGATION unary_op \| KEYWORD unary_op \| nullary_op`|
+|nullary_op|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
 |literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
 |array|`LSQB expr (, expr)* RSQB`|
 |code|`LCURL statement_list RCURL`|

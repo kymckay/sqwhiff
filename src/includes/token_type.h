@@ -41,5 +41,6 @@ enum class TokenType
     comma,
     // literals
     dec_literal,
-    hex_literal
+    hex_literal,
+    str_literal
 };
