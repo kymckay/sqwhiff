@@ -61,9 +61,9 @@ The parser produces an intermediate representation (the AST) according to the fo
 |factor|`power ((MUL\|DIV\|MOD\|ATAN2) power)*`|
 |power|`hash_select (POW hash_select)*`|
 |hash_select|`unary_op (HASH unary_op)*`|
-|unary_op|`PLUS unary_op \| MINUS unary_op \| NEGATION unary_op \| KEYWORD unary_op \| nullary_op`|
-|nullary_op|`KEYWORD \| variable \| literal \| LPAREN expr RPAREN`|
-|literal|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code`|
+|unary_op|`(PLUS\|MINUS\|NEGATION\|KEYWORD) unary_op \| nullary_op`|
+|nullary_op|`KEYWORD \| LPAREN expr RPAREN \| atom`|
+|atom|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code \| variable`|
 |array|`LSQB expr (, expr)* RSQB`|
 |code|`LCURL statement_list RCURL`|
 |assignment_statement|`variable ASSIGN expr`|

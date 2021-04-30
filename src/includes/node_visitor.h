@@ -3,6 +3,7 @@
 // Node types must be forward declared
 class Compound;
 class NoOp;
+class NullaryOp;
 class UnaryOp;
 class BinaryOp;
 class Assign;
@@ -19,6 +20,7 @@ public:
     // Declare overloads for each kind of a file to dispatch
     virtual void visit(Compound &) = 0;
     virtual void visit(NoOp &) = 0;
+    virtual void visit(NullaryOp &) = 0;
     virtual void visit(UnaryOp &) = 0;
     virtual void visit(BinaryOp &) = 0;
     virtual void visit(Assign &) = 0;

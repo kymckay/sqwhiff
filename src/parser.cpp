@@ -4,6 +4,7 @@
 #include "ast.h"
 #include "compound.h"
 #include "no_op.h"
+#include "nullary_op.h"
 #include "unary_op.h"
 #include "binary_op.h"
 #include "assign.h"
@@ -107,7 +108,7 @@ std::unique_ptr<AST> Parser::expr()
 // term: factor ((MUL|DIV) factor)*
 std::unique_ptr<AST> Parser::term()
 {
-    std::unique_ptr<AST> node = factor();
+    std::unique_ptr<AST> node = unary_op();
 
     while (
         current_token_.type == TokenType::div || current_token_.type == TokenType::mul)
@@ -122,34 +123,40 @@ std::unique_ptr<AST> Parser::term()
             eat(TokenType::mul);
         }
 
-        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, factor()));
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, unary_op()));
     }
 
     return node;
 }
 
-// factor: (PLUS|MINUS)factor | HEX_LITERAL | DEC_LITERAL | LPAREN expr RPAREN
-std::unique_ptr<AST> Parser::factor()
+// unary_op : (PLUS|MINUS|NEGATION|KEYWORD)factor | nullary_op
+std::unique_ptr<AST> Parser::unary_op()
 {
     Token t = current_token_;
     switch (t.type)
     {
     case TokenType::plus:
     case TokenType::minus:
+    case TokenType::negation:
+    case TokenType::keyword:
     {
         eat(t.type);
-        return std::unique_ptr<AST>(new UnaryOp(t, factor()));
+        return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
     }
-    case TokenType::dec_literal:
-    case TokenType::hex_literal:
-    {
-        eat(t.type);
-        return std::unique_ptr<AST>(new Number(t));
+    default:
+        return nullary_op();
     }
-    case TokenType::str_literal:
+}
+
+// nullary_op : KEYWORD | LPAREN expr RPAREN | atom
+std::unique_ptr<AST> Parser::nullary_op()
+{
+    Token t = current_token_;
+    switch (t.type)
     {
-        eat(t.type);
-        return std::unique_ptr<AST>(new StringLiteral(t));
+    case TokenType::keyword:
+    {
+        return std::unique_ptr<AST>(new NullaryOp(t));
     }
     case TokenType::lparen:
     {
@@ -159,12 +166,12 @@ std::unique_ptr<AST> Parser::factor()
         return node;
     }
     default:
-        return variable();
+        return atom();
     }
 }
 
-// literal : STR_LITERAL | HEX_LITERAL | DEC_LITERAL | array | code
-std::unique_ptr<AST> Parser::literal()
+// atom : STR_LITERAL | HEX_LITERAL | DEC_LITERAL | array | code | variable
+std::unique_ptr<AST> Parser::atom()
 {
     Token t = current_token_;
     switch (t.type)

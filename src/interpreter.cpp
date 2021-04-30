@@ -20,6 +20,11 @@ void Interpreter::visit(Compound &c)
 
 void Interpreter::visit(NoOp &) {};
 
+void Interpreter::visit(NullaryOp &op)
+{
+    std::cout << op.op.raw;
+};
+
 void Interpreter::visit(UnaryOp &op)
 {
     std::cout << op.op.raw;
