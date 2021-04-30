@@ -29,6 +29,7 @@ enum class TokenType
     gteql,
     lteql,
     gtgt,
+    else_op,
     // delimiters
     lparen,
     rparen,

@@ -51,12 +51,13 @@ The parser produces an intermediate representation (the AST) according to the fo
 | --- | --- |
 |program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
-|statement|`expr \| assignment_statement \| empty`|
+|statement|`assignment \| expr \| empty`|
+|assignment|`[PRIVATE] variable ASSIGN expr`|
 |expr|`conjunction (DISJUNCTION conjunction)*`|
 |conjunction|`comparison (CONJUNCTION comparison)*`|
 |comparison|`binary_op ((EQL\|NEQL\|GT\|LT\|GTEQL\|LTEQL\|GTGT) binary_op)*`|
-|binary_op|`conditional (KEYWORD conditional)*`|
-|conditional|`term (ELSE term)*`|
+|binary_op|`else_op (KEYWORD else_op)*`|
+|else_op|`term (ELSE term)*`|
 |term|`factor ((PLUS\|MINUS\|MIN\|MAX) factor)*`|
 |factor|`power ((MUL\|DIV\|MOD\|ATAN2) power)*`|
 |power|`hash_select (POW hash_select)*`|
@@ -66,7 +67,6 @@ The parser produces an intermediate representation (the AST) according to the fo
 |atom|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code \| variable`|
 |array|`LSQB expr (, expr)* RSQB`|
 |code|`LCURL statement_list RCURL`|
-|assignment_statement|`variable ASSIGN expr`|
 |variable|`ID`|
 |empty||
 

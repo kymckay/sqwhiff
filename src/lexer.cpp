@@ -134,6 +134,11 @@ Token Lexer::_id()
         return Token(TokenType::conjunction, result, line_);
     }
 
+    if (result == "else")
+    {
+        return Token(TokenType::else_op, result, line_);
+    }
+
     // SQF has a lot of reserved keywords
     if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {

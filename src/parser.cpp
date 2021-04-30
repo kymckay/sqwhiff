@@ -40,6 +40,7 @@ void Parser::eat(TokenType type)
     }
 }
 
+// program : statement_list EOF
 std::unique_ptr<AST> Parser::program()
 {
     std::unique_ptr<AST> node = statement_list();
@@ -47,6 +48,7 @@ std::unique_ptr<AST> Parser::program()
     return node;
 }
 
+// statement_list : statement ((SEMI|COMMA) statement)*
 std::unique_ptr<AST> Parser::statement_list()
 {
     std::vector<std::unique_ptr<AST>> results;
@@ -62,19 +64,28 @@ std::unique_ptr<AST> Parser::statement_list()
     return std::unique_ptr<AST>(new Compound(std::move(results)));
 }
 
+// statement : assignment | expr | empty
 std::unique_ptr<AST> Parser::statement()
 {
-    if (current_token_.type == TokenType::id)
+    switch (current_token_.type)
     {
-        return assignment_statement();
-    }
-    else
+    // TODO assignment is tricky
+    // case TokenType::id:
+    // {
+    //     return assignment();
+    // }
+    case TokenType::semi:
+    case TokenType::comma:
     {
         return empty();
     }
+    default:
+        return expr();
+    }
 }
 
-std::unique_ptr<AST> Parser::assignment_statement()
+// assignment : [PRIVATE] variable ASSIGN expr
+std::unique_ptr<AST> Parser::assignment()
 {
     std::unique_ptr<AST> left = variable();
     Token t = current_token_;
@@ -83,46 +94,150 @@ std::unique_ptr<AST> Parser::assignment_statement()
     return std::unique_ptr<AST>(new Assign(std::move(left), t, expr()));
 }
 
-std::unique_ptr<AST> Parser::variable(){
-    std::unique_ptr<AST> node = std::unique_ptr<AST>(new Variable(current_token_));
-    eat(TokenType::id);
+// expr: conjunction (DISJUNCTION conjunction)*
+std::unique_ptr<AST> Parser::expr()
+{
+    std::unique_ptr<AST> node = conjunction();
+
+    while (current_token_.type == TokenType::disjunction)
+    {
+        Token t = current_token_;
+        eat(TokenType::disjunction);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, conjunction()));
+    }
+
     return node;
 }
 
-// expr: term ((PLUS|MINUS) term)*
-std::unique_ptr<AST> Parser::expr()
+// conjunction : comparison (CONJUNCTION comparison)*
+std::unique_ptr<AST> Parser::conjunction()
+{
+    std::unique_ptr<AST> node = comparison();
+
+    while (current_token_.type == TokenType::conjunction)
+    {
+        Token t = current_token_;
+        eat(TokenType::conjunction);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, comparison()));
+    }
+
+    return node;
+}
+
+// comparison : binary_op ((EQL|NEQL|GT|LT|GTEQL|LTEQL|GTGT) binary_op)*
+std::unique_ptr<AST> Parser::comparison()
+{
+    std::unique_ptr<AST> node = binary_op();
+
+    while (
+        current_token_.type == TokenType::eql
+        || current_token_.type == TokenType::neql
+        || current_token_.type == TokenType::gt
+        || current_token_.type == TokenType::lt
+        || current_token_.type == TokenType::gteql
+        || current_token_.type == TokenType::lteql
+        || current_token_.type == TokenType::gtgt
+    ) {
+        Token t = current_token_;
+        eat(t.type);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, binary_op()));
+    }
+
+    return node;
+}
+
+// binary_op : else_op (KEYWORD else_op)*
+std::unique_ptr<AST> Parser::binary_op()
+{
+    std::unique_ptr<AST> node = else_op();
+
+    while (current_token_.type == TokenType::keyword)
+    {
+        Token t = current_token_;
+        eat(TokenType::keyword);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, else_op()));
+    }
+
+    return node;
+}
+
+// else_op : term (ELSE term)*
+std::unique_ptr<AST> Parser::else_op()
 {
     std::unique_ptr<AST> node = term();
 
-    while (
-        current_token_.type == TokenType::plus || current_token_.type == TokenType::minus)
+    while (current_token_.type == TokenType::else_op)
     {
         Token t = current_token_;
-        eat(t.type);
+        eat(TokenType::else_op);
         node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, term()));
     }
 
     return node;
 }
 
-// term: factor ((MUL|DIV) factor)*
+// term : factor ((PLUS|MINUS|MIN|MAX) factor)*
 std::unique_ptr<AST> Parser::term()
+{
+    std::unique_ptr<AST> node = factor();
+
+    while (
+        current_token_.type == TokenType::plus
+        || current_token_.type == TokenType::minus
+        || current_token_.type == TokenType::min
+        || current_token_.type == TokenType::max
+    ) {
+        Token t = current_token_;
+        eat(t.type);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, factor()));
+    }
+
+    return node;
+}
+
+// factor : power ((MUL|DIV|MOD|ATAN2) power)*
+std::unique_ptr<AST> Parser::factor()
+{
+    std::unique_ptr<AST> node = power();
+
+    while (
+        current_token_.type == TokenType::div
+        || current_token_.type == TokenType::mul
+        || current_token_.type == TokenType::mod
+        || current_token_.type == TokenType::atan2
+    ) {
+        Token t = current_token_;
+        eat(t.type);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, power()));
+    }
+
+    return node;
+}
+
+// power : hash_select (POW hash_select)*
+std::unique_ptr<AST> Parser::power()
+{
+    std::unique_ptr<AST> node = hash_select();
+
+    while (current_token_.type == TokenType::pow)
+    {
+        Token t = current_token_;
+        eat(TokenType::pow);
+        node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, hash_select()));
+    }
+
+    return node;
+}
+
+// hash_select : unary_op (HASH unary_op)*
+std::unique_ptr<AST> Parser::hash_select()
 {
     std::unique_ptr<AST> node = unary_op();
 
-    while (
-        current_token_.type == TokenType::div || current_token_.type == TokenType::mul)
+    while (current_token_.type == TokenType::hash)
     {
         Token t = current_token_;
-        if (t.type == TokenType::div)
-        {
-            eat(TokenType::div);
-        }
-        else
-        {
-            eat(TokenType::mul);
-        }
-
+        eat(TokenType::hash);
         node = std::unique_ptr<AST>(new BinaryOp(std::move(node), t, unary_op()));
     }
 
@@ -198,6 +313,13 @@ std::unique_ptr<AST> Parser::atom()
     default:
         return variable();
     }
+}
+
+std::unique_ptr<AST> Parser::variable()
+{
+    std::unique_ptr<AST> node = std::unique_ptr<AST>(new Variable(current_token_));
+    eat(TokenType::id);
+    return node;
 }
 
 std::unique_ptr<AST> Parser::empty(){
