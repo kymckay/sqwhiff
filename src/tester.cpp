@@ -24,7 +24,7 @@ void Tester::visit(Compound &c)
 };
 
 void Tester::visit(NoOp &){
-    code_.append("<NoOp>;");
+    code_.append("<NoOp>");
 };
 
 void Tester::visit(NullaryOp &op)

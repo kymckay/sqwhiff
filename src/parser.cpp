@@ -304,16 +304,15 @@ std::unique_ptr<AST> Parser::unary_op()
     }
     case TokenType::keyword:
     {
-        eat(TokenType::keyword);
-
         // If the next token is higher precedence then this is a unary operator (see issue #7)
-        if (std::find(higher_than_unary.begin(), higher_than_unary.end(), current_token_.type) != higher_than_unary.end())
+        if (std::find(higher_than_unary.begin(), higher_than_unary.end(), peek().type) != higher_than_unary.end())
         {
+            eat(TokenType::keyword);
             return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
         }
         else
         {
-            return std::unique_ptr<AST>(new NullaryOp(t));
+            return nullary_op();
         }
     }
     default:
@@ -327,6 +326,11 @@ std::unique_ptr<AST> Parser::nullary_op()
     Token t = current_token_;
     switch (t.type)
     {
+    case TokenType::keyword:
+    {
+        eat(TokenType::keyword);
+        return std::unique_ptr<AST>(new NullaryOp(t));
+    }
     case TokenType::lparen:
     {
         eat(TokenType::lparen);
