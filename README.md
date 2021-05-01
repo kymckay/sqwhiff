@@ -25,6 +25,9 @@ This is the first C++ I have ever written. My intentions for this project are:
   - Identifiers that begin with an underscore are so-called "local variables" and limited to the scope of the script instance (thus can only be used after being initalised in script).
   - Identifiers that begin with a letter are so-called "global variables" and are shared across all running scripts (thus can be used without being initalised in script).
 - Many identifiers are reserved as keywords of SQF. Being an unusual language, SQF has many keywords, for an up-to-date list see [the wiki](https://community.bistudio.com/wiki/Category:Scripting_Commands).
+  - Rather than identify each keyword as a different token I only differentiate nullary keywords from the unary/binary keywords to resolve the grammar ambiguity that otherwise arises when parsing three keywords in a row. This means any incorrect keyword usage will be found via semantic analysis after parsing rather than syntactic analysis during parsing.
+  - Some specific keywords are identified with unique tokens to adhere to their unique SQF precedence rules (outlined futher below).
+  - The most unique of these keyword is `private` which can act as a regular unary operator, but also as a modifier that appears before an assignment statement.
 
 ### Literals and Displays
 
@@ -41,7 +44,7 @@ This is the first C++ I have ever written. My intentions for this project are:
 - The following tokens are operators: `+  -  /  *  ^  %  >>  ||  &&  ==  !=  >  <  >=  <=  !  #`
 - The following tokens serve as delimiters in the grammar: `(  )  [  ]  {  }  ;  ,  =  :`
 
-## Implemented Grammar Rules
+## Parsing and SQF Grammar
 
 The parser produces an intermediate representation (the AST) according to the following SQF grammar. Each rule has a corresponding member function in the parser. Elements in capitals are terminal tokens and should be self explanatory.
 
