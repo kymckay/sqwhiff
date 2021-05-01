@@ -6,7 +6,8 @@ enum class TokenType
     // misc
     unknown,
     id,      // variable name
-    keyword, // generic sqf command
+    nullary, // nullary keyword (differentiated to avoid grammar ambiguity, see issue #11)
+    keyword, // unary or binary sqf keyword
     private_op, // private is special and can be an assignment modifier
     end_of_file,
     // operations

@@ -15,7 +15,6 @@
 #include <utility>
 #include <vector>
 #include <iostream>
-#include <algorithm>
 #include <deque>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
@@ -289,7 +288,6 @@ std::unique_ptr<AST> Parser::hash_select()
 }
 
 // unary_op : (PLUS|MINUS|NEGATION|KEYWORD) factor | nullary_op
-const std::vector<TokenType> higher_than_unary{TokenType::lparen, TokenType::lcurl, TokenType::lsqb, TokenType::str_literal, TokenType::dec_literal, TokenType::hex_literal, TokenType::keyword, TokenType::id};
 std::unique_ptr<AST> Parser::unary_op()
 {
     Token t = current_token_;
@@ -298,37 +296,25 @@ std::unique_ptr<AST> Parser::unary_op()
     case TokenType::plus:
     case TokenType::minus:
     case TokenType::negation:
+    case TokenType::keyword:
     {
         eat(t.type);
         return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
-    }
-    case TokenType::keyword:
-    {
-        // If the next token is higher precedence then this is a unary operator (see issue #7)
-        if (std::find(higher_than_unary.begin(), higher_than_unary.end(), peek().type) != higher_than_unary.end())
-        {
-            eat(TokenType::keyword);
-            return std::unique_ptr<AST>(new UnaryOp(t, unary_op()));
-        }
-        else
-        {
-            return nullary_op();
-        }
     }
     default:
         return nullary_op();
     }
 }
 
-// nullary_op : KEYWORD | LPAREN expr RPAREN | atom
+// nullary_op : NULLARY | LPAREN expr RPAREN | atom
 std::unique_ptr<AST> Parser::nullary_op()
 {
     Token t = current_token_;
     switch (t.type)
     {
-    case TokenType::keyword:
+    case TokenType::nullary:
     {
-        eat(TokenType::keyword);
+        eat(TokenType::nullary);
         return std::unique_ptr<AST>(new NullaryOp(t));
     }
     case TokenType::lparen:

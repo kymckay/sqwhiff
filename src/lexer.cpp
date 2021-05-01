@@ -145,7 +145,12 @@ Token Lexer::_id()
     }
 
     // SQF has a lot of reserved keywords
-    if (SQF_Keywords.find(result) != SQF_Keywords.end())
+    // Differentiate nullarys for grammar clarity (see issue #11)
+    if (SQF_Nullary_Keywords.find(result) != SQF_Nullary_Keywords.end())
+    {
+        return Token(TokenType::nullary, result, line_);
+    }
+    else if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
         return Token(TokenType::keyword, result, line_);
     }

@@ -63,7 +63,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 |power|`hash_select (POW hash_select)*`|
 |hash_select|`unary_op (HASH unary_op)*`|
 |unary_op|`(PLUS\|MINUS\|NEGATION\|KEYWORD) unary_op \| nullary_op`|
-|nullary_op|`KEYWORD \| LPAREN expr RPAREN \| atom`|
+|nullary_op|`NULLARY \| LPAREN expr RPAREN \| atom`|
 |atom|`STR_LITERAL \| HEX_LITERAL \| DEC_LITERAL \| array \| code \| variable`|
 |array|`LSQB expr (, expr)* RSQB`|
 |code|`LCURL statement_list RCURL`|
