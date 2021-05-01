@@ -9,6 +9,7 @@ class BinaryOp;
 class Assign;
 class Variable;
 class Number;
+class Array;
 class Code;
 class StringLiteral;
 
@@ -27,6 +28,7 @@ public:
     virtual void visit(Assign &) = 0;
     virtual void visit(Variable &) = 0;
     virtual void visit(Number &) = 0;
+    virtual void visit(Array &) = 0;
     virtual void visit(Code &) = 0;
     virtual void visit(StringLiteral &) = 0;
 };

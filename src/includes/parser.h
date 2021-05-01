@@ -35,6 +35,7 @@ class Parser
     std::unique_ptr<AST> unary_op();
     std::unique_ptr<AST> nullary_op();
     std::unique_ptr<AST> atom();
+    std::unique_ptr<AST> array();
     std::unique_ptr<AST> code();
     std::unique_ptr<AST> variable();
     std::unique_ptr<AST> empty();

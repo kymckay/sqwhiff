@@ -66,11 +66,18 @@ void Tester::visit(Variable &var)
     code_.append(">");
 };
 
+void Tester::visit(Array &node)
+{
+    code_.append("<Array:[");
+    node.expressions->accept(*this);
+    code_.append("]>");
+};
+
 void Tester::visit(Code &node)
 {
-    code_.append("<Code:(");
+    code_.append("<Code:{");
     node.children->accept(*this);
-    code_.append(")>");
+    code_.append("}>");
 };
 
 void Tester::visit(Number &num)

@@ -9,6 +9,7 @@
 #include "binary_op.h"
 #include "assign.h"
 #include "variable.h"
+#include "array.h"
 #include "code.h"
 #include "number.h"
 #include "string_literal.h"
@@ -349,7 +350,7 @@ std::unique_ptr<AST> Parser::atom()
     }
     case TokenType::lsqb:
     {
-        // TODO array displays
+        return array();
     }
     case TokenType::lcurl:
     {
@@ -358,6 +359,26 @@ std::unique_ptr<AST> Parser::atom()
     default:
         return variable();
     }
+}
+
+std::unique_ptr<AST> Parser::array()
+{
+    eat(TokenType::lsqb);
+
+    std::vector<std::unique_ptr<AST>> expressions;
+    expressions.push_back(expr());
+
+    while (current_token_.type == TokenType::comma)
+    {
+        eat(TokenType::comma);
+        expressions.push_back(expr());
+    }
+
+    eat(TokenType::rsqb);
+
+    return std::unique_ptr<AST>(new Array(
+        std::unique_ptr<AST>(new Compound(std::move(expressions)))
+    ));
 }
 
 std::unique_ptr<AST> Parser::code()

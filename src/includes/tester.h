@@ -8,6 +8,7 @@
 #include "binary_op.h"
 #include "assign.h"
 #include "variable.h"
+#include "array.h"
 #include "code.h"
 #include "number.h"
 #include "string_literal.h"
@@ -31,6 +32,7 @@ public:
     void visit(BinaryOp &) override;
     void visit(Assign &) override;
     void visit(Variable &) override;
+    void visit(Array &) override;
     void visit(Code &) override;
     void visit(Number &) override;
     void visit(StringLiteral &) override;
