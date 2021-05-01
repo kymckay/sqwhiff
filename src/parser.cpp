@@ -101,7 +101,6 @@ std::unique_ptr<AST> Parser::statement()
         }
 
         // This is not a private assignment modifier, just regular keyword
-        current_token_.type = TokenType::keyword;
         return expr();
     }
     // A variable could be the start of an assignment, but could also just be an expression, requires peeking to differentiate
@@ -292,6 +291,12 @@ std::unique_ptr<AST> Parser::hash_select()
 // unary_op : (PLUS|MINUS|NEGATION|KEYWORD) factor | nullary_op
 std::unique_ptr<AST> Parser::unary_op()
 {
+    if (current_token_.type == TokenType::private_op)
+    {
+        // If a private op wasn't consumed in an assignment it's just a regular command
+        current_token_.type = TokenType::keyword;
+    }
+
     Token t = current_token_;
     switch (t.type)
     {
