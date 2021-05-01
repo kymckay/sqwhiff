@@ -21,6 +21,7 @@ void Tester::visit(Compound &c)
         child->accept(*this);
         code_.push_back('\n');
     }
+    code_.pop_back(); // Prevent final newline
 };
 
 void Tester::visit(NoOp &){
