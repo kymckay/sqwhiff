@@ -65,6 +65,13 @@ void Tester::visit(Variable &var)
     code_.append(">");
 };
 
+void Tester::visit(Code &node)
+{
+    code_.append("<Code:(");
+    node.children->accept(*this);
+    code_.append(")>");
+};
+
 void Tester::visit(Number &num)
 {
     if (num.token.type == TokenType::dec_literal)

@@ -5,14 +5,14 @@
 #include <vector>
 #include <memory>
 
-// A compound node used to store a sequence of statements (whole SQF file or statements within a code display)
-class Compound : public AST
+// A code display contains a compound node (or NoOp node) that doesn't execute unless dynamically called
+class Code : public AST
 {
 public:
     // A compound AST node to capture an ordered list of statements
-    std::vector<std::unique_ptr<AST>> children;
+    std::unique_ptr<AST> children;
 
-    Compound(std::vector<std::unique_ptr<AST>> children) : children(std::move(children)){};
+    Code(std::unique_ptr<AST> children) : children(std::move(children)){};
     void accept(NodeVisitor &visitor) override
     {
         visitor.visit(*this);

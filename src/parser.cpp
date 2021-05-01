@@ -9,6 +9,7 @@
 #include "binary_op.h"
 #include "assign.h"
 #include "variable.h"
+#include "code.h"
 #include "number.h"
 #include "string_literal.h"
 #include <memory>
@@ -352,11 +353,19 @@ std::unique_ptr<AST> Parser::atom()
     }
     case TokenType::lcurl:
     {
-        // TODO code displays
+        return code();
     }
     default:
         return variable();
     }
+}
+
+std::unique_ptr<AST> Parser::code()
+{
+    eat(TokenType::lcurl);
+    std::unique_ptr<AST> node = std::unique_ptr<AST>(new Code(statement_list()));
+    eat(TokenType::rcurl);
+    return node;
 }
 
 std::unique_ptr<AST> Parser::variable()
