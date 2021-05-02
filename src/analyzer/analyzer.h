@@ -2,16 +2,14 @@
 #include "src/parser/parser.h"
 #include "src/ast/node_visitor.h"
 #include "src/ast/all_nodes.h"
-#include <string>
 
-class Tester : NodeVisitor
+class Analyzer : NodeVisitor
 {
     Parser &parser_;
-    std::string code_;
 
 public:
-    Tester(Parser &);
-    std::string test();
+    Analyzer(Parser &);
+    void analyze();
 
     // Visitor interface implementation
 

@@ -1,7 +1,7 @@
 #include "src/lexer/lexer.h"
 #include "src/tokens/token.h"
 #include "src/parser/parser.h"
-#include "src/tester/tester.h"
+#include "src/analyzer/analyzer.h"
 #include <iostream>
 #include <fstream>
 
@@ -13,8 +13,8 @@ int main()
     {
         Lexer lex(file_in);
         Parser p(lex);
-        Tester t(p);
-        t.test();
+        Analyzer a(p);
+        a.analyze();
         file_in.close();
     }
     else
