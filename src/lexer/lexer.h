@@ -1,5 +1,5 @@
 #pragma once
-#include "token.h"
+#include "src/tokens/token.h"
 #include <string>
 #include <array>
 #include <fstream>

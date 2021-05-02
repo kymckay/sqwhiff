@@ -1,7 +1,7 @@
-#include "lexer.h"
-#include "token.h"
-#include "parser.h"
-#include "tester.h"
+#include "src/lexer/lexer.h"
+#include "src/tokens/token.h"
+#include "src/parser/parser.h"
+#include "src/tester/tester.h"
 #include <iostream>
 #include <fstream>
 

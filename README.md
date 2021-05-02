@@ -12,6 +12,8 @@ This is the first C++ I have ever written. My intentions for this project are:
 - To learning about how parsers and interpreters work.
 - To simultaneously produce something that could be useful.
 
+If you'd like to contribute please read [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Lexical Analysis
 
 - In SQF a program consists of a sequence of statements. The end of a statement (except from the very last) is marked by a `,` or `;` character except where such characters are allowed by syntax (e.g. commas within an array literal).

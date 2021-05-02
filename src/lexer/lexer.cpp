@@ -1,6 +1,6 @@
-#include "lexer.h"
-#include "token.h"
-#include "keywords.h"
+#include "src/lexer/lexer.h"
+#include "src/tokens/token.h"
+#include "src/tokens/keywords.h"
 #include <string>
 #include <array>
 #include <fstream>

@@ -1,6 +1,6 @@
 #pragma once
-#include "ast.h"
-#include "node_visitor.h"
+#include "src/ast/ast.h"
+#include "src/ast/node_visitor.h"
 
 class NoOp : public AST
 {

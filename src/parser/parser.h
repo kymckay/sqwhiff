@@ -1,7 +1,7 @@
 #pragma once
-#include "lexer.h"
-#include "token.h"
-#include "ast.h"
+#include "src/lexer/lexer.h"
+#include "src/tokens/token.h"
+#include "src/ast/ast.h"
 #include <deque>
 #include <memory>
 

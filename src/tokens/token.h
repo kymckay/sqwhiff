@@ -1,5 +1,5 @@
 #pragma once
-#include "token_type.h"
+#include "src/tokens/token_type.h"
 #include <string>
 
 struct Token {

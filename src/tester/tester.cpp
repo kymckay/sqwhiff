@@ -1,6 +1,6 @@
-#include "tester.h"
-#include "ast.h"
-#include "token_type.h"
+#include "src/tester/tester.h"
+#include "src/ast/ast.h"
+#include "src/tokens/token_type.h"
 #include <memory>
 #include <iostream>
 
