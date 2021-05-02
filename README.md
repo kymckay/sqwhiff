@@ -1,6 +1,6 @@
 # cpp-sqf
 
-![](https://github.com/kymckay/cpp-sqf/workflows/Tests/badge.svg)
+![](https://github.com/kymckay/cpp-sqf/actions/workflows/test.yml/badge.svg)
 
 A C++ implementation of a lexer, parser and interpreter for SQF.
 
