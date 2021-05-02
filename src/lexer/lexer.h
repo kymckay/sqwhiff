@@ -2,12 +2,12 @@
 #include "src/tokens/token.h"
 #include <string>
 #include <array>
-#include <fstream>
+#include <istream>
 
 class Lexer
 {
-    // Reference member, ifstream has no copy constructor but we want to supply one to the lexer
-    std::ifstream &file_;
+    // Reference member, stream has no copy constructor and lexer doesn't care what kind of stream it is (file or string)
+    std::istream &stream_;
 
     char current_char_;
     // Current line lexer has reached in the text
@@ -24,7 +24,6 @@ class Lexer
     Token string();
 
 public:
-    Lexer(std::ifstream&);
-    ~Lexer();
+    Lexer(std::istream&);
     Token nextToken();
 };

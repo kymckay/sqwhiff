@@ -8,8 +8,17 @@
 int main()
 {
     std::ifstream file_in("test.txt");
-    Lexer lex(file_in);
-    Parser p(lex);
-    Tester t(p);
-    t.test();
+
+    if (file_in.is_open())
+    {
+        Lexer lex(file_in);
+        Parser p(lex);
+        Tester t(p);
+        t.test();
+        file_in.close();
+    }
+    else
+    {
+        std::cout << "Unable to open file";
+    }
 }

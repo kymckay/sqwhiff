@@ -3,25 +3,15 @@
 #include "src/tokens/keywords.h"
 #include <string>
 #include <array>
-#include <fstream>
+#include <istream>
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 
-// Open the file resource immediately for reading
-// A lexer should never be instantiated unless the intention is to read the file so this is expected
-Lexer::Lexer(std::ifstream &file) : file_(file)
+Lexer::Lexer(std::istream &to_read) : stream_(to_read)
 {
-    // Read in the first character
-    if (file_.is_open())
-        advance();
-}
-
-// Close the file resource upon destruction
-Lexer::~Lexer()
-{
-    if (file_.is_open())
-        file_.close();
+    // Immediately read in the first character
+    advance();
 }
 
 void Lexer::error()
@@ -32,17 +22,16 @@ void Lexer::error()
 // Preview the next character in order to differentiate tokens that start the same
 char Lexer::peek()
 {
-    return file_.peek();
+    return stream_.peek();
 }
 
 void Lexer::advance()
 {
-    file_.get(current_char_);
+    stream_.get(current_char_);
 
-    // Be sure to close the file when done with it
-    if (file_.eof())
+    // When end of stream is reached return EOF character
+    if (stream_.eof())
     {
-        file_.close();
         current_char_ = '\0';
     }
 
