@@ -8,6 +8,6 @@ http_archive(
 
 http_archive(
   name = "rules_cc",
-  urls = ["https://github.com/bazelbuild/rules_cc/archive/40548a2974f1aea06215272d9c2b47a14a24e556.zip"],
-  strip_prefix = "rules_cc-40548a2974f1aea06215272d9c2b47a14a24e556",
+  urls = ["https://github.com/bazelbuild/rules_cc/archive/0a198b994a5d61412ea1622ce681d17dbdbdd027.zip"],
+  strip_prefix = "rules_cc-0a198b994a5d61412ea1622ce681d17dbdbdd027",
 )
