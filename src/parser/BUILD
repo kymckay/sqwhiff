@@ -3,5 +3,5 @@ cc_library(
     srcs = ["parser.cpp"],
     hdrs = ["parser.h"],
     deps = ["//src/lexer:sqf-lexer", "//src/ast:abstract-syntax-tree"],
-    visibility = ["//src/tester:__pkg__"],
+    visibility = ["//test:__pkg__"],
 )

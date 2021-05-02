@@ -21,7 +21,7 @@ class Tester : NodeVisitor
 
 public:
     Tester(Parser &);
-    void test();
+    std::string test();
 
     // Visitor interface implementation
 

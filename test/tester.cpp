@@ -1,17 +1,17 @@
-#include "src/tester/tester.h"
+#include "test/tester.h"
 #include "src/ast/ast.h"
 #include "src/tokens/token_type.h"
 #include <memory>
-#include <iostream>
+#include <string>
 
 Tester::Tester(Parser &p) : parser_(p){};
 
-void Tester::test()
+std::string Tester::test()
 {
     std::unique_ptr<AST> tree = parser_.parse();
     tree->accept(*this);
 
-    std::cout << code_;
+    return code_;
 };
 
 void Tester::visit(Compound &c)
