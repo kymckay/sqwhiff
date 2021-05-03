@@ -83,9 +83,9 @@ Token Lexer::_id()
     }
 
     // SQF is not case sensitive
-    for (auto c : result)
+    for (auto &c : result)
     {
-        std::tolower(c);
+        c = std::tolower(c);
     }
 
     if (result == "private")
