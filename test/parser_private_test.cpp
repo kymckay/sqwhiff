@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
+// See issue #8
 TEST(Private, CanModifyAssignment)
 {
     std::stringstream input("private _x = 1");
@@ -12,6 +13,7 @@ TEST(Private, CanModifyAssignment)
     EXPECT_EQ(t.test(), "<p=><Var:_x> = (<Dec:1>)") << "Parse private as an assignment modifier";
 }
 
+// See issue #8
 TEST(Private, CanBeUnaryWithVariable)
 {
     std::stringstream input("private _x");
