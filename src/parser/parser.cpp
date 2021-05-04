@@ -57,11 +57,6 @@ Token Parser::peek(int peek_by = 1)
 std::unique_ptr<AST> Parser::program()
 {
     std::unique_ptr<AST> node = statement_list();
-    // Optional statement delimiter on final statement
-    if (current_token_.type == TokenType::semi || current_token_.type == TokenType::comma)
-    {
-        eat(current_token_.type);
-    }
     eat(TokenType::end_of_file);
     return node;
 }
@@ -73,9 +68,8 @@ std::unique_ptr<AST> Parser::statement_list()
     results.push_back(statement());
 
     while (
-        (current_token_.type == TokenType::semi
-        || current_token_.type == TokenType::comma)
-        && peek().type != TokenType::end_of_file
+        current_token_.type == TokenType::semi
+        || current_token_.type == TokenType::comma
     )
     {
         eat(current_token_.type);
@@ -109,8 +103,10 @@ std::unique_ptr<AST> Parser::statement()
         }
         return expr();
     }
+    // If there's an immediate statement delimiter the current statement is empty
     case TokenType::semi:
     case TokenType::comma:
+    case TokenType::end_of_file:
     {
         return empty();
     }

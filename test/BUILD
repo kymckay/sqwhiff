@@ -29,8 +29,8 @@ cc_test(
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )
 cc_test(
-  name = "parser-statement",
+  name = "parser-program",
   size = "small",
-  srcs = ["parser_statement_test.cpp"],
+  srcs = ["parser_program_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )

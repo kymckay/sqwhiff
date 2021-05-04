@@ -56,7 +56,7 @@ The parser produces an intermediate representation (the AST) according to the fo
 
 | Head  | Body |
 | --- | --- |
-|program|`statement_list [SEMI\|COMMA] EOF`|
+|program|`statement_list EOF`|
 |statement_list|`statement ((SEMI\|COMMA) statement)*`|
 |statement|`assignment \| expr \| empty`|
 |assignment|`[PRIVATE] variable ASSIGN expr`|
