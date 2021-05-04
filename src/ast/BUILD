@@ -1,6 +1,6 @@
 cc_library(
     name = "abstract-syntax-tree",
     hdrs = glob(["*.h"]),
-    deps = ["//src/tokens:sqf-tokens"],
+    deps = ["//src/lexer:sqf-tokens"],
     visibility = ["//src/parser:__pkg__"],
 )

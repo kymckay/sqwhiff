@@ -1,6 +1,5 @@
 #pragma once
 #include "src/lexer/lexer.h"
-#include "src/tokens/token.h"
 #include "src/ast/ast.h"
 #include <deque>
 #include <memory>

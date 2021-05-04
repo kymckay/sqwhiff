@@ -1,6 +1,6 @@
 #include "src/analyzer/analyzer.h"
 #include "src/ast/all_nodes.h"
-#include "src/tokens/token_type.h"
+#include "src/lexer/token_type.h"
 #include <memory>
 #include <string>
 

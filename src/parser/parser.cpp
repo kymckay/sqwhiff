@@ -1,6 +1,5 @@
 #include "src/parser/parser.h"
 #include "src/lexer/lexer.h"
-#include "src/tokens/token.h"
 #include "src/ast/all_nodes.h"
 #include <memory>
 #include <utility>

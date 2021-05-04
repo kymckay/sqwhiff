@@ -1,5 +1,5 @@
 #pragma once
-#include "src/tokens/token.h"
+#include "src/lexer/token.h"
 #include <string>
 #include <array>
 #include <istream>
