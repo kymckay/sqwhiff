@@ -1,4 +1,5 @@
 #include "src/lexer/lexer.h"
+#include "src/lexer/token_maps.h"
 #include "src/sqf/keywords.h"
 #include <string>
 #include <array>
@@ -87,49 +88,10 @@ Token Lexer::_id()
         c = std::tolower(c);
     }
 
-    if (result == "private")
+    // Some keywords have specific token types to differentiate precedence
+    if (SQF_Token_Keywords.find(result) != SQF_Token_Keywords.end())
     {
-        return Token(TokenType::private_op, result, line_);
-    }
-
-    if (result == "mod")
-    {
-        return Token(TokenType::mod, result, line_);
-    }
-
-    if (result == "atan2")
-    {
-        return Token(TokenType::atan2, result, line_);
-    }
-
-    if (result == "min")
-    {
-        return Token(TokenType::min, result, line_);
-    }
-
-    if (result == "max")
-    {
-        return Token(TokenType::max, result, line_);
-    }
-
-    if (result == "not")
-    {
-        return Token(TokenType::negation, result, line_);
-    }
-
-    if (result == "or")
-    {
-        return Token(TokenType::disjunction, result, line_);
-    }
-
-    if (result == "and")
-    {
-        return Token(TokenType::conjunction, result, line_);
-    }
-
-    if (result == "else")
-    {
-        return Token(TokenType::else_op, result, line_);
+        return Token(SQF_Token_Keywords.at(result), result, line_);
     }
 
     // SQF has a lot of reserved keywords
@@ -370,94 +332,16 @@ Token Lexer::nextToken()
             return Token(TokenType::conjunction, "&&", line_);
         }
 
-        if (current_char_ == '+')
+        // General handling of single character tokens
+        if (SQF_Token_Chars.find(current_char_) != SQF_Token_Chars.end())
         {
-            advance();
-            return Token(TokenType::plus, "+", line_);
-        }
+            std::string raw;
+            raw.push_back(current_char_);
+            Token t = Token(SQF_Token_Chars.at(current_char_), raw, line_);
 
-        if (current_char_ == '-')
-        {
             advance();
-            return Token(TokenType::minus, "-", line_);
-        }
 
-        if (current_char_ == '*')
-        {
-            advance();
-            return Token(TokenType::mul, "*", line_);
-        }
-
-        if (current_char_ == '/')
-        {
-            advance();
-            return Token(TokenType::div, "/", line_);
-        }
-
-        if (current_char_ == '^')
-        {
-            advance();
-            return Token(TokenType::pow, "^", line_);
-        }
-
-        if (current_char_ == '%')
-        {
-            advance();
-            return Token(TokenType::mod, "%", line_);
-        }
-
-        if (current_char_ == '#')
-        {
-            advance();
-            return Token(TokenType::hash, "#", line_);
-        }
-
-        if (current_char_ == '(')
-        {
-            advance();
-            return Token(TokenType::lparen, "(", line_);
-        }
-
-        if (current_char_ == ')')
-        {
-            advance();
-            return Token(TokenType::rparen, ")", line_);
-        }
-
-        if (current_char_ == '[')
-        {
-            advance();
-            return Token(TokenType::lsqb, "[", line_);
-        }
-
-        if (current_char_ == ']')
-        {
-            advance();
-            return Token(TokenType::rsqb, "]", line_);
-        }
-
-        if (current_char_ == '{')
-        {
-            advance();
-            return Token(TokenType::lcurl, "{", line_);
-        }
-
-        if (current_char_ == '}')
-        {
-            advance();
-            return Token(TokenType::rcurl, "}", line_);
-        }
-
-        if (current_char_ == ';')
-        {
-            advance();
-            return Token(TokenType::semi, ";", line_);
-        }
-
-        if (current_char_ == ',')
-        {
-            advance();
-            return Token(TokenType::comma, ",", line_);
+            return t;
         }
 
         std::cout << "unexpected character: " << current_char_;

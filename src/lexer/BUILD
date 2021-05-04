@@ -1,6 +1,6 @@
 cc_library(
     name = "sqf-tokens",
-    hdrs = ["token_type.h", "token.h"],
+    hdrs = ["token_types.h", "token_maps.h", "token.h"],
     visibility = ["//src/ast:__pkg__"],
 )
 

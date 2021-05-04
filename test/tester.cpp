@@ -1,6 +1,4 @@
 #include "test/tester.h"
-#include "src/ast/ast.h"
-#include "src/lexer/token_type.h"
 #include <memory>
 #include <string>
 
