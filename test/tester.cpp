@@ -19,7 +19,7 @@ void Tester::visit(Compound &c)
     for (auto &&child : c.children)
     {
         child->accept(*this);
-        code_.push_back('\n');
+        code_.push_back(',');
     }
     code_.pop_back(); // Prevent final newline
 };
