@@ -56,7 +56,7 @@ TEST(Precedence, BindsExponentMoreThanFactor)
     Tester t(p);
 
     EXPECT_EQ(t.test(), "((<Dec:2> ^ <Dec:2>) % (<Dec:2> ^ <Dec:3>))")
-        << "(ATOM ^ ATOM \% ATOM ^ ATOM) becomes ((ATOM ^ ATOM) \% (ATOM ^ ATOM))";
+        << R"(ATOM ^ ATOM % ATOM ^ ATOM) becomes ((ATOM ^ ATOM) % (ATOM ^ ATOM))";
 }
 
 TEST(Precedence, BindsAllFactorsEqually)
