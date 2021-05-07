@@ -8,6 +8,7 @@
 #include <ostream>
 #include <algorithm>
 #include <cctype>
+#include <exception>
 
 Lexer::Lexer(std::istream &to_read) : stream_(to_read)
 {
@@ -21,6 +22,7 @@ void Lexer::error(Token t, ErrorType type)
     e.token = t;
     e.type = type;
     errors_.push_back(e);
+    throw std::runtime_error(ErrorMessages.at(e.type));
 }
 
 // Preview the next character in order to differentiate tokens that start the same
@@ -359,6 +361,7 @@ Token Lexer::nextToken()
             return t;
         }
 
+        // TODO: report the unexpected char
         error(makeToken(TokenType::unknown, std::to_string(current_char_)), ErrorType::unexpected_character);
     }
 

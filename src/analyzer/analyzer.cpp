@@ -1,13 +1,31 @@
 #include "src/analyzer/analyzer.h"
+#include "src/errors/error_messages.h"
 #include <memory>
 #include <string>
+#include <exception>
 
 Analyzer::Analyzer(Parser &p) : parser_(p){};
 
 void Analyzer::analyze()
 {
-    std::unique_ptr<AST> tree = parser_.parse();
-    tree->accept(*this);
+    try
+    {
+        std::unique_ptr<AST> tree = parser_.parse();
+        tree->accept(*this);
+    }
+    catch(const std::runtime_error& e)
+    {
+        // Pass, analysis can't proceed, errors will be logged
+    }
+};
+
+void Analyzer::logErrors(std::ostream &out)
+{
+    parser_.logErrors(out);
+    for (auto &&e : errors_)
+    {
+        out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);
+    }
 };
 
 void Analyzer::visit(Compound &c)

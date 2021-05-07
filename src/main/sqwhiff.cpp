@@ -15,6 +15,8 @@ int main()
         Analyzer a(p);
         a.analyze();
         file_in.close();
+
+        a.logErrors(std::cout);
     }
     else
     {

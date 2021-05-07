@@ -1,11 +1,13 @@
 #include "src/parser/parser.h"
 #include "src/lexer/lexer.h"
 #include "src/ast/all_nodes.h"
+#include "src/errors/error_messages.h"
 #include <memory>
 #include <utility>
 #include <vector>
-#include <iostream>
+#include <ostream>
 #include <deque>
+#include <exception>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer)
@@ -13,9 +15,13 @@ Parser::Parser(Lexer &lexer) : lexer_(lexer)
     current_token_ = lexer_.nextToken();
 }
 
-void Parser::error()
+void Parser::error(Token t, ErrorType type)
 {
-    throw "Invalid syntax";
+    Error e;
+    e.token = t;
+    e.type = type;
+    errors_.push_back(e);
+    throw std::runtime_error(ErrorMessages.at(e.type));
 }
 
 void Parser::eat(TokenType type)
@@ -35,8 +41,8 @@ void Parser::eat(TokenType type)
     }
     else
     {
-        std::cout << "mismatched token: " << current_token_.raw;
-        error();
+        // TODO report the expected token
+        error(current_token_, ErrorType::unexpected_token);
     }
 }
 
@@ -400,10 +406,27 @@ std::unique_ptr<AST> Parser::empty(){
 // Parses the file and returns the root node of the AST
 std::unique_ptr<AST> Parser::parse()
 {
-    std::unique_ptr<AST> node = program();
+    std::unique_ptr<AST> node = nullptr;
 
-    if (current_token_.type != TokenType::end_of_file)
-        error();
+    // Lexer or parser may fail due to bad syntax
+    try
+    {
+        node = program();
+    }
+    catch(const std::runtime_error& e)
+    {
+        // Throw up for whoever's using parser to handle
+        throw;
+    }
 
     return node;
 };
+
+void Parser::logErrors(std::ostream &out)
+{
+    lexer_.logErrors(out);
+    for (auto &&e : errors_)
+    {
+        out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);
+    }
+}
