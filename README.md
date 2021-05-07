@@ -1,10 +1,10 @@
-# cpp-sqf
+# sqwhiff
 
-![](https://github.com/kymckay/cpp-sqf/actions/workflows/test.yml/badge.svg)
+![](https://github.com/kymckay/sqwhiff/actions/workflows/test.yml/badge.svg)
 
-A C++ implementation of a lexer, parser and semantic analyzer for SQF.
+A C++ implementation of a lexer, parser and semantic analyzer for the Real Virtuality engine's SQF scripting language.
 
-The lexer produces tokens from an input file. The parser consumes the tokens and constructs an abstract syntax tree (AST). The analyzer traverses the AST by means of the visitor pattern and checks for semantic errors (both static and dynamic) while modifying its state (i.e. performing limited interpretation).
+The lexer produces tokens from an input file. The parser consumes the tokens and constructs an abstract syntax tree (AST). The analyzer traverses the AST by means of the visitor pattern and checks for (both static and dynamic) semantic errors while modifying its state (i.e. performing limited interpretation).
 
 **Author Note**
 
