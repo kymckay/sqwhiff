@@ -1,12 +1,13 @@
 #include "src/lexer/lexer.h"
 #include "src/lexer/token_maps.h"
+#include "src/errors/error_messages.h"
 #include "src/sqf/keywords.h"
 #include <string>
 #include <array>
 #include <istream>
+#include <ostream>
 #include <algorithm>
 #include <cctype>
-#include <iostream>
 
 Lexer::Lexer(std::istream &to_read) : stream_(to_read)
 {
@@ -14,9 +15,12 @@ Lexer::Lexer(std::istream &to_read) : stream_(to_read)
     advance();
 }
 
-void Lexer::error()
+void Lexer::error(Token t, ErrorType type)
 {
-    throw current_char_;
+    Error e;
+    e.token = t;
+    e.type = type;
+    errors_.push_back(e);
 }
 
 // Preview the next character in order to differentiate tokens that start the same
@@ -189,8 +193,7 @@ Token Lexer::number()
             }
             else
             {
-                std::cout << "unfinished scientific notation";
-                error();
+                error(makeToken(TokenType::unknown, value), ErrorType::incomplete_sci);
             }
 
         }
@@ -202,7 +205,8 @@ Token Lexer::number()
 Token Lexer::string()
 {
     char enclosing = current_char_;
-    int line = lineno_; // Token line at starting character pos
+    int line = lineno_; // Token position at starting character (strings can span lines)
+    int col = column_;
     std::string result;
 
     // Skip past beginning enclosing character
@@ -214,8 +218,8 @@ Token Lexer::string()
         // Unclosed string cannot be tokenised
         if (current_char_ == '\0')
         {
-            std::cout << "unclosed string";
-            error();
+            Token t = Token(TokenType::unknown, result, line, col);
+            error(t, ErrorType::unclosed_string);
         }
 
         if (current_char_ == enclosing && peek() == enclosing)
@@ -230,7 +234,7 @@ Token Lexer::string()
     // Skip past end enclosing character
     advance();
 
-    return makeToken(TokenType::str_literal, result);
+    return Token(TokenType::str_literal, result, line, col);
 }
 
 // Convenience function to make a token with current lexer position
@@ -348,18 +352,23 @@ Token Lexer::nextToken()
         // General handling of single character tokens
         if (SQF_Token_Chars.find(current_char_) != SQF_Token_Chars.end())
         {
-            std::string raw;
-            raw.push_back(current_char_);
-            Token t = makeToken(SQF_Token_Chars.at(current_char_), raw);
+            Token t = makeToken(SQF_Token_Chars.at(current_char_), std::to_string(current_char_));
 
             advance();
 
             return t;
         }
 
-        std::cout << "unexpected character: " << current_char_;
-        error();
+        error(makeToken(TokenType::unknown, std::to_string(current_char_)), ErrorType::unexpected_character);
     }
 
     return makeToken(TokenType::end_of_file, "");
+}
+
+void Lexer::logErrors(std::ostream &out)
+{
+    for (auto &&e : errors_)
+    {
+        out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);
+    }
 }

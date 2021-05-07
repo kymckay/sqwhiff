@@ -1,8 +1,10 @@
 #pragma once
 #include "src/lexer/token.h"
+#include "src/errors/error.h"
 #include <string>
-#include <array>
+#include <vector>
 #include <istream>
+#include <ostream>
 
 class Lexer
 {
@@ -15,7 +17,10 @@ class Lexer
     int lineno_ = 1;
     int column_ = 1;
 
-    void error();
+    // Store any encountered errors for output
+    std::vector<Error> errors_;
+
+    void error(Token, ErrorType);
     char peek();
     void advance();
     void skipWhitespace();
@@ -28,4 +33,5 @@ class Lexer
 public:
     Lexer(std::istream&);
     Token nextToken();
+    void logErrors(std::ostream&);
 };
