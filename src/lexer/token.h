@@ -3,11 +3,16 @@
 #include <string>
 
 struct Token {
+    static const int npos = -1;
+
     TokenType type;
     std::string raw;
-    int line; // Line of first character in file
+    // Position of token's first character in the file
+    int line;
+    int column;
 
-    Token(TokenType type = TokenType::unknown, std::string raw = "", int line = -1) : type(type), raw(raw), line(line) {}
+    Token(TokenType type = TokenType::unknown, std::string raw = "", int line = npos, int column = npos)
+        : type(type), raw(raw), line(line), column(column) {}
 };
 
 // Using a typedef prevents naming clashes in global name space

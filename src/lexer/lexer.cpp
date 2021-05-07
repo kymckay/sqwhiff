@@ -27,6 +27,13 @@ char Lexer::peek()
 
 void Lexer::advance()
 {
+    // Increment the line whenever a newline is passed
+    if (current_char_ == '\n')
+    {
+        lineno_++;
+        column_ = 0;
+    }
+
     stream_.get(current_char_);
 
     // When end of stream is reached return EOF character
@@ -34,10 +41,10 @@ void Lexer::advance()
     {
         current_char_ = '\0';
     }
-
-    // Increment the line whenever a newline is found
-    if (current_char_ == '\n')
-        line_++;
+    else
+    {
+        column_++;
+    }
 }
 
 void Lexer::skipWhitespace()
@@ -91,22 +98,22 @@ Token Lexer::_id()
     // Some keywords have specific token types to differentiate precedence
     if (SQF_Token_Keywords.find(result) != SQF_Token_Keywords.end())
     {
-        return Token(SQF_Token_Keywords.at(result), result, line_);
+        return makeToken(SQF_Token_Keywords.at(result), result);
     }
 
     // SQF has a lot of reserved keywords
     // Differentiate nullarys for grammar clarity (see issue #11)
     if (SQF_Nullary_Keywords.find(result) != SQF_Nullary_Keywords.end())
     {
-        return Token(TokenType::nullary, result, line_);
+        return makeToken(TokenType::nullary, result);
     }
     else if (SQF_Keywords.find(result) != SQF_Keywords.end())
     {
-        return Token(TokenType::keyword, result, line_);
+        return makeToken(TokenType::keyword, result);
     }
     else
     {
-        return Token(TokenType::id, result, line_);
+        return makeToken(TokenType::id, result);
     }
 }
 
@@ -189,13 +196,13 @@ Token Lexer::number()
         }
     }
 
-    return Token(type, value, line_);
+    return makeToken(type, value);
 }
 
 Token Lexer::string()
 {
     char enclosing = current_char_;
-    int line = line_; // Token line at starting character pos
+    int line = lineno_; // Token line at starting character pos
     std::string result;
 
     // Skip past beginning enclosing character
@@ -223,7 +230,13 @@ Token Lexer::string()
     // Skip past end enclosing character
     advance();
 
-    return Token(TokenType::str_literal, result, line);
+    return makeToken(TokenType::str_literal, result);
+}
+
+// Convenience function to make a token with current lexer position
+Token Lexer::makeToken(TokenType type, std::string raw)
+{
+    return Token(type, raw, lineno_, column_);
 }
 
 Token Lexer::nextToken()
@@ -271,10 +284,10 @@ Token Lexer::nextToken()
             if (current_char_ == '=')
             {
                 advance();
-                return Token(TokenType::eql, "==", line_);
+                return makeToken(TokenType::eql, "==");
             }
 
-            return Token(TokenType::assign, "=", line_);
+            return makeToken(TokenType::assign, "=");
         }
 
         if (current_char_ == '!')
@@ -283,10 +296,10 @@ Token Lexer::nextToken()
             if (current_char_ == '=')
             {
                 advance();
-                return Token(TokenType::neql, "!=", line_);
+                return makeToken(TokenType::neql, "!=");
             }
 
-            return Token(TokenType::negation, "!", line_);
+            return makeToken(TokenType::negation, "!");
         }
 
         if (current_char_ == '>')
@@ -295,15 +308,15 @@ Token Lexer::nextToken()
             if (current_char_ == '=')
             {
                 advance();
-                return Token(TokenType::gteql, ">=", line_);
+                return makeToken(TokenType::gteql, ">=");
             }
             if (current_char_ == '>')
             {
                 advance();
-                return Token(TokenType::gtgt, ">>", line_);
+                return makeToken(TokenType::gtgt, ">>");
             }
 
-            return Token(TokenType::gt, ">", line_);
+            return makeToken(TokenType::gt, ">");
         }
 
         if (current_char_ == '<')
@@ -312,24 +325,24 @@ Token Lexer::nextToken()
             if (current_char_ == '=')
             {
                 advance();
-                return Token(TokenType::lteql, "<=", line_);
+                return makeToken(TokenType::lteql, "<=");
             }
 
-            return Token(TokenType::lt, "<", line_);
+            return makeToken(TokenType::lt, "<");
         }
 
         if (current_char_ == '|' && peek() == '|')
         {
             advance();
             advance();
-            return Token(TokenType::disjunction, "||", line_);
+            return makeToken(TokenType::disjunction, "||");
         }
 
         if (current_char_ == '&' && peek() == '&')
         {
             advance();
             advance();
-            return Token(TokenType::conjunction, "&&", line_);
+            return makeToken(TokenType::conjunction, "&&");
         }
 
         // General handling of single character tokens
@@ -337,7 +350,7 @@ Token Lexer::nextToken()
         {
             std::string raw;
             raw.push_back(current_char_);
-            Token t = Token(SQF_Token_Chars.at(current_char_), raw, line_);
+            Token t = makeToken(SQF_Token_Chars.at(current_char_), raw);
 
             advance();
 
@@ -348,5 +361,5 @@ Token Lexer::nextToken()
         error();
     }
 
-    return Token(TokenType::end_of_file, "", line_);
+    return makeToken(TokenType::end_of_file, "");
 }

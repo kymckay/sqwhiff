@@ -10,9 +10,10 @@ class Lexer
     std::istream &stream_;
 
     char current_char_;
-    // Current line lexer has reached in the text
+    // Current position lexer has reached in the text
     // Used to give a position to errors
-    int line_ = 0;
+    int lineno_ = 1;
+    int column_ = 1;
 
     void error();
     char peek();
@@ -22,6 +23,7 @@ class Lexer
     Token _id();
     Token number();
     Token string();
+    Token makeToken(TokenType, std::string);
 
 public:
     Lexer(std::istream&);
