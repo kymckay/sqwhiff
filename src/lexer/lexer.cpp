@@ -354,7 +354,7 @@ Token Lexer::nextToken()
         // General handling of single character tokens
         if (SQF_Token_Chars.find(current_char_) != SQF_Token_Chars.end())
         {
-            Token t = makeToken(SQF_Token_Chars.at(current_char_), std::to_string(current_char_));
+            Token t = makeToken(SQF_Token_Chars.at(current_char_), std::string(1, current_char_));
 
             advance();
 
@@ -362,7 +362,7 @@ Token Lexer::nextToken()
         }
 
         // TODO: report the unexpected char
-        error(makeToken(TokenType::unknown, std::to_string(current_char_)), ErrorType::unexpected_character);
+        error(makeToken(TokenType::unknown, std::string(1, current_char_)), ErrorType::unexpected_character);
     }
 
     return makeToken(TokenType::end_of_file, "");
