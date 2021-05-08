@@ -220,8 +220,7 @@ Token Lexer::string()
         // Unclosed string cannot be tokenised
         if (current_char_ == '\0')
         {
-            Token t = Token(TokenType::unknown, result, line, col);
-            error(t, ErrorType::unclosed_string);
+            error(makeToken(TokenType::unknown, result, line, col), ErrorType::unclosed_string);
         }
 
         if (current_char_ == enclosing && peek() == enclosing)
@@ -236,13 +235,23 @@ Token Lexer::string()
     // Skip past end enclosing character
     advance();
 
-    return Token(TokenType::str_literal, result, line, col);
+    return makeToken(TokenType::str_literal, result, line, col);
 }
 
 // Convenience function to make a token with current lexer position
-Token Lexer::makeToken(TokenType type, std::string raw)
+Token Lexer::makeToken(TokenType type, std::string raw, int line, int col)
 {
-    return Token(type, raw, lineno_, column_);
+    if (line == Token::npos)
+    {
+        line = lineno_;
+    }
+
+    if (col == Token::npos)
+    {
+        col = column_;
+    }
+
+    return Token(type, raw, line, col);
 }
 
 Token Lexer::nextToken()
