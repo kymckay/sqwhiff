@@ -28,7 +28,7 @@ class Lexer
     Token _id();
     Token number();
     Token string();
-    Token makeToken(TokenType, std::string, int line = Token::npos, int = Token::npos);
+    Token makeToken(TokenType, std::string);
 
 public:
     Lexer(std::istream&);

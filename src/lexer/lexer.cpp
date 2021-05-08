@@ -88,64 +88,62 @@ void Lexer::skipComment()
 
 Token Lexer::_id()
 {
-    std::string result;
+    // Token position at first character
+    Token t = makeToken(TokenType::unknown, "");
+
     while (current_char_ != '\0' && (std::isalnum(current_char_) || current_char_ == '_'))
     {
-        result.push_back(current_char_);
+        // SQF is not case sensitive
+        t.raw.push_back(std::tolower(current_char_));
         advance();
     }
 
-    // SQF is not case sensitive
-    for (auto &c : result)
-    {
-        c = std::tolower(c);
-    }
-
     // Some keywords have specific token types to differentiate precedence
-    if (SQF_Token_Keywords.find(result) != SQF_Token_Keywords.end())
+    if (SQF_Token_Keywords.find(t.raw) != SQF_Token_Keywords.end())
     {
-        return makeToken(SQF_Token_Keywords.at(result), result);
+        t.type = SQF_Token_Keywords.at(t.raw);
     }
-
-    // SQF has a lot of reserved keywords
     // Differentiate nullarys for grammar clarity (see issue #11)
-    if (SQF_Nullary_Keywords.find(result) != SQF_Nullary_Keywords.end())
+    else if (SQF_Nullary_Keywords.find(t.raw) != SQF_Nullary_Keywords.end())
     {
-        return makeToken(TokenType::nullary, result);
+        t.type = TokenType::nullary;
     }
-    else if (SQF_Keywords.find(result) != SQF_Keywords.end())
+    // Remaining keywords may be unary or binary, parser differentiates these
+    else if (SQF_Keywords.find(t.raw) != SQF_Keywords.end())
     {
-        return makeToken(TokenType::keyword, result);
+        t.type = TokenType::keyword;
     }
     else
     {
-        return makeToken(TokenType::id, result);
+        t.type = TokenType::id;
     }
+
+    return t;
 }
 
 Token Lexer::number()
 {
+    Token t = makeToken(TokenType::dec_literal, "");
+
     // First determine the type of numeric literal
-    TokenType type = TokenType::dec_literal;
     if (current_char_ == '$')
     {
-        type = TokenType::hex_literal;
+        t.type = TokenType::hex_literal;
         advance();
     }
     else if (current_char_ == '0' && peek() == 'x')
     {
-        type = TokenType::hex_literal;
+        t.type = TokenType::hex_literal;
         advance();
         advance();
     }
 
     // Read the characters according to the literal type
-    std::string value;
-    if (type == TokenType::hex_literal)
+    if (t.type == TokenType::hex_literal)
     {
         while (current_char_ != '\0' && std::isxdigit(current_char_))
         {
-            value.push_back(current_char_);
+            t.raw.push_back(current_char_);
             advance();
         }
     }
@@ -154,33 +152,33 @@ Token Lexer::number()
         // Integer part (may not be present)
         while (current_char_ != '\0' && std::isdigit(current_char_))
         {
-            value.push_back(current_char_);
+            t.raw.push_back(current_char_);
             advance();
         }
 
         // Possible decimal point (can appear at the start or end)
         if (current_char_ == '.')
         {
-            value.push_back(current_char_);
+            t.raw.push_back(current_char_);
             advance();
         }
 
         // Possible fractional part
         while (current_char_ != '\0' && std::isdigit(current_char_))
         {
-            value.push_back(current_char_);
+            t.raw.push_back(current_char_);
             advance();
         }
 
         // Optional scientific notation suffix
         if (std::tolower(current_char_) == 'e') {
-            value.push_back(current_char_);
+            t.raw.push_back(current_char_);
             advance();
 
             // Can be followed by an optional + or -
             if (current_char_ == '+' || current_char_ == '-')
             {
-                value.push_back(current_char_);
+                t.raw.push_back(current_char_);
                 advance();
             }
 
@@ -189,27 +187,24 @@ Token Lexer::number()
             {
                 while (current_char_ != '\0' && std::isdigit(current_char_))
                 {
-                    value.push_back(current_char_);
+                    t.raw.push_back(current_char_);
                     advance();
                 }
             }
             else
             {
-                error(makeToken(TokenType::unknown, value), ErrorType::incomplete_sci);
+                error(t, ErrorType::incomplete_sci);
             }
-
         }
     }
 
-    return makeToken(type, value);
+    return t;
 }
 
 Token Lexer::string()
 {
     char enclosing = current_char_;
-    int line = lineno_; // Token position at starting character (strings can span lines)
-    int col = column_;
-    std::string result;
+    Token t = makeToken(TokenType::unknown, "");
 
     // Skip past beginning enclosing character
     advance();
@@ -220,7 +215,7 @@ Token Lexer::string()
         // Unclosed string cannot be tokenised
         if (current_char_ == '\0')
         {
-            error(makeToken(TokenType::unknown, result, line, col), ErrorType::unclosed_string);
+            error(t, ErrorType::unclosed_string);
         }
 
         if (current_char_ == enclosing && peek() == enclosing)
@@ -228,34 +223,25 @@ Token Lexer::string()
             advance();
         }
 
-        result.push_back(current_char_);
+        t.raw.push_back(current_char_);
         advance();
     }
 
     // Skip past end enclosing character
     advance();
 
-    return makeToken(TokenType::str_literal, result, line, col);
+    t.type = TokenType::str_literal;
+    return t;
 }
 
 // Convenience function to make a token with current lexer position
-Token Lexer::makeToken(TokenType type, std::string raw, int line, int col)
+Token Lexer::makeToken(TokenType type, std::string raw)
 {
-    if (line == Token::npos)
-    {
-        line = lineno_;
-    }
-
-    if (col == Token::npos)
-    {
-        col = column_;
-    }
-
     Token t;
     t.type = type;
     t.raw = raw;
-    t.line = line;
-    t.column = col;
+    t.line = lineno_;
+    t.column = column_;
     return t;
 }
 
