@@ -10,10 +10,7 @@
 #include <exception>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
-Parser::Parser(Lexer &lexer) : lexer_(lexer)
-{
-    current_token_ = lexer_.nextToken();
-}
+Parser::Parser(Lexer &lexer) : lexer_(lexer) {}
 
 void Parser::error(Token t, ErrorType type)
 {
@@ -411,6 +408,7 @@ std::unique_ptr<AST> Parser::parse()
     // Lexer or parser may fail due to bad syntax
     try
     {
+        current_token_ = lexer_.nextToken();
         node = program();
     }
     catch(const std::runtime_error& e)
