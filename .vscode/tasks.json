@@ -19,6 +19,39 @@
 				"kind": "build",
 				"isDefault": true
 			}
-		}
+		},
+        {
+            "type": "cppbuild",
+            "label": "Bazel: Build Debug",
+            "command": "bazel",
+            "args": [
+                "build",
+                "...",
+                "--compilation_mode=dbg"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "build"
+        },
+        {
+            "type": "cppbuild",
+            "label": "Bazel: Test Project",
+            "command": "bazel",
+            "args": [
+                "test",
+                "//test/...",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": "test"
+        }
 	]
 }
