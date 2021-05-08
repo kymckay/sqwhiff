@@ -251,7 +251,12 @@ Token Lexer::makeToken(TokenType type, std::string raw, int line, int col)
         col = column_;
     }
 
-    return Token(type, raw, line, col);
+    Token t;
+    t.type = type;
+    t.raw = raw;
+    t.line = line;
+    t.column = col;
+    return t;
 }
 
 Token Lexer::nextToken()
