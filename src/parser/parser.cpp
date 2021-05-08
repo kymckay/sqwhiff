@@ -408,6 +408,7 @@ std::unique_ptr<AST> Parser::parse()
     // Lexer or parser may fail due to bad syntax
     try
     {
+        // Load the initial token for parsing
         current_token_ = lexer_.nextToken();
         node = program();
     }
