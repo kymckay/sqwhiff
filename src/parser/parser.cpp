@@ -388,10 +388,23 @@ std::unique_ptr<AST> Parser::array()
 
 std::unique_ptr<AST> Parser::code()
 {
+    std::unique_ptr<AST> content;
+
     eat(TokenType::lcurl);
-    std::unique_ptr<AST> node = std::unique_ptr<AST>(new Code(statement_list()));
+
+    // Code display could be empty
+    if (current_token_.type == TokenType::rcurl)
+    {
+        content = empty();
+    }
+    else
+    {
+        content = statement_list();
+    }
+
     eat(TokenType::rcurl);
-    return node;
+
+    return std::unique_ptr<AST>(new Code(std::move(content)));
 }
 
 std::unique_ptr<AST> Parser::variable()
