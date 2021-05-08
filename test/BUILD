@@ -23,6 +23,13 @@ cc_test(
 )
 
 cc_test(
+  name = "parser-literals",
+  size = "small",
+  srcs = ["parser_literals_test.cpp"],
+  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
   name = "parser-precedence",
   size = "small",
   srcs = ["parser_precedence_test.cpp"],

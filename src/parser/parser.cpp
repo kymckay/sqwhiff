@@ -366,12 +366,17 @@ std::unique_ptr<AST> Parser::array()
     eat(TokenType::lsqb);
 
     std::vector<std::unique_ptr<AST>> expressions;
-    expressions.push_back(expr());
 
-    while (current_token_.type == TokenType::comma)
+    // Array can be empty
+    if (current_token_.type != TokenType::rsqb)
     {
-        eat(TokenType::comma);
         expressions.push_back(expr());
+
+        while (current_token_.type == TokenType::comma)
+        {
+            eat(TokenType::comma);
+            expressions.push_back(expr());
+        }
     }
 
     eat(TokenType::rsqb);

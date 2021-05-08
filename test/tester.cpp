@@ -14,12 +14,14 @@ std::string Tester::test()
 
 void Tester::visit(Compound &c)
 {
+    if (c.children.empty()) return;
+
     for (auto &&child : c.children)
     {
         child->accept(*this);
         code_.push_back(',');
     }
-    code_.pop_back(); // Prevent final newline
+    code_.pop_back(); // Prevent final delimiter
 };
 
 void Tester::visit(NoOp &){
