@@ -15,8 +15,7 @@ class Analyzer : NodeVisitor
 
 public:
     Analyzer(Parser &);
-    void analyze();
-    void logErrors(std::ostream&);
+    void analyze(std::ostream &);
 
     // Visitor interface implementation
 

@@ -13,10 +13,8 @@ int main()
         Lexer lex(file_in);
         Parser p(lex);
         Analyzer a(p);
-        a.analyze();
+        a.analyze(std::cout);
         file_in.close();
-
-        a.logErrors(std::cout);
     }
     else
     {

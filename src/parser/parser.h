@@ -1,11 +1,9 @@
 #pragma once
 #include "src/lexer/lexer.h"
 #include "src/ast/ast.h"
-#include "src/errors/error.h"
+#include "src/parser/syntax_error.h"
 #include <deque>
 #include <memory>
-#include <vector>
-#include <ostream>
 
 class Parser
 {
@@ -14,10 +12,7 @@ class Parser
     Token current_token_;
     std::deque<Token> peek_buffer_;
 
-    // Store any encountered errors for output
-    std::vector<Error> errors_;
-
-    void error(Token, ErrorType);
+    void error(std::string);
     void eat(TokenType);
     Token peek(int);
 
@@ -48,5 +43,4 @@ class Parser
 public:
     Parser(Lexer &);
     std::unique_ptr<AST> parse();
-    void logErrors(std::ostream &);
 };

@@ -1,24 +1,18 @@
 #include "src/parser/parser.h"
 #include "src/lexer/lexer.h"
 #include "src/ast/all_nodes.h"
-#include "src/errors/error_messages.h"
 #include <memory>
 #include <utility>
 #include <vector>
 #include <ostream>
 #include <deque>
-#include <exception>
 
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer) {}
 
-void Parser::error(Token t, ErrorType type)
+void Parser::error(std::string msg)
 {
-    Error e;
-    e.token = t;
-    e.type = type;
-    errors_.push_back(e);
-    throw std::runtime_error(ErrorMessages.at(e.type));
+    throw SyntaxError(current_token_.line, current_token_.column, msg);
 }
 
 void Parser::eat(TokenType type)
@@ -38,8 +32,7 @@ void Parser::eat(TokenType type)
     }
     else
     {
-        // TODO report the expected token
-        error(current_token_, ErrorType::unexpected_token);
+        error("Unexpected token '" + current_token_.raw + "'");
     }
 }
 
@@ -418,32 +411,12 @@ std::unique_ptr<AST> Parser::empty(){
     return std::unique_ptr<AST>(new NoOp());
 }
 
-// Parses the file and returns the root node of the AST
+// Parses the file and returns the root node of the AST (may throw errors)
 std::unique_ptr<AST> Parser::parse()
 {
-    std::unique_ptr<AST> node = nullptr;
-
-    // Lexer or parser may fail due to bad syntax
-    try
-    {
-        // Load the initial token for parsing
-        current_token_ = lexer_.nextToken();
-        node = program();
-    }
-    catch(const std::runtime_error& e)
-    {
-        // Throw up for whoever's using parser to handle
-        throw;
-    }
+    // Load the initial token for parsing
+    current_token_ = lexer_.nextToken();
+    std::unique_ptr<AST> node = program();
 
     return node;
 };
-
-void Parser::logErrors(std::ostream &out)
-{
-    lexer_.logErrors(out);
-    for (auto &&e : errors_)
-    {
-        out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);
-    }
-}

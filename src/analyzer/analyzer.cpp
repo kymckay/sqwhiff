@@ -2,26 +2,27 @@
 #include "src/errors/error_messages.h"
 #include <memory>
 #include <string>
-#include <exception>
+#include <ostream>
 
 Analyzer::Analyzer(Parser &p) : parser_(p){};
 
-void Analyzer::analyze()
+void Analyzer::analyze(std::ostream &out)
 {
     try
     {
         std::unique_ptr<AST> tree = parser_.parse();
         tree->accept(*this);
     }
-    catch(const std::runtime_error& e)
+    catch(const LexicalError& e)
     {
-        // Pass, analysis can't proceed, errors will be logged
+        out << e.what();
     }
-};
+    catch (const SyntaxError &e)
+    {
+        out << e.what();
+    }
 
-void Analyzer::logErrors(std::ostream &out)
-{
-    parser_.logErrors(out);
+    // Log any encountered errors
     for (auto &&e : errors_)
     {
         out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);

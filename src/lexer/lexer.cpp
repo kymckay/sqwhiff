@@ -1,14 +1,10 @@
 #include "src/lexer/lexer.h"
 #include "src/lexer/token_maps.h"
-#include "src/errors/error_messages.h"
 #include "src/sqf/keywords.h"
 #include <string>
-#include <array>
 #include <istream>
-#include <ostream>
 #include <algorithm>
 #include <cctype>
-#include <exception>
 
 Lexer::Lexer(std::istream &to_read) : stream_(to_read)
 {
@@ -16,13 +12,9 @@ Lexer::Lexer(std::istream &to_read) : stream_(to_read)
     advance();
 }
 
-void Lexer::error(Token t, ErrorType type)
+void Lexer::error(Token t, std::string msg)
 {
-    Error e;
-    e.token = t;
-    e.type = type;
-    errors_.push_back(e);
-    throw std::runtime_error(ErrorMessages.at(e.type));
+    throw LexicalError(t.line, t.column, msg);
 }
 
 // Preview the next character in order to differentiate tokens that start the same
@@ -193,7 +185,7 @@ Token Lexer::number()
             }
             else
             {
-                error(t, ErrorType::incomplete_sci);
+                error(t, "Unfinished numeric literal");
             }
         }
     }
@@ -215,7 +207,7 @@ Token Lexer::string()
         // Unclosed string cannot be tokenised
         if (current_char_ == '\0')
         {
-            error(t, ErrorType::unclosed_string);
+            error(t, "Unclosed string");
         }
 
         if (current_char_ == enclosing && peek() == enclosing)
@@ -361,17 +353,11 @@ Token Lexer::nextToken()
             return t;
         }
 
-        // TODO: report the unexpected char
-        error(makeToken(TokenType::unknown, std::string(1, current_char_)), ErrorType::unexpected_character);
+        error(
+            makeToken(TokenType::unknown, std::string(1, current_char_)),
+            "Unexpected character '" + std::string(1, current_char_) + "'"
+        );
     }
 
     return makeToken(TokenType::end_of_file, "");
-}
-
-void Lexer::logErrors(std::ostream &out)
-{
-    for (auto &&e : errors_)
-    {
-        out << e.token.line << ":" << e.token.column << " " << ErrorMessages.at(e.type);
-    }
 }
