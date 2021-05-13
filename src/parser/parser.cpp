@@ -37,7 +37,7 @@ void Parser::eat(TokenType type)
 }
 
 // Allows looking ahead to future tokens as required due to grammar structures
-Token Parser::peek(int peek_by = 1)
+Token Parser::peek(int peek_by)
 {
     while (peek_buffer_.size() < peek_by)
     {

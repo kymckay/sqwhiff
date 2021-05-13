@@ -54,7 +54,7 @@ void Preprocessor::skipComment()
     }
     else if (stream_.peek() == '*')
     {
-        while (current_char_ != '\0' && !(current_char_ == '*' && peek() == '/'))
+        while (current_char_ != '\0' && !(current_char_ == '*' && stream_.peek() == '/'))
         {
             advance();
         }
@@ -67,6 +67,14 @@ void Preprocessor::skipComment()
 
 PosChar Preprocessor::get()
 {
+    // Pull from the buffer first if any peek has occured
+    if (!peek_buffer_.empty())
+    {
+        PosChar p = peek_buffer_.front();
+        peek_buffer_.pop_front();
+        return p;
+    }
+
     // Preprocessing does not occur within double quoted string literals
     if (!in_doubles_)
     {
@@ -94,8 +102,14 @@ PosChar Preprocessor::get()
     return c;
 }
 
-// Preview the next character in order to differentiate tokens that start the same
-char Preprocessor::peek()
+// Allows looking ahead to future characters in order to differentiate tokens that start the same
+PosChar Preprocessor::peek(int peek_by)
 {
-    return stream_.peek();
+    while (peek_buffer_.size() < peek_by)
+    {
+        peek_buffer_.push_back(get());
+    }
+
+    // Convert peek request to 0-indexed
+    return peek_buffer_.at(peek_by - 1);
 }

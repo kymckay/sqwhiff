@@ -14,7 +14,7 @@ class Parser
 
     void error(std::string);
     void eat(TokenType);
-    Token peek(int);
+    Token peek(int = 1);
 
     // Member functions for AST nodes
     // Dynamic allocation is needed for AST interface types

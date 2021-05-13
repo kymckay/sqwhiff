@@ -3,11 +3,15 @@
 #include "src/preprocessor/preprocessing_error.h"
 #include <string>
 #include <istream>
+#include <deque>
 
 class Preprocessor
 {
     // Reference member for polymorphism
     std::istream &stream_;
+
+    // Use buffer to simplify lookahead logic with preprocessing
+    std::deque<PosChar> peek_buffer_;
 
     char current_char_ = '\0';
     // Current physical position preprocessor has reached
@@ -28,5 +32,5 @@ class Preprocessor
 public:
     Preprocessor(std::istream&);
     PosChar get();
-    char peek();
+    PosChar peek(int = 1);
 };
