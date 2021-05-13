@@ -1,7 +1,9 @@
 #pragma once
 
 // Actual data types that exist in SQF at runtime, used for interpreting/analysis
-enum SQFType {
+enum SQFType
+{
+    any,
     array,
     boolean,
     code,
@@ -9,21 +11,24 @@ enum SQFType {
     control,
     diary_record,
     display,
-    eden_entity,
-    eden_id,
-    editor_object,
+    exception_type,
+    for_type,
     group,
     hashmap,
-    hasmapkey,
+    if_type,
     location,
-    nan,
-    nspace,
-    number,
+    name_space,
+    netobject,
+    nothing,
     object,
+    scalar,
     script,
     side,
     string,
-    structured_text,
+    switch_type,
     task,
-    team_member
+    team_member,
+    text,
+    while_type,
+    with_type,
 };

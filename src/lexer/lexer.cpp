@@ -1,6 +1,6 @@
 #include "src/lexer/lexer.h"
 #include "src/lexer/token_maps.h"
-#include "src/sqf/keywords.h"
+#include "src/sqf/all_keywords.h"
 #include <string>
 #include <istream>
 #include <algorithm>
@@ -59,7 +59,11 @@ Token Lexer::_id()
         t.type = TokenType::nullary;
     }
     // Remaining keywords may be unary or binary, parser differentiates these
-    else if (SQF_Keywords.find(t.raw) != SQF_Keywords.end())
+    // (cannot be done here due to ambiguity, consider getDir can be either)
+    else if (
+        SQF_Unary_Keywords.find(t.raw) != SQF_Unary_Keywords.end()
+        || SQF_Binary_Keywords.find(t.raw) != SQF_Binary_Keywords.end()
+    )
     {
         t.type = TokenType::keyword;
     }
