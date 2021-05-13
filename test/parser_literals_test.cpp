@@ -11,7 +11,7 @@ TEST(ArrayDisplay, CanBeEmpty)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Array:[]>") << "Empty array produced";
+    EXPECT_EQ(t.test(), "[]") << "Empty array produced";
 }
 
 // Issue #18
@@ -23,5 +23,5 @@ TEST(CodeDisplay, CanBeEmpty)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Code:{<NoOp>}>") << "Empty code produced";
+    EXPECT_EQ(t.test(), "{<NoOp>}") << "Empty code produced";
 }

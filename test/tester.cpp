@@ -68,16 +68,16 @@ void Tester::visit(Variable &var)
 
 void Tester::visit(Array &node)
 {
-    code_.append("<Array:[");
+    code_.append("[");
     node.expressions->accept(*this);
-    code_.append("]>");
+    code_.append("]");
 };
 
 void Tester::visit(Code &node)
 {
-    code_.append("<Code:{");
+    code_.append("{");
     node.children->accept(*this);
-    code_.append("}>");
+    code_.append("}");
 };
 
 void Tester::visit(Number &num)

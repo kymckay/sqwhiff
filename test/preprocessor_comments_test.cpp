@@ -10,7 +10,7 @@ TEST(Comments, CanBeInline)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "(selectrandom <Array:[<Dec:1>,<Dec:2>]>)")
+    EXPECT_EQ(t.test(), "(selectrandom [<Dec:1>,<Dec:2>])")
         << "Inline comment is ignored";
 }
 
@@ -22,7 +22,7 @@ TEST(Comments, CanBeBlock)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "(selectrandom <Array:[<Dec:1>,<Dec:2>]>)")
+    EXPECT_EQ(t.test(), "(selectrandom [<Dec:1>,<Dec:2>])")
         << "Block comment is ignored";
 }
 
@@ -34,7 +34,7 @@ TEST(Comments, AreRemovedInPreprocessing)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "(selectrandom <Array:[<Dec:1>,<Dec:2>]>)")
+    EXPECT_EQ(t.test(), "(selectrandom [<Dec:1>,<Dec:2>])")
         << "Block comment does not delimit tokens";
 }
 

@@ -24,7 +24,7 @@ TEST(Precedence, BindsUnaryMoreThanBinary)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "((selectrandom <Array:[<Var:obj>]>) getdir <Var:obj2>)")
+    EXPECT_EQ(t.test(), "((selectrandom [<Var:obj>]) getdir <Var:obj2>)")
         << "(unary ATOM binary ATOM) becomes ((unary ATOM) binary ATOM)";
 }
 
@@ -36,7 +36,7 @@ TEST(Precedence, BindsUnaryMoreThanHash)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "((selectrandom <Array:[<Array:[<Dec:1>,<Dec:1>]>]>) # (+ <Dec:1>))")
+    EXPECT_EQ(t.test(), "((selectrandom [[<Dec:1>,<Dec:1>]]) # (+ <Dec:1>))")
         << "(unary ATOM # unary ATOM) becomes ((unary ATOM) # (unary ATOM))";
 }
 
@@ -48,7 +48,7 @@ TEST(Precedence, BindsHashMoreThanExponent)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "((<Array:[<Dec:2>]> # <Dec:0>) ^ (<Array:[<Dec:2>]> # <Dec:0>))")
+    EXPECT_EQ(t.test(), "(([<Dec:2>] # <Dec:0>) ^ ([<Dec:2>] # <Dec:0>))")
         << "(ATOM # ATOM ^ ATOM # ATOM) becomes ((ATOM # ATOM) ^ (ATOM # ATOM))";
 }
 

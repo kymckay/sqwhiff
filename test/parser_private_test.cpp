@@ -34,5 +34,5 @@ TEST(Private, CanAppearInArray)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Array:[(private <Str:_x>)]>") << "Parse private as a unary in an array expression";
+    EXPECT_EQ(t.test(), "[(private <Str:_x>)]") << "Parse private as a unary in an array expression";
 }
