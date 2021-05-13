@@ -18,6 +18,9 @@ class Preprocessor
     // Preprocessor directives must appear at a line start (ignoring whitespace)
     bool line_start_ = true;
 
+    // Double quoted string literals are not preprocessed
+    bool in_doubles_ = false;
+
     void error(PosChar, std::string);
     void advance();
     void skipComment();

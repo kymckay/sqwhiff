@@ -67,10 +67,20 @@ void Preprocessor::skipComment()
 
 PosChar Preprocessor::get()
 {
-    // Comments are irrelevant (block and line)
-    if (current_char_ == '/' && (stream_.peek() == '/' || stream_.peek() == '*'))
+    // Preprocessing does not occur within double quoted string literals
+    if (!in_doubles_)
     {
-        skipComment();
+        // Comments are irrelevant (block and line)
+        if (current_char_ == '/' && (stream_.peek() == '/' || stream_.peek() == '*'))
+        {
+            skipComment();
+        }
+    }
+
+    // Each double quote encountered inverts the context
+    if (current_char_ == '"')
+    {
+        in_doubles_ = !in_doubles_;
     }
 
     PosChar c;

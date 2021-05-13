@@ -38,7 +38,7 @@ TEST(Comments, AreRemovedInPreprocessing)
         << "Block comment does not delimit tokens";
 }
 
-TEST(Comments, AreConsumedByStringLiterals)
+TEST(Comments, AreConsumedByDoubleQuotes)
 {
     std::stringstream input("\"/* this isn't a comment */\"");
     Preprocessor pp(input);
@@ -47,5 +47,31 @@ TEST(Comments, AreConsumedByStringLiterals)
     Tester t(p);
 
     EXPECT_EQ(t.test(), "<Str:/* this isn't a comment */>")
-        << "There's no such thing as a comment within a string literal";
+        << "There's no such thing as a comment within double quotes";
+}
+
+// The preprocessor ignores single quotes
+TEST(Comments, AreRemovedInSingleQuotes)
+{
+    std::stringstream input("\'/* this is a comment */\'");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:>")
+        << "There is such a thing as a comment within single quotes";
+}
+
+// This is consistent with being removed during preprocessing
+TEST(Comments, CanExistBetweenDoubleQuotes)
+{
+    std::stringstream input("\"\"/* this is a comment */\"\"");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:\">")
+        << "Block comment does not delimit string tokens between repeated quotes";
 }

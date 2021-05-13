@@ -18,7 +18,7 @@ If you'd like to contribute please read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Preprocessing
 
-- A comment starts with a `//` or `/*` character pair that is not part of a string literal, and ends at the end of the physical line or with a `*/` character pair, respectively. These are stripped during preprocessing and thus do not act as tokens delimiters.
+- A comment starts with a `//` or `/*` character pair that is not part of a double-quoted string literal, and ends at the end of the physical line or with a `*/` character pair, respectively. These are stripped during preprocessing and thus do not act as tokens delimiters.
 - SQF scripts support C-like preprocessor directives. If the `#` character appears at the start of a line (ignoring leading whitespace) the line is preprocessed.
 - The directive must immediately follow the `#` character (no whitespace) and ends at the end of the logical line.
 - The logical line can be extended by a `\` character immediately preceding the end of the physical line.
