@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cctype>
 
-Lexer::Lexer(std::istream &to_read) : stream_(to_read)
+Lexer::Lexer(Preprocessor &pre) : preproc_(pre)
 {
     // Immediately read in the first character
     advance();
@@ -20,60 +20,18 @@ void Lexer::error(Token t, std::string msg)
 // Preview the next character in order to differentiate tokens that start the same
 char Lexer::peek()
 {
-    return stream_.peek();
+    return preproc_.peek();
 }
 
 void Lexer::advance()
 {
-    // Increment the line whenever a newline is passed
-    if (current_char_ == '\n')
-    {
-        lineno_++;
-        column_ = 0;
-    }
-
-    stream_.get(current_char_);
-
-    // When end of stream is reached return EOF character
-    if (stream_.eof())
-    {
-        current_char_ = '\0';
-    }
-    else
-    {
-        column_++;
-    }
+    current_char_ = preproc_.get();
 }
 
 void Lexer::skipWhitespace()
 {
     while (current_char_ != '\0' && std::isspace(current_char_))
     {
-        advance();
-    }
-}
-
-void Lexer::skipComment()
-{
-    if (peek() == '/')
-    {
-        while (current_char_ != '\0' && current_char_ != '\n')
-        {
-            advance();
-        }
-
-        // Skip past the EOL
-        advance();
-    }
-    else if (peek() == '*')
-    {
-        while (current_char_ != '\0' && !(current_char_ == '*' && peek() == '/'))
-        {
-            advance();
-        }
-
-        // Skip past the block end: */
-        advance();
         advance();
     }
 }
@@ -232,8 +190,8 @@ Token Lexer::makeToken(TokenType type, std::string raw)
     Token t;
     t.type = type;
     t.raw = raw;
-    t.line = lineno_;
-    t.column = column_;
+    t.line = current_char_.line;
+    t.column = current_char_.column;
     return t;
 }
 
@@ -245,13 +203,6 @@ Token Lexer::nextToken()
         if (std::isspace(current_char_))
         {
             skipWhitespace();
-            continue;
-        }
-
-        // Comments are irrelevant (block and line)
-        if (current_char_ == '/' && (peek() == '/' || peek() == '*'))
-        {
-            skipComment();
             continue;
         }
 

@@ -6,7 +6,8 @@
 TEST(Precedence, BindsNullaryKeywordsCorrectly)
 {
     std::stringstream input("allunits select random 10");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -18,7 +19,8 @@ TEST(Precedence, BindsNullaryKeywordsCorrectly)
 TEST(Precedence, BindsUnaryMoreThanBinary)
 {
     std::stringstream input("selectrandom [obj] getdir obj2");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -29,7 +31,8 @@ TEST(Precedence, BindsUnaryMoreThanBinary)
 TEST(Precedence, BindsUnaryMoreThanHash)
 {
     std::stringstream input("selectrandom [[1,1]] # +1");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -40,7 +43,8 @@ TEST(Precedence, BindsUnaryMoreThanHash)
 TEST(Precedence, BindsHashMoreThanExponent)
 {
     std::stringstream input("[2] # 0 ^ [2] # 0");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -51,7 +55,8 @@ TEST(Precedence, BindsHashMoreThanExponent)
 TEST(Precedence, BindsExponentMoreThanFactor)
 {
     std::stringstream input("2^2 % 2^3");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -62,7 +67,8 @@ TEST(Precedence, BindsExponentMoreThanFactor)
 TEST(Precedence, BindsAllFactorsEqually)
 {
     std::stringstream input("1 % 2 mod 3 atan2 4 * 5 / 6");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -73,7 +79,8 @@ TEST(Precedence, BindsAllFactorsEqually)
 TEST(Precedence, BindsFactorMoreThanTerms)
 {
     std::stringstream input("1 / 4 - 3 * 5");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 

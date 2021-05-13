@@ -16,10 +16,17 @@ This is the first C++ I have ever written. My intentions for this project are:
 
 If you'd like to contribute please read [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Preprocessing
+
+- A comment starts with a `//` or `/*` character pair that is not part of a string literal, and ends at the end of the physical line or with a `*/` character pair, respectively. These are stripped during preprocessing and thus do not act as tokens delimiters.
+- SQF scripts support C-like preprocessor directives. If the `#` character appears at the start of a line (ignoring leading whitespace) the line is preprocessed.
+- The directive must immediately follow the `#` character (no whitespace) and ends at the end of the logical line.
+- The logical line can be extended by a `\` character immediately preceding the end of the physical line.
+- Preprocessing will fail and the script cannot be tokenised if an unrecognised directive is present.
+
 ## Lexical Analysis
 
 - In SQF a program consists of a sequence of statements. The end of a statement (except from the very last) is marked by a `,` or `;` character except where such characters are allowed by syntax (e.g. commas within an array literal).
-- A comment starts with a `//` or `/*` character pair that is not part of a string literal, and ends at the end of the physical line or with a `*/` character pair, respectively.
 - Outside of string literals, whitespace characters are used to seperate tokens (only necessary if their concatenation could otherwise be interpreted as a different token).
 
 ### Identifiers and Keywords

@@ -6,7 +6,8 @@
 TEST(ArrayDisplay, CanBeEmpty)
 {
     std::stringstream input("[]");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -17,7 +18,8 @@ TEST(ArrayDisplay, CanBeEmpty)
 TEST(CodeDisplay, CanBeEmpty)
 {
     std::stringstream input("{}");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 

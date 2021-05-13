@@ -1,3 +1,4 @@
+#include "src/preprocessor/preprocessor.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 #include "src/analyzer/analyzer.h"
@@ -10,7 +11,8 @@ int main()
 
     if (file_in.is_open())
     {
-        Lexer lex(file_in);
+        Preprocessor preproc(file_in);
+        Lexer lex(preproc);
         Parser p(lex);
         Analyzer a(p);
         a.analyze(std::cout);

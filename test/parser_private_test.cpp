@@ -6,7 +6,8 @@
 TEST(Private, CanModifyAssignment)
 {
     std::stringstream input("private _x = 1");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -17,7 +18,8 @@ TEST(Private, CanModifyAssignment)
 TEST(Private, CanBeUnaryWithVariable)
 {
     std::stringstream input("private _x");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -27,7 +29,8 @@ TEST(Private, CanBeUnaryWithVariable)
 TEST(Private, CanAppearInArray)
 {
     std::stringstream input("[private \"_x\"]");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 

@@ -6,7 +6,8 @@
 TEST(Program, CanEndWithoutFinalDelimiter)
 {
     std::stringstream input("allunits; allunits");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -18,7 +19,8 @@ TEST(Program, CanEndWithoutFinalDelimiter)
 TEST(Program, CanEndWithFinalDelimiter)
 {
     std::stringstream input("allunits; allunits;");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
@@ -30,7 +32,8 @@ TEST(Program, CanEndWithFinalDelimiter)
 TEST(Program, CanBeEmpty)
 {
     std::stringstream input("");
-    Lexer l(input);
+    Preprocessor pp(input);
+    Lexer l(pp);
     Parser p(l);
     Tester t(p);
 

@@ -42,9 +42,17 @@ cc_test(
   srcs = ["parser_private_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )
+
 cc_test(
   name = "parser-program",
   size = "small",
   srcs = ["parser_program_test.cpp"],
+  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
+  name = "preprocessor-comments",
+  size = "small",
+  srcs = ["preprocessor_comments_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )
