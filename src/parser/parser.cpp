@@ -10,11 +10,6 @@
 // Consume a file's tokens and structure them together into an AST (parse the file)
 Parser::Parser(Lexer &lexer) : lexer_(lexer) {}
 
-void Parser::error(std::string msg)
-{
-    throw SyntaxError(current_token_.line, current_token_.column, msg);
-}
-
 void Parser::eat(TokenType type)
 {
     if (current_token_.type == type)
@@ -32,7 +27,8 @@ void Parser::eat(TokenType type)
     }
     else
     {
-        error("Unexpected token '" + current_token_.raw + "'");
+        throw SyntaxError(current_token_.line, current_token_.column,
+            "Unexpected token '" + current_token_.raw + "', expected " + SQF_Token_Descriptors.at(type));
     }
 }
 

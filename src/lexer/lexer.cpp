@@ -147,7 +147,7 @@ Token Lexer::number()
             }
             else
             {
-                error(t, "Unfinished numeric literal");
+                error(t, "Unfinished numeric literal '" + t.raw + "'");
             }
         }
     }

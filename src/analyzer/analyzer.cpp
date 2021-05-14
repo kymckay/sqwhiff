@@ -24,7 +24,7 @@ void Analyzer::analyze()
 };
 
 void Analyzer::error(Token t, std::string msg) {
-    out_ << t.line << ':' << t.column << " SemanticError: " << msg << " (" << t.raw << ")\n";
+    out_ << t.line << ':' << t.column << " SemanticError - " << msg << ": " << t.raw << '\n';
 }
 
 void Analyzer::visit(Compound &c)

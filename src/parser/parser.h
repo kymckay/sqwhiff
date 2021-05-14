@@ -12,7 +12,6 @@ class Parser
     Token current_token_;
     std::deque<Token> peek_buffer_;
 
-    void error(std::string);
     void eat(TokenType);
     Token peek(int = 1);
 
