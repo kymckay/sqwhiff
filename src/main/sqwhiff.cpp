@@ -14,8 +14,8 @@ int main()
         Preprocessor preproc(file_in);
         Lexer lex(preproc);
         Parser p(lex);
-        Analyzer a(p);
-        a.analyze(std::cout);
+        Analyzer a(p, std::cout);
+        a.analyze();
         file_in.close();
     }
     else

@@ -2,20 +2,19 @@
 #include "src/parser/parser.h"
 #include "src/ast/node_visitor.h"
 #include "src/ast/all_nodes.h"
-#include "src/errors/error.h"
-#include <vector>
 #include <ostream>
+#include <string>
 
 class Analyzer : NodeVisitor
 {
     Parser &parser_;
+    std::ostream &out_;
 
-    // Store any encountered errors for output
-    std::vector<Error> errors_;
+    void error(Token, std::string);
 
 public:
-    Analyzer(Parser &);
-    void analyze(std::ostream &);
+    Analyzer(Parser &, std::ostream &);
+    void analyze();
 
     // Visitor interface implementation
 
