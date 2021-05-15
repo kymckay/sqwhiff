@@ -12,7 +12,7 @@ TEST(Analyzer, WillReportIncorrectUnaryUse)
     Analyzer a(p, output);
     a.analyze();
 
-    EXPECT_EQ(output.str(), "1:4 SemanticError - Incorrect arity, expected unary use: comment\n");
+    EXPECT_EQ(output.str(), "1:3 SemanticError - Incorrect arity, expected unary use: comment\n");
 }
 
 TEST(Analyzer, WillReportIncorrectBinaryUse)
@@ -25,7 +25,7 @@ TEST(Analyzer, WillReportIncorrectBinaryUse)
     Analyzer a(p, output);
     a.analyze();
 
-    EXPECT_EQ(output.str(), "1:2 SemanticError - Incorrect arity, expected binary use: select\n");
+    EXPECT_EQ(output.str(), "1:1 SemanticError - Incorrect arity, expected binary use: select\n");
 }
 
 TEST(Analyzer, WillReportMultipleErrors)
@@ -38,5 +38,5 @@ TEST(Analyzer, WillReportMultipleErrors)
     Analyzer a(p, output);
     a.analyze();
 
-    EXPECT_EQ(output.str(), "1:4 SemanticError - Incorrect arity, expected unary use: comment\n2:1 SemanticError - Incorrect arity, expected binary use: select\n");
+    EXPECT_EQ(output.str(), "1:3 SemanticError - Incorrect arity, expected unary use: comment\n2:1 SemanticError - Incorrect arity, expected binary use: select\n");
 }

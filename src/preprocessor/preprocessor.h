@@ -17,7 +17,7 @@ class Preprocessor
     // Current physical position preprocessor has reached
     // Used to give a position to errors and macros
     int lineno_ = 1;
-    int column_ = 1;
+    int column_ = 0; // Column will advance when first character read (1-indexed)
 
     // Preprocessor directives must appear at a line start (ignoring whitespace)
     bool line_start_ = true;

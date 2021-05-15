@@ -1,6 +1,20 @@
 #include "test/tester.h"
 #include <gtest/gtest.h>
 #include <sstream>
+#include <string>
+
+#define ASSERT_EXCEPTION(TO_TRY, EXCEPTION, MSG)   \
+    try                                            \
+    {                                              \
+        TO_TRY                                     \
+        FAIL() << "Expected an exception of type " \
+        << #EXCEPTION;                             \
+    }                                              \
+    catch (EXCEPTION const &err)                   \
+    {                                              \
+        EXPECT_EQ(err.what(), std::string(MSG))    \
+        << "Exception message is incorrect";       \
+    }
 
 TEST(LexicalError, ThrownOnUnknownChar)
 {
@@ -8,7 +22,8 @@ TEST(LexicalError, ThrownOnUnknownChar)
 
     Preprocessor pp(input);
     Lexer l(pp);
-    EXPECT_THROW(l.nextToken(), LexicalError) << "Unexpected character throws exception";
+
+    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unexpected character '?'");
 }
 
 TEST(LexicalError, ThrownOnUnclosedString)
@@ -17,7 +32,8 @@ TEST(LexicalError, ThrownOnUnclosedString)
 
     Preprocessor pp(input);
     Lexer l(pp);
-    EXPECT_THROW(l.nextToken(), LexicalError) << "Unclosed string throws exception";
+
+    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unclosed string");
 }
 
 TEST(LexicalError, ThrowOnIncompleteSciNotation)
@@ -26,10 +42,10 @@ TEST(LexicalError, ThrowOnIncompleteSciNotation)
 
     Preprocessor pp(input);
     Lexer l(pp);
-    EXPECT_THROW(l.nextToken(), LexicalError) << "Invalid numeric literal throws exception";
+
+    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unfinished numeric literal '1e+'");
 }
 
-// TODO check error messages
 TEST(LexicalError, ThrownByParser)
 {
     // See #16
@@ -38,12 +54,12 @@ TEST(LexicalError, ThrownByParser)
     Lexer l1(pp1);
     Parser p1(l1);
 
-    EXPECT_THROW(p1.parse(), LexicalError) << "Lexer errors thrown by parser on immediate error";
+    EXPECT_THROW(p1.parse(), LexicalError) << "Immediate lexical error was not thrown out of parser";
 
     std::stringstream otherwise("statement;statement;\n\n\n'this is unclosed");
     Preprocessor pp2(otherwise);
     Lexer l2(pp2);
     Parser p2(l2);
 
-    EXPECT_THROW(p2.parse(), LexicalError) << "Lexer errors thrown by parser elsewhere";
+    EXPECT_THROW(p2.parse(), LexicalError) << "Lexical error was not thrown out of parser during parsing";
 }
