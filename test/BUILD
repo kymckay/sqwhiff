@@ -8,6 +8,13 @@ cc_library(
 )
 
 cc_test(
+  name = "analyzer-arity",
+  size = "small",
+  srcs = ["analyzer_arity_test.cpp"],
+  deps = ["//src/analyzer:sqf-analyzer", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
   name = "lexer-errors",
   size = "small",
   srcs = ["lexer_errors_test.cpp"],
@@ -54,11 +61,4 @@ cc_test(
   size = "small",
   srcs = ["preprocessor_comments_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
-)
-
-cc_test(
-  name = "semantic-errors",
-  size = "small",
-  srcs = ["semantic_errors_test.cpp"],
-  deps = ["//src/analyzer:sqf-analyzer", "@com_google_googletest//:gtest_main"],
 )
