@@ -3,5 +3,5 @@ cc_library(
     srcs = ["analyzer.cpp"],
     hdrs = ["analyzer.h"],
     deps = ["//src/sqf:sqf-lang", "//src/parser:sqf-parser"],
-    visibility = ["//src/main:__pkg__"],
+    visibility = ["//src/main:__pkg__", "//test:__pkg__"],
 )

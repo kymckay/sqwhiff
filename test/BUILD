@@ -4,8 +4,7 @@ cc_library(
     name = "sqf-ast-tester",
     srcs = ["tester.cpp"],
     hdrs = ["tester.h"],
-    deps = ["//src/parser:sqf-parser"],
-    visibility = ["//src/main:__pkg__"],
+    deps = ["//src/parser:sqf-parser"]
 )
 
 cc_test(
@@ -55,4 +54,11 @@ cc_test(
   size = "small",
   srcs = ["preprocessor_comments_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
+  name = "semantic-errors",
+  size = "small",
+  srcs = ["semantic_errors_test.cpp"],
+  deps = ["//src/analyzer:sqf-analyzer", "@com_google_googletest//:gtest_main"],
 )
