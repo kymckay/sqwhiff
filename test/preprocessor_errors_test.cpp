@@ -16,22 +16,19 @@
             << "Exception message is incorrect";   \
     }
 
-TEST(SyntaxError, ThrownOnUnclosedArray)
+TEST(PreprocessingError, ThrownOnBadDirective)
 {
-    std::stringstream input("[1,2,3,4,5");
+    // Can't use hash selection operator at line start due to preprocessing
+    std::stringstream input("[1,2,3]\n #2");
+
     Preprocessor pp(input);
-    Lexer l(pp);
-    Parser p(l);
 
-    ASSERT_EXCEPTION(p.parse(), SyntaxError, "1:10 SyntaxError - Unexpected token '', expected a closing square bracket");
-}
+    // Skip non-problematic characters
+    for (size_t i = 0; i < 9; i++)
+    {
+        pp.get();
+    }
 
-TEST(SyntaxError, ThrownOnUnclosedCode)
-{
-    std::stringstream input("[1] select {_x == 1");
-    Preprocessor pp(input);
-    Lexer l(pp);
-    Parser p(l);
-
-    ASSERT_EXCEPTION(p.parse(), SyntaxError, "1:19 SyntaxError - Unexpected token '', expected a closing curly bracket");
+    // The 2 is not in the message since directives are only alpha characters
+    ASSERT_EXCEPTION(pp.get(), PreprocessingError, "2:2 PreprocessingError - Unrecognised preprocessor directive ''");
 }

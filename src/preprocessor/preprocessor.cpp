@@ -1,7 +1,6 @@
 #include "src/preprocessor/preprocessor.h"
 #include <string>
 #include <istream>
-#include <algorithm>
 #include <cctype>
 
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
@@ -10,9 +9,9 @@ Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
     advance();
 }
 
-void Preprocessor::error(PosChar p, std::string msg)
+void Preprocessor::error(int line, int col, std::string msg)
 {
-    throw PreprocessingError(p.line, p.column, msg);
+    throw PreprocessingError(line, col, msg);
 }
 
 void Preprocessor::advance()
@@ -65,6 +64,52 @@ void Preprocessor::skipComment()
     }
 }
 
+void Preprocessor::handleDirective()
+{
+    // Directive position important for errors and macros
+    int line = lineno_;
+    int col = column_;
+
+    // Skip the #
+    advance();
+
+    std::string instruction;
+    while (isalpha(current_char_))
+    {
+        instruction.push_back(current_char_);
+        advance();
+    }
+
+    if (instruction == "include")
+    {
+    }
+    else if (instruction == "define")
+    {
+    }
+    else if (instruction == "undef")
+    {
+    }
+    else if (instruction == "if")
+    {
+    }
+    else if (instruction == "ifdef")
+    {
+    }
+    else if (instruction == "ifndef")
+    {
+    }
+    else if (instruction == "else")
+    {
+    }
+    else if (instruction == "endif")
+    {
+    }
+    else
+    {
+        error(line, col, "Unrecognised preprocessor directive '" + instruction + "'");
+    }
+}
+
 PosChar Preprocessor::get()
 {
     // Pull from the buffer first if any peek has occured
@@ -82,6 +127,11 @@ PosChar Preprocessor::get()
         if (current_char_ == '/' && (stream_.peek() == '/' || stream_.peek() == '*'))
         {
             skipComment();
+        }
+        // Preprocessor directives indicated by # at line start
+        else if (line_start_ && current_char_ =='#')
+        {
+            handleDirective();
         }
     }
 

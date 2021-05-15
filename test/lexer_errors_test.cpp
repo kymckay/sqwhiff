@@ -6,7 +6,7 @@
 #define ASSERT_EXCEPTION(TO_TRY, EXCEPTION, MSG)   \
     try                                            \
     {                                              \
-        TO_TRY                                     \
+        TO_TRY;                                    \
         FAIL() << "Expected an exception of type " \
         << #EXCEPTION;                             \
     }                                              \
@@ -23,7 +23,7 @@ TEST(LexicalError, ThrownOnUnknownChar)
     Preprocessor pp(input);
     Lexer l(pp);
 
-    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unexpected character '?'");
+    ASSERT_EXCEPTION(l.nextToken(), LexicalError, "1:1 LexicalError - Unexpected character '?'");
 }
 
 TEST(LexicalError, ThrownOnUnclosedString)
@@ -33,7 +33,7 @@ TEST(LexicalError, ThrownOnUnclosedString)
     Preprocessor pp(input);
     Lexer l(pp);
 
-    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unclosed string");
+    ASSERT_EXCEPTION(l.nextToken(), LexicalError, "1:1 LexicalError - Unclosed string");
 }
 
 TEST(LexicalError, ThrowOnIncompleteSciNotation)
@@ -43,7 +43,7 @@ TEST(LexicalError, ThrowOnIncompleteSciNotation)
     Preprocessor pp(input);
     Lexer l(pp);
 
-    ASSERT_EXCEPTION(l.nextToken();, LexicalError, "1:1 LexicalError - Unfinished numeric literal '1e+'");
+    ASSERT_EXCEPTION(l.nextToken(), LexicalError, "1:1 LexicalError - Unfinished numeric literal '1e+'");
 }
 
 TEST(LexicalError, ThrownByParser)

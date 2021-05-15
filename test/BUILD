@@ -69,3 +69,10 @@ cc_test(
   srcs = ["preprocessor_comments_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )
+
+cc_test(
+  name = "preprocessor-errors",
+  size = "small",
+  srcs = ["preprocessor_errors_test.cpp"],
+  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+)

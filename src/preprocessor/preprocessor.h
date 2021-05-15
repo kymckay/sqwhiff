@@ -25,9 +25,10 @@ class Preprocessor
     // Double quoted string literals are not preprocessed
     bool in_doubles_ = false;
 
-    void error(PosChar, std::string);
+    void error(int, int, std::string);
     void advance();
     void skipComment();
+    void handleDirective();
 
 public:
     Preprocessor(std::istream&);

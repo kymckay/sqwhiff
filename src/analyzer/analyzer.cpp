@@ -13,6 +13,10 @@ void Analyzer::analyze()
         std::unique_ptr<AST> tree = parser_.parse();
         tree->accept(*this);
     }
+    catch (const PreprocessingError &e)
+    {
+        out_ << e.what();
+    }
     catch(const LexicalError& e)
     {
         out_ << e.what();
