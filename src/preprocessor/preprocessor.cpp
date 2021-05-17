@@ -7,10 +7,8 @@
 
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 {
-    // Immediately read in the first character
-    advance();
-    // Start of file, first character could be a directive
-    line_start_ = true;
+    // Immediately read in the first character (not an advance, don't want to change state)
+    stream_.get(current_char_);
 }
 
 void Preprocessor::error(int line, int col, std::string msg)
