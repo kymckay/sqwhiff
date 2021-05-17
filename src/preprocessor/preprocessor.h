@@ -1,9 +1,11 @@
 #pragma once
 #include "src/preprocessor/pos_char.h"
+#include "src/preprocessor/macro.h"
 #include "src/preprocessor/preprocessing_error.h"
 #include <string>
 #include <istream>
 #include <deque>
+#include <unordered_map>
 
 class Preprocessor
 {
@@ -28,7 +30,11 @@ class Preprocessor
     void error(int, int, std::string);
     void advance();
     void skipComment();
-    void handleDirective();
+
+    std::unordered_multimap<std::string, Macro> macros_;
+
+    PosChar handleDirective();
+    void handleDefine(const std::string&);
 
 public:
     Preprocessor(std::istream&);

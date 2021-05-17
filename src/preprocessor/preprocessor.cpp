@@ -1,12 +1,16 @@
 #include "src/preprocessor/preprocessor.h"
 #include <string>
 #include <istream>
+#include <sstream>
+#include <regex>
 #include <cctype>
 
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 {
     // Immediately read in the first character
     advance();
+    // Start of file, first character could be a directive
+    line_start_ = true;
 }
 
 void Preprocessor::error(int line, int col, std::string msg)
@@ -64,7 +68,7 @@ void Preprocessor::skipComment()
     }
 }
 
-void Preprocessor::handleDirective()
+PosChar Preprocessor::handleDirective()
 {
     // Directive position important for errors and macros
     int line = lineno_;
@@ -73,40 +77,102 @@ void Preprocessor::handleDirective()
     // Skip the #
     advance();
 
-    std::string instruction;
-    while (isalpha(current_char_))
+    std::string directive;
+    while (current_char_ != '\n' && current_char_ != '\0')
     {
-        instruction.push_back(current_char_);
-        advance();
+        // Logical line can be extended by escaped newlines (anywhere in the directive)
+        if (current_char_ == '\\' && stream_.peek() == '\n')
+        {
+            advance();
+            advance();
+        }
+        else
+        {
+            directive.push_back(current_char_);
+            advance();
+        }
     }
 
-    if (instruction == "include")
+    // There can be no space between the # and directive
+    // Space characters between the instruction and body are skipped
+    std::regex rgx(R"((\w+) *(.*))");
+    std::smatch matches;
+
+    if (std::regex_match(directive, matches, rgx))
     {
-    }
-    else if (instruction == "define")
-    {
-    }
-    else if (instruction == "undef")
-    {
-    }
-    else if (instruction == "if")
-    {
-    }
-    else if (instruction == "ifdef")
-    {
-    }
-    else if (instruction == "ifndef")
-    {
-    }
-    else if (instruction == "else")
-    {
-    }
-    else if (instruction == "endif")
-    {
+        // 0 is the whole match
+        std::string instruction = matches[1].str();
+        std::string body = matches[2].str();
+
+        if (instruction == "include")
+        {
+        }
+        else if (instruction == "define")
+        {
+            handleDefine(body);
+        }
+        else if (instruction == "undef")
+        {
+        }
+        else if (instruction == "if")
+        {
+        }
+        else if (instruction == "ifdef")
+        {
+        }
+        else if (instruction == "ifndef")
+        {
+        }
+        else if (instruction == "else")
+        {
+        }
+        else if (instruction == "endif")
+        {
+        }
+        else
+        {
+            error(line, col, "Unrecognised preprocessor directive '#" + instruction + "'");
+        }
     }
     else
     {
-        error(line, col, "Unrecognised preprocessor directive '" + instruction + "'");
+        error(line, col, "Malformed preprocessor directive");
+    }
+
+    return get();
+}
+
+void Preprocessor::handleDefine(const std::string &body)
+{
+    // ID must start with alpha or underscore, can contain digits
+    // Arguments are optional, trailing comma is allowed
+    // Space characters (specifically spaces) following the head are skipped
+    // Body may be empty
+    std::regex rgx(R"(([a-zA-Z_][0-9a-zA-Z_]*)(?:\(((?:[a-zA-Z_][0-9a-zA-Z_]*,?)+)\))? *(.*))");
+    std::smatch matches;
+
+    if (std::regex_match(body, matches, rgx))
+    {
+        std::string keyword = matches[1].str();
+        std::stringstream argstream(matches[2].str());
+
+        Macro m;
+        m.body = matches[3].str();
+
+        // Populate args vector
+        std::string tmp;
+        while (std::getline(argstream, tmp, ','))
+        {
+            // TODO trim args of horizontal whitespace
+            m.args.push_back(tmp);
+        }
+
+        macros_.insert({keyword, m});
+    }
+    else
+    {
+        // TODO improve errors
+        error(lineno_, column_, "Invalid macro definition");
     }
 }
 
@@ -129,10 +195,13 @@ PosChar Preprocessor::get()
             skipComment();
         }
         // Preprocessor directives indicated by # at line start
-        else if (line_start_ && current_char_ =='#')
+        else if (line_start_ && current_char_ == '#')
         {
-            handleDirective();
+            return handleDirective();
         }
+        // TODO: Recognise macro usage, if previous character wasn't alpha or _ then could be a macro
+        else if (std::isalpha(current_char_) || current_char_ == '_')
+        {}
     }
 
     // Each double quote encountered inverts the context
