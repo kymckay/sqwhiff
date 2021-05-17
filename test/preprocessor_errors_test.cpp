@@ -30,5 +30,5 @@ TEST(PreprocessingError, ThrownOnBadDirective)
     }
 
     // The 2 is not in the message since directives are only alpha characters
-    ASSERT_EXCEPTION(pp.get(), PreprocessingError, "2:2 PreprocessingError - Unrecognised preprocessor directive ''");
+    ASSERT_EXCEPTION(pp.get(), PreprocessingError, "2:2 PreprocessingError - Unrecognised preprocessor directive '#2'");
 }
