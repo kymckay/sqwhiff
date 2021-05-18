@@ -93,7 +93,7 @@ PosChar Preprocessor::handleDirective()
 
     // There can be no space between the # and directive
     // Space characters between the instruction and body are skipped
-    std::regex rgx(R"((\w+) *(.*))");
+    std::regex rgx(R"(([a-zA-Z]+) *(.*))");
     std::smatch matches;
 
     if (std::regex_match(directive, matches, rgx))
@@ -134,7 +134,7 @@ PosChar Preprocessor::handleDirective()
     }
     else
     {
-        error(line, col, "Malformed preprocessor directive");
+        error(line, col, "Invalid preprocessor directive");
     }
 
     return get();

@@ -71,8 +71,15 @@ cc_test(
 )
 
 cc_test(
-  name = "preprocessor-errors",
+  name = "preprocessor-directive",
   size = "small",
-  srcs = ["preprocessor_errors_test.cpp"],
+  srcs = ["preprocessor_directive_test.cpp"],
+  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
+  name = "preprocessor-macros",
+  size = "small",
+  srcs = ["preprocessor_macros_test.cpp"],
   deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
 )
