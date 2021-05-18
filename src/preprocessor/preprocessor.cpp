@@ -160,7 +160,7 @@ void Preprocessor::defineMacro(const std::string &definition)
         std::string tmp;
         while (std::getline(argstream, tmp, ','))
         {
-            // TODO trim args of horizontal whitespace
+            // TODO trim args of horizontal whitespace (do in the regex)
             m.args.push_back(tmp);
         }
 
@@ -217,14 +217,28 @@ PosChar Preprocessor::expandMacro()
     if (macros_.find(word) != macros_.end())
     {
         // Any arguments must follow immediately
-        std::stringstream argsstream;
+        std::vector<std::string> args;
         if (current_char_ == '(')
         {
             advance();
+
+            std::string arg;
             while (current_char_ != '\0' && current_char_ != ')')
             {
-                argsstream.putback(current_char_);
+                if (current_char_ == ',')
+                {
+                    args.push_back(arg);
+                    arg.clear();
+                }
+                else
+                {
+                    arg.push_back(current_char_);
+                }
+
+                advance();
             }
+            // The final argument ends on a )
+            args.push_back(arg);
 
             if (current_char_ == ')')
             {
@@ -234,13 +248,6 @@ PosChar Preprocessor::expandMacro()
             {
                 error(initial.line, initial.column, "Unclosed macro arguments '" + word + "('");
             }
-        }
-
-        std::vector<std::string> args;
-        std::string tmp;
-        while (std::getline(argsstream, tmp, ','))
-        {
-            args.push_back(tmp);
         }
 
         // With the args known, check if the macro is defined for that same number of args
