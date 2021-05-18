@@ -5,7 +5,7 @@
 #include <string>
 #include <istream>
 #include <deque>
-#include <unordered_map>
+#include <map>
 
 class Preprocessor
 {
@@ -31,10 +31,12 @@ class Preprocessor
     void advance();
     void skipComment();
 
-    std::unordered_multimap<std::string, Macro> macros_;
+    // Multimap since macros can be overloaded, ordered allows iteration over the subsets
+    std::multimap<std::string, Macro> macros_;
 
     PosChar handleDirective();
-    void handleDefine(const std::string&);
+    void defineMacro(const std::string&);
+    PosChar expandMacro();
 
 public:
     Preprocessor(std::istream&);

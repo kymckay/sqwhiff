@@ -107,7 +107,7 @@ PosChar Preprocessor::handleDirective()
         }
         else if (instruction == "define")
         {
-            handleDefine(body);
+            defineMacro(body);
         }
         else if (instruction == "undef")
         {
@@ -140,7 +140,7 @@ PosChar Preprocessor::handleDirective()
     return get();
 }
 
-void Preprocessor::handleDefine(const std::string &body)
+void Preprocessor::defineMacro(const std::string &definition)
 {
     // ID must start with alpha or underscore, can contain digits
     // Arguments are optional, trailing comma is allowed
@@ -149,13 +149,12 @@ void Preprocessor::handleDefine(const std::string &body)
     std::regex rgx(R"(([a-zA-Z_][0-9a-zA-Z_]*)(?:\(((?:[a-zA-Z_][0-9a-zA-Z_]*,?)+)\))? *(.*))");
     std::smatch matches;
 
-    if (std::regex_match(body, matches, rgx))
+    if (std::regex_match(definition, matches, rgx))
     {
         std::string keyword = matches[1].str();
         std::stringstream argstream(matches[2].str());
 
         Macro m;
-        m.body = matches[3].str();
 
         // Populate args vector
         std::string tmp;
@@ -165,6 +164,23 @@ void Preprocessor::handleDefine(const std::string &body)
             m.args.push_back(tmp);
         }
 
+        // Split body by concatenation makes lifes simplier when resolving macros later
+        std::string body = matches[3].str();
+        while (body.length() > 0)
+        {
+            std::string::size_type i = body.find("##");
+            if (i == std::string::npos)
+            {
+                m.body.push_back(body);
+                body.clear();
+            }
+            else
+            {
+                m.body.push_back(body.substr(0, i));
+                body = body.substr(i + 2);
+            }
+        }
+
         macros_.insert({keyword, m});
     }
     else
@@ -172,6 +188,126 @@ void Preprocessor::handleDefine(const std::string &body)
         // TODO improve errors
         error(lineno_, column_, "Invalid macro definition");
     }
+}
+
+PosChar Preprocessor::expandMacro()
+{
+    PosChar initial;
+    initial.c = current_char_;
+    initial.line = lineno_;
+    initial.column = column_;
+
+    // TODO Need to use preprocessor get, since macros passed in to arguments are resolved first
+    std::vector<PosChar> word_peek;
+    std::string word;
+    while (std::isalpha(current_char_) || current_char_ == '_')
+    {
+        word.push_back(current_char_);
+
+        // This is a form of peeking, be prepared to place to buffer if not a macro
+        PosChar c;
+        c.c = current_char_;
+        c.line = lineno_;
+        c.column = column_;
+        word_peek.push_back(c);
+
+        advance();
+    }
+
+    if (macros_.find(word) != macros_.end())
+    {
+        // Any arguments must follow immediately
+        std::stringstream argsstream;
+        if (current_char_ == '(')
+        {
+            advance();
+            while (current_char_ != '\0' && current_char_ != ')')
+            {
+                argsstream.putback(current_char_);
+            }
+
+            if (current_char_ == ')')
+            {
+                advance();
+            }
+            else
+            {
+                error(initial.line, initial.column, "Unclosed macro arguments '" + word + "('");
+            }
+        }
+
+        std::vector<std::string> args;
+        std::string tmp;
+        while (std::getline(argsstream, tmp, ','))
+        {
+            args.push_back(tmp);
+        }
+
+        // With the args known, check if the macro is defined for that same number of args
+        bool found = false;
+        Macro matched;
+
+        std::multimap<std::string, Macro>::iterator end = macros_.upper_bound(word);
+        for (std::multimap<std::string, Macro>::iterator i = macros_.lower_bound(word); i != end; i++)
+        {
+            if (i->second.args.size() == args.size())
+            {
+                found = true;
+                matched = i->second;
+                break;
+            };
+        }
+
+        if (!found)
+        {
+            // TODO improve error message with details
+            error(initial.line, initial.column, "Invalid number of macro arguments supplied '" + word + "'");
+        }
+
+        std::string body;
+        for (std::string body_part : matched.body)
+        {
+            for (size_t i = 0; i < args.size(); i++)
+            {
+                std::string param = matched.args[i];
+                std::string arg = args[i];
+
+                // Stringify argument resolutions where appropriate
+                std::regex rgx_stringify("#" + param + "\\b");
+                body_part = regex_replace(body_part, rgx_stringify, "\"" + arg + "\"");
+
+                // Resolve plain arguments
+                std::regex rgx_param("\\b" + param + "\\b");
+                body_part = regex_replace(body_part, rgx_param, arg);
+            }
+
+            // Resolve static stringification
+            std::regex rgx_stringify("#([a-zA-Z_]\\w*)");
+            body_part = regex_replace(body_part, rgx_stringify, "\"$1\"");
+
+            body.append(body_part);
+        }
+
+        std::vector<PosChar> resolved;
+        for (auto &&c : body)
+        {
+            // Report errors at the macro position
+            PosChar pc = initial;
+            pc.c = c;
+            resolved.push_back(pc);
+        }
+
+        // This may not be most efficient if buffer is empty already, but should never be too long anyway
+        peek_buffer_.insert(peek_buffer_.end(), resolved.begin(), resolved.end());
+    }
+    else
+    {
+        // This may not be most efficient if buffer is empty already, but should never be too long anyway
+        peek_buffer_.insert(peek_buffer_.end(), word_peek.begin(), word_peek.end());
+    }
+
+    // Either a macro was resolved or word pushed to buffer, get as normal
+    return get();
 }
 
 PosChar Preprocessor::get()
@@ -197,9 +333,10 @@ PosChar Preprocessor::get()
         {
             return handleDirective();
         }
-        // TODO: Recognise macro usage, if previous character wasn't alpha or _ then could be a macro
         else if (std::isalpha(current_char_) || current_char_ == '_')
-        {}
+        {
+            return expandMacro();
+        }
     }
 
     // Each double quote encountered inverts the context
