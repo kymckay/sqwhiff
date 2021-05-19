@@ -32,10 +32,12 @@ class Preprocessor
     void skipComment();
 
     // Multimap since macros can be overloaded, ordered allows iteration over the subsets
-    std::multimap<std::string, Macro> macros_;
+    std::multimap<std::string, MacroDefinition> macros_;
 
     PosChar handleDirective();
-    void defineMacro(const std::string&);
+    void defineMacro(const std::string &);
+    std::vector<PosChar> expandMacro(const MacroToken&);
+    void getMacroArgs(MacroToken&);
     PosChar expandMacro();
 
 public:

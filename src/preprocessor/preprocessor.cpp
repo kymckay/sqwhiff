@@ -154,14 +154,14 @@ void Preprocessor::defineMacro(const std::string &definition)
         std::string keyword = matches[1].str();
         std::stringstream argstream(matches[2].str());
 
-        Macro m;
+        MacroDefinition m;
 
         // Populate args vector
         std::string tmp;
         while (std::getline(argstream, tmp, ','))
         {
             // TODO trim args of horizontal whitespace (do in the regex)
-            m.args.push_back(tmp);
+            m.params.push_back(tmp);
         }
 
         // Split body by concatenation makes lifes simplier when resolving macros later
@@ -190,6 +190,108 @@ void Preprocessor::defineMacro(const std::string &definition)
     }
 }
 
+// Expands a macro from the map
+std::vector<PosChar> Preprocessor::expandMacro(const MacroToken &macro)
+{
+    // With the args known, check if the macro is defined for that same number of args
+    bool found = false;
+    MacroDefinition matched;
+
+    std::multimap<std::string, MacroDefinition>::iterator end = macros_.upper_bound(macro);
+    for (std::multimap<std::string, MacroDefinition>::iterator i = macros_.lower_bound(macro); i != end; i++)
+    {
+        if (i->second.params.size() == macro.args.size())
+        {
+            found = true;
+            matched = i->second;
+            break;
+        };
+    }
+
+    if (!found)
+    {
+        // TODO improve error message with details
+        error(macro.line, macro.column, "Invalid number of macro arguments supplied '" + macro.word + "'");
+    }
+
+    std::string body;
+    for (std::string body_part : matched.body)
+    {
+        for (size_t i = 0; i < macro.args.size(); i++)
+        {
+            std::string param = matched.params[i];
+            std::string arg = macro.args[i];
+
+            // Stringify argument resolutions where appropriate
+            std::regex rgx_stringify("#" + param + "\\b");
+            body_part = regex_replace(body_part, rgx_stringify, "\"" + arg + "\"");
+
+            // Resolve plain arguments
+            std::regex rgx_param("\\b" + param + "\\b");
+            body_part = regex_replace(body_part, rgx_param, arg);
+        }
+
+        // Resolve static stringification
+        std::regex rgx_stringify("#([a-zA-Z_]\\w*)");
+        body_part = regex_replace(body_part, rgx_stringify, "\"$1\"");
+
+        body.append(body_part);
+    }
+
+    std::vector<PosChar> resolved;
+    for (auto &&c : body)
+    {
+        // Report errors at the macro position
+        PosChar pc;
+        pc.line = macro.line;
+        pc.column = macro.column;
+        pc.c = c;
+        resolved.push_back(pc);
+    }
+
+    return resolved;
+}
+
+// Populate the macro with arguments from the current file position (if there are any)
+void Preprocessor::getMacroArgs(MacroToken &macro)
+{
+    std::vector<std::string> args;
+    if (current_char_ == '(')
+    {
+        advance();
+
+        std::string arg;
+        while (current_char_ != '\0' && current_char_ != ')')
+        {
+            if (current_char_ == ',')
+            {
+                args.push_back(arg);
+                arg.clear();
+            }
+            else
+            {
+                arg.push_back(current_char_);
+            }
+
+            advance();
+        }
+        // The final argument ends on a )
+        args.push_back(arg);
+
+        if (current_char_ == ')')
+        {
+            advance();
+        }
+        else
+        {
+            error(macro.line, macro.column, "Unclosed macro arguments '" + macro.word + "('");
+        }
+    }
+
+    macro.args = args;
+}
+
+// Obtains next word and expands if it's a macro
 PosChar Preprocessor::expandMacro()
 {
     PosChar initial;
@@ -216,93 +318,15 @@ PosChar Preprocessor::expandMacro()
 
     if (macros_.find(word) != macros_.end())
     {
+        MacroToken to_expand;
+        to_expand.line = initial.line;
+        to_expand.column = initial.column;
+        to_expand.word = word;
+
         // Any arguments must follow immediately
-        std::vector<std::string> args;
-        if (current_char_ == '(')
-        {
-            advance();
+        getMacroArgs(to_expand);
 
-            std::string arg;
-            while (current_char_ != '\0' && current_char_ != ')')
-            {
-                if (current_char_ == ',')
-                {
-                    args.push_back(arg);
-                    arg.clear();
-                }
-                else
-                {
-                    arg.push_back(current_char_);
-                }
-
-                advance();
-            }
-            // The final argument ends on a )
-            args.push_back(arg);
-
-            if (current_char_ == ')')
-            {
-                advance();
-            }
-            else
-            {
-                error(initial.line, initial.column, "Unclosed macro arguments '" + word + "('");
-            }
-        }
-
-        // With the args known, check if the macro is defined for that same number of args
-        bool found = false;
-        Macro matched;
-
-        std::multimap<std::string, Macro>::iterator end = macros_.upper_bound(word);
-        for (std::multimap<std::string, Macro>::iterator i = macros_.lower_bound(word); i != end; i++)
-        {
-            if (i->second.args.size() == args.size())
-            {
-                found = true;
-                matched = i->second;
-                break;
-            };
-        }
-
-        if (!found)
-        {
-            // TODO improve error message with details
-            error(initial.line, initial.column, "Invalid number of macro arguments supplied '" + word + "'");
-        }
-
-        std::string body;
-        for (std::string body_part : matched.body)
-        {
-            for (size_t i = 0; i < args.size(); i++)
-            {
-                std::string param = matched.args[i];
-                std::string arg = args[i];
-
-                // Stringify argument resolutions where appropriate
-                std::regex rgx_stringify("#" + param + "\\b");
-                body_part = regex_replace(body_part, rgx_stringify, "\"" + arg + "\"");
-
-                // Resolve plain arguments
-                std::regex rgx_param("\\b" + param + "\\b");
-                body_part = regex_replace(body_part, rgx_param, arg);
-            }
-
-            // Resolve static stringification
-            std::regex rgx_stringify("#([a-zA-Z_]\\w*)");
-            body_part = regex_replace(body_part, rgx_stringify, "\"$1\"");
-
-            body.append(body_part);
-        }
-
-        std::vector<PosChar> resolved;
-        for (auto &&c : body)
-        {
-            // Report errors at the macro position
-            PosChar pc = initial;
-            pc.c = c;
-            resolved.push_back(pc);
-        }
+        std::vector<PosChar> resolved = expandMacro(to_expand);
 
         // This may not be most efficient if buffer is empty already, but should never be too long anyway
         peek_buffer_.insert(peek_buffer_.end(), resolved.begin(), resolved.end());
