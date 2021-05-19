@@ -10,7 +10,7 @@ TEST(Macros, CanBeDefinedEmpty)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<NoOp>") << "Macro definition was not ignored";
+    EXPECT_EQ(t.test(), "<NoOp>") << "Macro definition should not appear in output structure";
 }
 
 TEST(Macros, CanBeDefinedWithArgs)
@@ -22,7 +22,7 @@ TEST(Macros, CanBeDefinedWithArgs)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<NoOp>") << "Macro definition was not ignored";
+    EXPECT_EQ(t.test(), "<NoOp>") << "Macro definition with parameters should not appear in output structure";
 }
 
 TEST(Macros, CanBeExpandedEmpty)
@@ -33,7 +33,7 @@ TEST(Macros, CanBeExpandedEmpty)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<NoOp>") << "Macro token was not expanded to nothing";
+    EXPECT_EQ(t.test(), "<NoOp>") << "Macro expansion should work with no arguments";
 }
 
 TEST(Macros, CanBeExpandedToStatic)
@@ -44,7 +44,7 @@ TEST(Macros, CanBeExpandedToStatic)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Dec:1>") << "Macro token was not expanded to static content";
+    EXPECT_EQ(t.test(), "<Dec:1>") << "Macro expansion should work with static content";
 }
 
 TEST(Macros, CanBeExpandedWithArgs)
@@ -56,7 +56,7 @@ TEST(Macros, CanBeExpandedWithArgs)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<NoOp>") << "Macro token with args was not expanded to nothing";
+    EXPECT_EQ(t.test(), "<NoOp>") << "Macro expansion should work with arguments";
 }
 
 TEST(Macros, CanBeExpandedWithArgReplacement)
@@ -67,5 +67,84 @@ TEST(Macros, CanBeExpandedWithArgReplacement)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "([<Dec:1>] select <Dec:0>)") << "Macro token with args was not expanded with replacement";
+    EXPECT_EQ(t.test(), "([<Dec:1>] select <Dec:0>)") << "Macro expansion should perform parameter replacement";
+}
+
+TEST(Macros, CanBeExpandedWithArgStringification)
+{
+    std::stringstream input("#define _S(A) #A\n_S(2)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:2>") << "Macro expansion should stringify parameters with replacement";
+}
+
+TEST(Macros, CanBeExpandedWithStaticStringification)
+{
+    std::stringstream input("#define _S comment #Y\n_S");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "(comment <Str:Y>)") << "Macro expansion should stringify static content";
+}
+
+TEST(Macros, CanBeExpandedWithArgConcatenation)
+{
+    std::stringstream input("#define _C(A,B) A##B\n_C(20,1)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Dec:201>") << "Macro expansion should concatenate parameters with replacement";
+}
+
+TEST(Macros, CanBeExpandedWithStaticConcatenation)
+{
+    std::stringstream input("#define _C A##B\n_C");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    // TODO fix case of source not persisting through to output
+    EXPECT_EQ(t.test(), "<Var:ab>") << "Macro expansion should concatenate static content";
+}
+
+TEST(Macros, CanBeExpandedWithConcatenationBesideStringification)
+{
+    std::stringstream input("#define test(var1,var2) #var1###var2\ntest(concat,strings)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:concat\"strings>") << "Macro expansion should not be confused by concatenation beside stringification";
+}
+
+TEST(Macros, CannotBeRecursive)
+{
+    std::stringstream input("#define INVALID_RECUR 2 + INVALID_RECUR\nINVALID_RECUR");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "(<Dec:2> + <Var:invalid_recur>)") << "Macro expansion should not recursively expand";
+}
+
+// TODO
+TEST(Macros, DISABLED_AreExpandedAsArgumentsFirst)
+{
+    std::stringstream input("#define ONE 1\n#define _S(A) #A\n_S(ONE)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:1>") << "Macro expansion in arguments should take place before parameter replacement";
 }
