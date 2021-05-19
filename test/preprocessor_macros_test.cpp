@@ -126,6 +126,17 @@ TEST(Macros, CanBeExpandedWithConcatenationBesideStringification)
     EXPECT_EQ(t.test(), "<Str:concat\"strings>") << "Macro expansion should not be confused by concatenation beside stringification";
 }
 
+TEST(Macros, DISABLED_CanBeNested)
+{
+    std::stringstream input("#define ONE 1\n#define SUM 3+ONE\nSUM");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "(<Dec:3> + <Dec:1)") << "Macro expansion should occur within macro body";
+}
+
 TEST(Macros, CannotBeRecursive)
 {
     std::stringstream input("#define INVALID_RECUR 2 + INVALID_RECUR\nINVALID_RECUR");
@@ -137,7 +148,17 @@ TEST(Macros, CannotBeRecursive)
     EXPECT_EQ(t.test(), "(<Dec:2> + <Var:invalid_recur>)") << "Macro expansion should not recursively expand";
 }
 
-// TODO
+TEST(Macros, DISABLED_CanBeNestedOverloaded)
+{
+    std::stringstream input("#define ONE 1\n#define ONE(A) A+ONE\nONE(3)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "(<Dec:3> + <Dec:1)") << "Overloaded macro expansion should occur within macro body";
+}
+
 TEST(Macros, DISABLED_AreExpandedAsArgumentsFirst)
 {
     std::stringstream input("#define ONE 1\n#define _S(A) #A\n_S(ONE)");
