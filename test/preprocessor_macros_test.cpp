@@ -27,7 +27,7 @@ TEST(Macros, CanBeDefinedWithArgs)
 
 TEST(Macros, CanBeExpandedEmpty)
 {
-    std::stringstream input("#define MACRO\nMACRO");
+    std::stringstream input("#define MACRO1\nMACRO1");
     Preprocessor pp(input);
     Lexer l(pp);
     Parser p(l);

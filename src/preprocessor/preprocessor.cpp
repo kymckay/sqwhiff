@@ -292,7 +292,7 @@ void Preprocessor::getMacroArgs(MacroToken &macro)
 }
 
 // Obtains next word and expands if it's a macro
-PosChar Preprocessor::expandMacro()
+PosChar Preprocessor::preprocessWord()
 {
     PosChar initial;
     initial.c = current_char_;
@@ -302,7 +302,7 @@ PosChar Preprocessor::expandMacro()
     // TODO Need to use preprocessor get, since macros passed in to arguments are resolved first
     std::vector<PosChar> word_peek;
     std::string word;
-    while (std::isalpha(current_char_) || current_char_ == '_')
+    while (std::isalnum(current_char_) || current_char_ == '_')
     {
         word.push_back(current_char_);
 
@@ -366,7 +366,7 @@ PosChar Preprocessor::get()
         }
         else if (std::isalpha(current_char_) || current_char_ == '_')
         {
-            return expandMacro();
+            return preprocessWord();
         }
     }
 

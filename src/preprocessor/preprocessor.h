@@ -38,7 +38,7 @@ class Preprocessor
     void defineMacro(const std::string &);
     std::vector<PosChar> expandMacro(const MacroToken&);
     void getMacroArgs(MacroToken&);
-    PosChar expandMacro();
+    PosChar preprocessWord();
 
 public:
     Preprocessor(std::istream&);
