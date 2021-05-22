@@ -252,31 +252,56 @@ std::vector<PosChar> Preprocessor::expandMacro(const MacroToken &macro)
     return resolved;
 }
 
+// TODO resolve macros in the arguments with recurrence
+void Preprocessor::preprocessArgs(MacroToken &macro, std::string content)
+{
+    while (content.length() > 0)
+    {
+        std::string::size_type i = content.find(',');
+        if (i == std::string::npos)
+        {
+            macro.args.push_back(content);
+            content.clear();
+        }
+        else
+        {
+            macro.args.push_back(content.substr(0, i));
+            content = content.substr(i + 1);
+        }
+    }
+}
+
 // Populate the macro with arguments from the current file position (if there are any)
 void Preprocessor::getMacroArgs(MacroToken &macro)
 {
-    std::vector<std::string> args;
+    std::string args_string;
+    int open_paren = 1;
     if (current_char_ == '(')
     {
         advance();
 
-        std::string arg;
-        while (current_char_ != '\0' && current_char_ != ')')
+        while (current_char_ != '\0')
         {
-            if (current_char_ == ',')
+            // Parentheses can be used inside arguments as long as the pairing is consistent
+            if (current_char_ == '(')
             {
-                args.push_back(arg);
-                arg.clear();
+                open_paren++;
             }
-            else
+            else if (current_char_ == ')')
             {
-                arg.push_back(current_char_);
+                open_paren--;
             }
 
+            // Arguments closed
+            if (open_paren == 0)
+            {
+                break;
+            }
+
+            // Everything is consumed, split later
+            args_string.push_back(current_char_);
             advance();
         }
-        // The final argument ends on a )
-        args.push_back(arg);
 
         if (current_char_ == ')')
         {
@@ -288,7 +313,7 @@ void Preprocessor::getMacroArgs(MacroToken &macro)
         }
     }
 
-    macro.args = args;
+    preprocessArgs(macro, args_string);
 }
 
 // Obtains next word and expands if it's a macro

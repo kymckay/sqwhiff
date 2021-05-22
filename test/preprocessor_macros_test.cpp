@@ -126,6 +126,28 @@ TEST(Macros, CanBeExpandedWithConcatenationBesideStringification)
     EXPECT_EQ(t.test(), "<Str:concat\"strings>") << "Macro expansion should not be confused by concatenation beside stringification";
 }
 
+TEST(Macros, CanBeExpandedWithParenthesesArgs)
+{
+    std::stringstream input("#define _T(A) #A\n_T((()()()))");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:(()()())>") << "Macro expansion should support parantheses within the arguments";
+}
+
+TEST(Macros, DISABLED_CanBeExpandedWithNestedArgs)
+{
+    std::stringstream input("#define TWO(A, B) A##B\n#define TWO2(A, B) A##B\nTWO(TWO2(A, B), C)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Var:abc>") << "Macro expansion in arguments should support nested argument structures";
+}
+
 TEST(Macros, DISABLED_CanBeNested)
 {
     std::stringstream input("#define ONE 1\n#define SUM 3+ONE\nSUM");

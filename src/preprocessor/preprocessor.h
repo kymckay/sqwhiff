@@ -36,7 +36,8 @@ class Preprocessor
 
     PosChar handleDirective();
     void defineMacro(const std::string &);
-    std::vector<PosChar> expandMacro(const MacroToken&);
+    std::vector<PosChar> expandMacro(const MacroToken &);
+    void preprocessArgs(MacroToken &, std::string);
     void getMacroArgs(MacroToken&);
     PosChar preprocessWord();
 
