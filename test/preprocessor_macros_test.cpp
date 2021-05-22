@@ -70,6 +70,17 @@ TEST(Macros, CanBeExpandedWithArgReplacement)
     EXPECT_EQ(t.test(), "([<Dec:1>] select <Dec:0>)") << "Macro expansion should perform parameter replacement";
 }
 
+TEST(Macros, StripHorizontalWhitespaceInParams)
+{
+    std::stringstream input("#define MACRO(  A      ,		B,  ) A + B\nMACRO(1,1)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "(<Dec:1> + <Dec:1>)") << "Macro definition with parameters should strip their surrounding horizontal whitespace";
+}
+
 TEST(Macros, CanBeExpandedWithArgStringification)
 {
     std::stringstream input("#define _S(A) #A\n_S(2)");

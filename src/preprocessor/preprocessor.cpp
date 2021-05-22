@@ -1,7 +1,6 @@
 #include "src/preprocessor/preprocessor.h"
 #include <string>
 #include <istream>
-#include <sstream>
 #include <regex>
 #include <cctype>
 
@@ -143,24 +142,38 @@ PosChar Preprocessor::handleDirective()
 void Preprocessor::defineMacro(const std::string &definition)
 {
     // ID must start with alpha or underscore, can contain digits
-    // Arguments are optional, trailing comma is allowed
+    // Parameters are optional, trailing comma is allowed
     // Space characters (specifically spaces) following the head are skipped
     // Body may be empty
-    std::regex rgx(R"(([a-zA-Z_][0-9a-zA-Z_]*)(?:\(((?:[a-zA-Z_][0-9a-zA-Z_]*,?)+)\))? *(.*))");
+    std::regex rgx(R"(([a-zA-Z_][0-9a-zA-Z_]*)(?:\(((?:\s*[a-zA-Z_][0-9a-zA-Z_]*\s*,?)+)\s*\))? *(.*))");
     std::smatch matches;
 
     if (std::regex_match(definition, matches, rgx))
     {
         std::string keyword = matches[1].str();
-        std::stringstream argstream(matches[2].str());
+        std::string params = matches[2].str();
 
         MacroDefinition m;
 
-        // Populate args vector
+        // Populate parameters vector
         std::string tmp;
-        while (std::getline(argstream, tmp, ','))
+        for (char &c : params)
         {
-            // TODO trim args of horizontal whitespace (do in the regex)
+            if (c == ',')
+            {
+                m.params.push_back(tmp);
+                tmp.clear();
+            }
+            // Horizontal whitespace in parameters is ignored
+            else if (!std::isspace(c))
+            {
+                tmp.push_back(c);
+            }
+        }
+
+        // Final param may not end with a comma
+        if (tmp.length() > 0)
+        {
             m.params.push_back(tmp);
         }
 
