@@ -1,4 +1,4 @@
-#include "src/preprocessor/preprocessor.h"
+#include "test/test_preprocessor.h"
 #include <gtest/gtest.h>
 #include <sstream>
 #include <string>
@@ -21,16 +21,10 @@ TEST(Directive, ErrorsOnInvalid)
 {
     // Can't use SQF hash selection operator at line start due to preprocessing
     std::stringstream input("[1,2,3]\n #2");
-
     Preprocessor pp(input);
 
-    // Skip non-problematic characters
-    for (size_t i = 0; i < 9; i++)
-    {
-        pp.get();
-    }
 
-    ASSERT_EXCEPTION(pp.get(), PreprocessingError, "2:2 PreprocessingError - Invalid preprocessor directive");
+    ASSERT_EXCEPTION(test(pp), PreprocessingError, "2:2 PreprocessingError - Invalid preprocessor directive");
 }
 
 TEST(Directive, ErrorsOnUnrecognised)
@@ -45,10 +39,8 @@ TEST(Directive, SupportsExtendedLogicalLine)
 {
     // Can even be extended mid token without delimiting
     std::stringstream input("#\\\ndef\\\nine MA\\\nCRO 2\\\n1\na");
-
     Preprocessor pp(input);
 
-    // Should return the newline following extended definition
-    EXPECT_EQ(pp.get(), '\n');
-    EXPECT_EQ(pp.get(), 'a');
+    EXPECT_EQ(test(pp), "\na")
+        << "Extended directive logical line should not be included in preprocessor output";
 }

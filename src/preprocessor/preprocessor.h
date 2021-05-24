@@ -60,5 +60,4 @@ public:
     Preprocessor(std::istream &);
     PosChar get();
     PosChar peek(int = 1);
-    std::string processAll();
 };
