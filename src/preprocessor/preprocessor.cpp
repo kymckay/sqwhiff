@@ -463,3 +463,18 @@ PosChar Preprocessor::peek(int peek_by)
     // Convert peek request to 0-indexed
     return peek_buffer_.at(peek_by - 1);
 }
+
+// Allows looking ahead to future characters in order to differentiate tokens that start the same
+std::string Preprocessor::processAll()
+{
+    std::string result = "";
+
+    char c = get();
+    while (c != '\0')
+    {
+        result.push_back(c);
+        c = get();
+    }
+
+    return result;
+}

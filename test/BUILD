@@ -67,19 +67,19 @@ cc_test(
   name = "preprocessor-comments",
   size = "small",
   srcs = ["preprocessor_comments_test.cpp"],
-  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+  deps = ["//src/preprocessor:sqf-preprocessor", "@com_google_googletest//:gtest_main"],
 )
 
 cc_test(
   name = "preprocessor-directive",
   size = "small",
   srcs = ["preprocessor_directive_test.cpp"],
-  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+  deps = ["//src/preprocessor:sqf-preprocessor", "@com_google_googletest//:gtest_main"],
 )
 
 cc_test(
   name = "preprocessor-macros",
   size = "small",
   srcs = ["preprocessor_macros_test.cpp"],
-  deps = [":sqf-ast-tester", "@com_google_googletest//:gtest_main"],
+  deps = ["//src/preprocessor:sqf-preprocessor", "@com_google_googletest//:gtest_main"],
 )
