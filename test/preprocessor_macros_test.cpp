@@ -145,18 +145,7 @@ TEST(Macros, CanBeExpandedWithParenthesesArgs)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Str:(()()())>") << "Macro expansion should support parantheses within the arguments";
-}
-
-TEST(Macros, DISABLED_CanBeExpandedWithNestedArgs)
-{
-    std::stringstream input("#define TWO(A, B) A##B\n#define TWO2(A, B) A##B\nTWO(TWO2(A, B), C)");
-    Preprocessor pp(input);
-    Lexer l(pp);
-    Parser p(l);
-    Tester t(p);
-
-    EXPECT_EQ(t.test(), "<Var:abc>") << "Macro expansion in arguments should support nested argument structures";
+    EXPECT_EQ(t.test(), "<Str:(()()())>") << "Macro expansion should support balanced parantheses within the arguments";
 }
 
 TEST(Macros, DISABLED_CanBeNested)
@@ -167,7 +156,29 @@ TEST(Macros, DISABLED_CanBeNested)
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "(<Dec:3> + <Dec:1)") << "Macro expansion should occur within macro body";
+    EXPECT_EQ(t.test(), "(<Dec:3> + <Dec:1>)") << "Macro expansion should occur within macro body";
+}
+
+TEST(Macros, DISABLED_CanBeNestedStringified)
+{
+    std::stringstream input("#define TWO 2\n#define ONE #TWO\nONE");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Str:2>") << "Nested macro expansion should occur before stringification";
+}
+
+TEST(Macros, DISABLED_NestedExpansionBeforeConcatenation)
+{
+    std::stringstream input("#define TWO 2\n#define ONE T##WO\nONE");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Var:two>") << "Nested macro expansion should occur before concatenation";
 }
 
 TEST(Macros, CannotBeRecursive)
@@ -201,4 +212,15 @@ TEST(Macros, DISABLED_AreExpandedAsArgumentsFirst)
     Tester t(p);
 
     EXPECT_EQ(t.test(), "<Str:1>") << "Macro expansion in arguments should take place before parameter replacement";
+}
+
+TEST(Macros, DISABLED_CanBeExpandedWithNestedArgs)
+{
+    std::stringstream input("#define TWO(A, B) A##B\n#define TWO2(A, B) A##B\nTWO(TWO2(A, B), C)");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    EXPECT_EQ(t.test(), "<Var:abc>") << "Macro expansion in arguments should support nested argument structures";
 }

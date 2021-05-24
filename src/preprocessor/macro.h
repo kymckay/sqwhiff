@@ -1,4 +1,5 @@
 #pragma once
+#include "src/preprocessor/pos_char.h"
 #include <string>
 #include <vector>
 
@@ -13,10 +14,9 @@ struct MacroToken
     int line = 1;
     int column = 1;
     std::string word;
+    std::string raw_args;
     std::vector<std::string> args;
-
-    // Convenience conversion operator
-    operator std::string() const { return word; }
+    std::vector<PosChar> expanded;
 };
 
 typedef MacroDefinition MacroDefinition;

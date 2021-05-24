@@ -31,15 +31,25 @@ class Preprocessor
     void advance();
     void skipComment();
 
+    inline void appendToBuffer(const std::vector<PosChar> &chars)
+    {
+        peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
+    }
+
     // Multimap since macros can be overloaded, ordered allows iteration over the subsets
     std::multimap<std::string, MacroDefinition> macros_;
 
+    inline bool isMacro(const std::string &word)
+    {
+        return macros_.find(word) != macros_.end();
+    }
+
     PosChar handleDirective();
     void defineMacro(const std::string &);
-    std::vector<PosChar> expandMacro(const MacroToken &);
-    void preprocessArgs(MacroToken &, std::string);
+    void expandMacro(MacroToken &);
+    void processMacroArgs(MacroToken &);
     void getMacroArgs(MacroToken&);
-    PosChar preprocessWord();
+    PosChar processWord();
 
 public:
     Preprocessor(std::istream&);

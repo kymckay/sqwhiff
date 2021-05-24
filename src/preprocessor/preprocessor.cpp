@@ -203,15 +203,15 @@ void Preprocessor::defineMacro(const std::string &definition)
     }
 }
 
-// Expands a macro from the map
-std::vector<PosChar> Preprocessor::expandMacro(const MacroToken &macro)
+// Expands a macro from the map with nesting
+void Preprocessor::expandMacro(MacroToken &macro)
 {
     // With the args known, check if the macro is defined for that same number of args
     bool found = false;
     MacroDefinition matched;
 
-    std::multimap<std::string, MacroDefinition>::iterator end = macros_.upper_bound(macro);
-    for (std::multimap<std::string, MacroDefinition>::iterator i = macros_.lower_bound(macro); i != end; i++)
+    std::multimap<std::string, MacroDefinition>::iterator end = macros_.upper_bound(macro.word);
+    for (std::multimap<std::string, MacroDefinition>::iterator i = macros_.lower_bound(macro.word); i != end; i++)
     {
         if (i->second.params.size() == macro.args.size())
         {
@@ -251,7 +251,6 @@ std::vector<PosChar> Preprocessor::expandMacro(const MacroToken &macro)
         body.append(body_part);
     }
 
-    std::vector<PosChar> resolved;
     for (auto &&c : body)
     {
         // Report errors at the macro position
@@ -259,40 +258,53 @@ std::vector<PosChar> Preprocessor::expandMacro(const MacroToken &macro)
         pc.line = macro.line;
         pc.column = macro.column;
         pc.c = c;
-        resolved.push_back(pc);
+        macro.expanded.push_back(pc);
     }
-
-    return resolved;
 }
 
-// TODO resolve macros in the arguments with recurrence
-void Preprocessor::preprocessArgs(MacroToken &macro, std::string content)
+// Splits up the arguments string and handles preprocessing within
+void Preprocessor::processMacroArgs(MacroToken &macro)
 {
-    while (content.length() > 0)
+    int open_paren = 0;
+    std::string arg;
+    for (char &c : macro.raw_args)
     {
-        std::string::size_type i = content.find(',');
-        if (i == std::string::npos)
+        // Commas in nested parentheses don't seperate args
+        if (c == ',' && open_paren == 0)
         {
-            macro.args.push_back(content);
-            content.clear();
+            macro.args.push_back(arg);
+            arg.clear();
         }
         else
         {
-            macro.args.push_back(content.substr(0, i));
-            content = content.substr(i + 1);
+            if (c == '(')
+            {
+                open_paren++;
+            }
+            else if (c == ')')
+            {
+                open_paren--;
+            }
+
+            arg.push_back(c);
         }
+    }
+
+    // Last argument doesn't end on a comma, may be a trailing comma
+    if (arg.length() > 0)
+    {
+        macro.args.push_back(arg);
     }
 }
 
-// Populate the macro with arguments from the current file position (if there are any)
+// Read arguments from the current file position into the macro (if there are any)
 void Preprocessor::getMacroArgs(MacroToken &macro)
 {
-    std::string args_string;
-    int open_paren = 1;
     if (current_char_ == '(')
     {
         advance();
 
+        int open_paren = 1;
         while (current_char_ != '\0')
         {
             // Parentheses can be used inside arguments as long as the pairing is consistent
@@ -308,41 +320,31 @@ void Preprocessor::getMacroArgs(MacroToken &macro)
             // Arguments closed
             if (open_paren == 0)
             {
-                break;
+                advance();
+                return;
             }
 
             // Everything is consumed, split later
-            args_string.push_back(current_char_);
+            macro.raw_args.push_back(current_char_);
             advance();
         }
 
-        if (current_char_ == ')')
-        {
-            advance();
-        }
-        else
-        {
-            error(macro.line, macro.column, "Unclosed macro arguments '" + macro.word + "('");
-        }
+        // If while loop completes the EOF was reached
+        error(macro.line, macro.column, "Unclosed macro arguments '" + macro.word + "('");
     }
-
-    preprocessArgs(macro, args_string);
 }
 
 // Obtains next word and expands if it's a macro
-PosChar Preprocessor::preprocessWord()
+PosChar Preprocessor::processWord()
 {
-    PosChar initial;
-    initial.c = current_char_;
-    initial.line = lineno_;
-    initial.column = column_;
+    MacroToken macro;
+    macro.line = lineno_;
+    macro.column = column_;
 
-    // TODO Need to use preprocessor get, since macros passed in to arguments are resolved first
     std::vector<PosChar> word_peek;
-    std::string word;
     while (std::isalnum(current_char_) || current_char_ == '_')
     {
-        word.push_back(current_char_);
+        macro.word.push_back(current_char_);
 
         // This is a form of peeking, be prepared to place to buffer if not a macro
         PosChar c;
@@ -354,25 +356,21 @@ PosChar Preprocessor::preprocessWord()
         advance();
     }
 
-    if (macros_.find(word) != macros_.end())
+    if (isMacro(macro.word))
     {
-        MacroToken to_expand;
-        to_expand.line = initial.line;
-        to_expand.column = initial.column;
-        to_expand.word = word;
-
         // Any arguments must follow immediately
-        getMacroArgs(to_expand);
+        getMacroArgs(macro);
+        processMacroArgs(macro);
 
-        std::vector<PosChar> resolved = expandMacro(to_expand);
+        // Handles any nested expansion
+        expandMacro(macro);
 
-        // This may not be most efficient if buffer is empty already, but should never be too long anyway
-        peek_buffer_.insert(peek_buffer_.end(), resolved.begin(), resolved.end());
+        appendToBuffer(macro.expanded);
     }
     else
     {
-        // This may not be most efficient if buffer is empty already, but should never be too long anyway
-        peek_buffer_.insert(peek_buffer_.end(), word_peek.begin(), word_peek.end());
+        // Just a regular token
+        appendToBuffer(word_peek);
     }
 
     // Either a macro was resolved or word pushed to buffer, get as normal
@@ -404,7 +402,7 @@ PosChar Preprocessor::get()
         }
         else if (std::isalpha(current_char_) || current_char_ == '_')
         {
-            return preprocessWord();
+            return processWord();
         }
     }
 
