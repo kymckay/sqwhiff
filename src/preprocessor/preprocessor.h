@@ -27,6 +27,9 @@ class Preprocessor
     // Double quoted string literals are not preprocessed
     bool in_doubles_ = false;
 
+    // May be used recursively to expand nested macros and arguments
+    bool expand_only_ = false;
+
     void error(int, int, std::string);
     void advance();
     void skipComment();
@@ -44,6 +47,8 @@ class Preprocessor
         return macros_.find(word) != macros_.end();
     }
 
+    Preprocessor(std::istream &, std::multimap<std::string, MacroDefinition>&);
+
     PosChar handleDirective();
     void defineMacro(const std::string &);
     void expandMacro(MacroToken &);
@@ -52,7 +57,7 @@ class Preprocessor
     PosChar processWord();
 
 public:
-    Preprocessor(std::istream&);
+    Preprocessor(std::istream &);
     PosChar get();
     PosChar peek(int = 1);
 };

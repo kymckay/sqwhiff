@@ -203,7 +203,7 @@ TEST(Macros, DISABLED_CanBeNestedOverloaded)
     EXPECT_EQ(t.test(), "(<Dec:3> + <Dec:1)") << "Overloaded macro expansion should occur within macro body";
 }
 
-TEST(Macros, DISABLED_AreExpandedAsArgumentsFirst)
+TEST(Macros, AreExpandedAsArgumentsFirst)
 {
     std::stringstream input("#define ONE 1\n#define _S(A) #A\n_S(ONE)");
     Preprocessor pp(input);
@@ -214,13 +214,13 @@ TEST(Macros, DISABLED_AreExpandedAsArgumentsFirst)
     EXPECT_EQ(t.test(), "<Str:1>") << "Macro expansion in arguments should take place before parameter replacement";
 }
 
-TEST(Macros, DISABLED_CanBeExpandedWithNestedArgs)
+TEST(Macros, CanBeExpandedWithRecursiveArgs)
 {
-    std::stringstream input("#define TWO(A, B) A##B\n#define TWO2(A, B) A##B\nTWO(TWO2(A, B), C)");
+    std::stringstream input("#define TWO(A, B) A##B\nTWO(TWO(TWO(A,B),C),D)");
     Preprocessor pp(input);
     Lexer l(pp);
     Parser p(l);
     Tester t(p);
 
-    EXPECT_EQ(t.test(), "<Var:abc>") << "Macro expansion in arguments should support nested argument structures";
+    EXPECT_EQ(t.test(), "<Var:abcd>") << "Macro expansion in arguments should support nested argument structures";
 }

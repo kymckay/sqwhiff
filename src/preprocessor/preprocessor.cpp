@@ -1,11 +1,21 @@
 #include "src/preprocessor/preprocessor.h"
 #include <string>
 #include <istream>
+#include <sstream>
 #include <regex>
 #include <cctype>
 
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 {
+    // Immediately read in the first character (not an advance, don't want to change state)
+    stream_.get(current_char_);
+}
+
+Preprocessor::Preprocessor(std::istream &to_read, std::multimap<std::string, MacroDefinition> &defined) : stream_(to_read), macros_(defined)
+{
+    // Preprocessor is being used recursively to expand macro bodies and arguments
+    expand_only_ = true;
+
     // Immediately read in the first character (not an advance, don't want to change state)
     stream_.get(current_char_);
 }
@@ -267,12 +277,15 @@ void Preprocessor::processMacroArgs(MacroToken &macro)
 {
     int open_paren = 0;
     std::string arg;
+    std::vector<std::string> args;
     for (char &c : macro.raw_args)
     {
         // Commas in nested parentheses don't seperate args
         if (c == ',' && open_paren == 0)
         {
-            macro.args.push_back(arg);
+
+
+            args.push_back(arg);
             arg.clear();
         }
         else
@@ -293,7 +306,23 @@ void Preprocessor::processMacroArgs(MacroToken &macro)
     // Last argument doesn't end on a comma, may be a trailing comma
     if (arg.length() > 0)
     {
-        macro.args.push_back(arg);
+        args.push_back(arg);
+    }
+
+    for (std::string &s : args)
+    {
+        std::stringstream ss(s);
+        Preprocessor pp(ss, macros_);
+
+        std::string processed;
+        char c = pp.get();
+        while (c != '\0')
+        {
+            processed.push_back(c);
+            c = pp.get();
+        }
+
+        macro.args.push_back(processed);
     }
 }
 
@@ -391,12 +420,12 @@ PosChar Preprocessor::get()
     if (!in_doubles_)
     {
         // Comments are irrelevant (block and line)
-        if (current_char_ == '/' && (stream_.peek() == '/' || stream_.peek() == '*'))
+        if (!expand_only_ && current_char_ == '/' && (stream_.peek() == '/' || stream_.peek() == '*'))
         {
             skipComment();
         }
         // Preprocessor directives indicated by # at line start
-        else if (line_start_ && current_char_ == '#')
+        else if (!expand_only_ && line_start_ && current_char_ == '#')
         {
             return handleDirective();
         }
