@@ -1,6 +1,34 @@
-#include "test/tester.h"
+#pragma once
+#include "src/parser/parser.h"
+#include "src/ast/node_visitor.h"
+#include "src/ast/all_nodes.h"
 #include <memory>
 #include <string>
+
+// The tester converts an AST structure into a flat string for easy validation
+class Tester : NodeVisitor
+{
+    Parser &parser_;
+    std::string code_;
+
+public:
+    Tester(Parser &);
+    std::string test();
+
+    // Visitor interface implementation
+
+    void visit(Compound &) override;
+    void visit(NoOp &) override;
+    void visit(NullaryOp &) override;
+    void visit(UnaryOp &) override;
+    void visit(BinaryOp &) override;
+    void visit(Assign &) override;
+    void visit(Variable &) override;
+    void visit(Array &) override;
+    void visit(Code &) override;
+    void visit(Number &) override;
+    void visit(StringLiteral &) override;
+};
 
 Tester::Tester(Parser &p) : parser_(p){};
 
@@ -14,7 +42,8 @@ std::string Tester::test()
 
 void Tester::visit(Compound &c)
 {
-    if (c.children.empty()) return;
+    if (c.children.empty())
+        return;
 
     for (auto &&child : c.children)
     {
@@ -24,7 +53,8 @@ void Tester::visit(Compound &c)
     code_.pop_back(); // Prevent final delimiter
 };
 
-void Tester::visit(NoOp &){
+void Tester::visit(NoOp &)
+{
     code_.append("<NoOp>");
 };
 
