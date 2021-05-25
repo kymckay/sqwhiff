@@ -9,5 +9,5 @@ cc_library(
     srcs = ["lexer.cpp"],
     hdrs = ["lexical_error.h", "lexer.h"],
     deps = [":sqf-tokens", "//src/sqf:sqf-lang", "//src/preprocessor:sqf-preprocessor"],
-    visibility = ["//src/parser:__pkg__"],
+    visibility = ["//src/parser:__pkg__", "//test/lexer:__pkg__"],
 )
