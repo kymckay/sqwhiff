@@ -1,5 +1,4 @@
-#include "test/parser/_test.h"
-#include <gtest/gtest.h>
+#include "./_test.h"
 
 // See issue #8
 TEST(Private, CanModifyAssignment)

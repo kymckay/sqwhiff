@@ -1,5 +1,6 @@
 #pragma once
 #include "test/parser/_tester.h"
+#include <gtest/gtest.h>
 #include <string>
 #include <sstream>
 

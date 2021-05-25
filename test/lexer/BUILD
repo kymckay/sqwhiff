@@ -7,14 +7,14 @@ cc_library(
 )
 
 cc_test(
-  name = "lexer-errors",
+  name = "errors",
   size = "small",
   srcs = ["errors_test.cpp"],
   deps = [":test"],
 )
 
 cc_test(
-  name = "lexer-keywords",
+  name = "keywords",
   size = "small",
   srcs = ["keywords_test.cpp"],
   deps = [":test"],

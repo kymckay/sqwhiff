@@ -3,40 +3,40 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 cc_library(
     name = "test",
     hdrs = ["_tester.h", "_test.h"],
-    deps = ["//src/parser:sqf-parser"]
+    deps = ["//src/parser:sqf-parser", "@com_google_googletest//:gtest_main"]
 )
 
 cc_test(
-  name = "parser-errors",
+  name = "errors",
   size = "small",
   srcs = ["errors_test.cpp"],
-  deps = [":test", "@com_google_googletest//:gtest_main"],
+  deps = [":test"],
 )
 
 cc_test(
-  name = "parser-literals",
+  name = "literals",
   size = "small",
   srcs = ["literals_test.cpp"],
-  deps = [":test", "@com_google_googletest//:gtest_main"],
+  deps = [":test"],
 )
 
 cc_test(
-  name = "parser-precedence",
+  name = "precedence",
   size = "small",
   srcs = ["precedence_test.cpp"],
-  deps = [":test", "@com_google_googletest//:gtest_main"],
+  deps = [":test"],
 )
 
 cc_test(
-  name = "parser-private",
+  name = "private",
   size = "small",
   srcs = ["private_test.cpp"],
-  deps = [":test", "@com_google_googletest//:gtest_main"],
+  deps = [":test"],
 )
 
 cc_test(
-  name = "parser-program",
+  name = "program",
   size = "small",
   srcs = ["program_test.cpp"],
-  deps = [":test", "@com_google_googletest//:gtest_main"],
+  deps = [":test"],
 )

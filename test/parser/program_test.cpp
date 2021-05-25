@@ -1,5 +1,4 @@
-#include "test/parser/_test.h"
-#include <gtest/gtest.h>
+#include "./_test.h"
 
 // Issue #10
 TEST(Program, CanEndWithoutFinalDelimiter)

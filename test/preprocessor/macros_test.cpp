@@ -1,5 +1,4 @@
-#include "test/preprocessor/_test.h"
-#include <gtest/gtest.h>
+#include "./_test.h"
 
 TEST(Macros, CanBeDefinedEmpty)
 {
