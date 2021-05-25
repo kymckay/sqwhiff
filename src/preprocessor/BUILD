@@ -2,5 +2,5 @@ cc_library(
     name = "sqf-preprocessor",
     srcs = ["preprocessor.cpp"],
     hdrs = ["pos_char.h", "macro.h", "preprocessing_error.h", "preprocessor.h"],
-    visibility = ["//src/lexer:__pkg__", "//test:__pkg__"],
+    visibility = ["//src/lexer:__pkg__", "//test/preprocessor:__pkg__"],
 )

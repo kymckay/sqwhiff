@@ -1,12 +1,15 @@
 #pragma once
 #include "src/preprocessor/preprocessor.h"
 #include <string>
+#include <sstream>
 
-std::string test(Preprocessor &pp)
+std::string preprocess(std::string s)
 {
-    std::string result = "";
+    std::stringstream ss(s);
+    Preprocessor pp(ss);
 
     char c = pp.get();
+    std::string result = "";
     while (c != '\0')
     {
         result.push_back(c);
