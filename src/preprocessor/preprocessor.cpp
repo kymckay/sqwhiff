@@ -12,13 +12,10 @@ Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 Preprocessor::Preprocessor(std::istream &to_read,
                            std::map<std::string, MacroArg> &params,
                            std::multimap<std::string, MacroDefinition> &defined,
-                           bool inBody) : stream_(to_read), macros_(defined), params_(params)
+                           std::unordered_set<std::string> &context) : stream_(to_read), macros_(defined), params_(params), macro_context_(context)
 {
     // Preprocessor is being used recursively to expand macro bodies and arguments
     expand_only_ = true;
-
-    // Enable token concatenation and stringizing
-    macro_body_ = inBody;
 
     // Immediately read in the first character (not an advance, don't want to change state)
     stream_.get(current_char_);
@@ -289,7 +286,7 @@ void Preprocessor::processWord()
         appendToBuffer(params_.at(word).chars);
         return;
     }
-    else if (isMacro(word))
+    else if (isMacro(word) && !isRecursive(word))
     {
         args = getArgs(word);
     }
@@ -335,7 +332,7 @@ void Preprocessor::processWord()
     {
         std::stringstream arg_ss(arg.raw);
         std::map<std::string, MacroArg> no_args;
-        Preprocessor pp(arg_ss, no_args, macros_, false);
+        Preprocessor pp(arg_ss, no_args, macros_, macro_context_);
         arg.chars = pp.getAll();
 
         // Update reference position for all expanded argument characters
@@ -351,9 +348,13 @@ void Preprocessor::processWord()
     for (size_t i = 0; i < args.size(); ++i)
         param_map[macro_def.params[i]] = args[i];
 
+    // Prepare the set of macros to ignore in the body (prevent infinite recursion)
+    std::unordered_set<std::string> body_context(macro_context_);
+    body_context.insert(word);
+
     // Finally macro body is expanded and processed (done sequentially to preserve correct behaviour)
     std::stringstream body_ss(macro_def.body);
-    Preprocessor pp(body_ss, param_map, macros_, true);
+    Preprocessor pp(body_ss, param_map, macros_, body_context);
     appendToBuffer(pp.getAll());
 }
 
@@ -381,10 +382,9 @@ PosChar Preprocessor::get()
             handleDirective();
             return get();
         }
-        else if (macro_body_ && current_char_ == '#')
+        else if (macro_context_.size() > 0 && current_char_ == '#')
         {
             // Concatenate the previous and following tokens (i.e. skip these characters)
-            // TODO: Peek calls get, which makes an infinite loop
             if (stream_.peek() == '#')
             {
                 advance();

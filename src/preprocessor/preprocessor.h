@@ -6,6 +6,7 @@
 #include <istream>
 #include <deque>
 #include <map>
+#include <unordered_set>
 
 class Preprocessor
 {
@@ -30,9 +31,6 @@ class Preprocessor
     // May be used recursively to expand nested macros and arguments
     bool expand_only_ = false;
 
-    // Some preprocessing operations are only available within the body of a macro
-    bool macro_body_ = false;
-
     void error(int, int, std::string);
     void advance();
     void skipComment();
@@ -48,6 +46,9 @@ class Preprocessor
     // When used in subcontext parameter replacement may take place
     std::map<std::string, MacroArg> params_;
 
+    // Set of macros that aren't expanded in the current context to prevent recursion
+    std::unordered_set<std::string> macro_context_;
+
     inline bool isMacro(const std::string &word)
     {
         return macros_.find(word) != macros_.end();
@@ -58,11 +59,16 @@ class Preprocessor
         return params_.find(word) != params_.end();
     }
 
+    inline bool isRecursive(const std::string &word)
+    {
+        return macro_context_.find(word) != macro_context_.end();
+    }
+
     // Class recursively used to expand nested macro usage contexts
     Preprocessor(std::istream &,
         std::map<std::string, MacroArg> &, // Parameter map for replacement (only relevant to macro body expansion)
         std::multimap<std::string, MacroDefinition> &, // Set of defined macros for expansion (nested)
-        bool // Whether to support concatenation and stringizing
+        std::unordered_set<std::string> & // Set of macros not to expand (prevents macro recursion)
     );
 
     std::string getWord();
