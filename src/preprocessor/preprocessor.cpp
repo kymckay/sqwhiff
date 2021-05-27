@@ -334,7 +334,8 @@ void Preprocessor::processWord()
     for (MacroArg &arg : args)
     {
         std::stringstream arg_ss(arg.raw);
-        Preprocessor pp(arg_ss, std::map<std::string, MacroArg>(), macros_, false);
+        std::map<std::string, MacroArg> no_args;
+        Preprocessor pp(arg_ss, no_args, macros_, false);
         arg.chars = pp.getAll();
 
         // Update reference position for all expanded argument characters
