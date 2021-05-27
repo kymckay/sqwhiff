@@ -100,16 +100,16 @@ TEST(Macros, CanBeExpandedWithParenthesesArgs)
     << "Macro expansion should support balanced parantheses within the arguments";
 }
 
-TEST(Macros, DISABLED_CanBeNested)
+TEST(Macros, CanBeNested)
 {
     EXPECT_EQ(
-        "\n\n3 + 1",
+        "\n\n3+1",
         preprocess("#define ONE 1\n#define SUM 3+ONE\nSUM")
     )
     << "Macro expansion should occur within macro body";
 }
 
-TEST(Macros, DISABLED_CanBeNestedStringized)
+TEST(Macros, CanBeNestedStringized)
 {
     EXPECT_EQ(
         "\n\n\"2\"",
@@ -118,7 +118,7 @@ TEST(Macros, DISABLED_CanBeNestedStringized)
     << "Nested macros should expand before being stringized";
 }
 
-TEST(Macros, DISABLED_NestedExpansionBeforeConcatenation)
+TEST(Macros, NestedExpansionBeforeConcatenation)
 {
     EXPECT_EQ(
         "\n\nTWO",
@@ -127,7 +127,7 @@ TEST(Macros, DISABLED_NestedExpansionBeforeConcatenation)
     << "Nested macro expansion should occur before concatenation";
 }
 
-TEST(Macros, CannotBeRecursive)
+TEST(Macros, DISABLED_CannotBeRecursive)
 {
     EXPECT_EQ(
         "\n2 + INVALID_RECUR",
@@ -136,10 +136,10 @@ TEST(Macros, CannotBeRecursive)
     << "Macro expansion should not recursively expand";
 }
 
-TEST(Macros, DISABLED_CanBeNestedOverloaded)
+TEST(Macros, CanBeNestedOverloaded)
 {
     EXPECT_EQ(
-        "\n\n3 + 1",
+        "\n\n3+1",
         preprocess("#define ONE 1\n#define ONE(A) A+ONE\nONE(3)")
     )
     << "Overloaded macro expansion should occur within macro body";
@@ -172,7 +172,7 @@ TEST(Macros, CanContainRawCommentsInArguments)
     << "Comments within macro arguments should not be removed during expansion";
 }
 
-TEST(Macros, DISABLED_CanContainRawDirectivesInArguments)
+TEST(Macros, CanContainRawDirectivesInArguments)
 {
     EXPECT_EQ(
         "\n \n#define NEW(A) A",

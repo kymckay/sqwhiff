@@ -30,6 +30,9 @@ class Preprocessor
     // May be used recursively to expand nested macros and arguments
     bool expand_only_ = false;
 
+    // Some preprocessing operations are only available within the body of a macro
+    bool macro_body_ = false;
+
     void error(int, int, std::string);
     void advance();
     void skipComment();
@@ -42,22 +45,36 @@ class Preprocessor
     // Multimap since macros can be overloaded, ordered allows iteration over the subsets
     std::multimap<std::string, MacroDefinition> macros_;
 
+    // When used in subcontext parameter replacement may take place
+    std::map<std::string, MacroArg> params_;
+
     inline bool isMacro(const std::string &word)
     {
         return macros_.find(word) != macros_.end();
     }
 
-    Preprocessor(std::istream &, std::multimap<std::string, MacroDefinition>&);
+    inline bool isParam(const std::string &word)
+    {
+        return params_.find(word) != params_.end();
+    }
 
-    PosChar handleDirective();
+    // Class recursively used to expand nested macro usage contexts
+    Preprocessor(std::istream &,
+        std::map<std::string, MacroArg> &, // Parameter map for replacement (only relevant to macro body expansion)
+        std::multimap<std::string, MacroDefinition> &, // Set of defined macros for expansion (nested)
+        bool // Whether to support concatenation and stringizing
+    );
+
+    std::string getWord();
+    std::vector<MacroArg> getArgs(const std::string&);
+
+    void handleDirective();
     void defineMacro(const std::string &);
-    void expandMacro(MacroToken &);
-    void processMacroArgs(MacroToken &);
-    void getMacroArgs(MacroToken&);
-    PosChar processWord();
+    void processWord();
 
 public:
     Preprocessor(std::istream &);
     PosChar get();
     PosChar peek(int = 1);
+    std::vector<PosChar> getAll();
 };
