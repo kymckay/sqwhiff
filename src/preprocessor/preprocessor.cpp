@@ -156,7 +156,43 @@ void Preprocessor::handleDirective()
     // Skip the #
     advance();
 
-    std::string directive;
+    std::string instruction;
+    while (std::isalpha(current_char_) || current_char_ == '\\')
+    {
+        // Even the instruction itself can be extended across lines
+        if (current_char_ == '\\')
+        {
+            if (stream_.peek() == '\n')
+            {
+                advance();
+                advance();
+            }
+            else
+            {
+                break;
+            }
+        }
+        else
+        {
+            instruction.push_back(current_char_);
+            advance();
+        }
+    }
+
+    // Instruction must immediately following the # (no spaces allowed)
+    if (instruction.empty())
+    {
+        error(line, col, "Invalid preprocessor directive, no instruction immediately following the # character");
+    }
+
+    // Space characters (not whitespace) between the instruction and body are skipped
+    while (current_char_ == ' ')
+    {
+        advance();
+    }
+
+    // Remaining logical line is the body of the directive
+    std::string body;
     while (current_char_ != '\n' && current_char_ != '\0')
     {
         // Logical line can be extended by escaped newlines (anywhere in the directive)
@@ -167,55 +203,39 @@ void Preprocessor::handleDirective()
         }
         else
         {
-            directive.push_back(current_char_);
+            body.push_back(current_char_);
             advance();
         }
     }
 
-    // There can be no space between the # and directive
-    // Space characters between the instruction and body are skipped
-    std::regex rgx(R"(([a-zA-Z]+) *(.*))");
-    std::smatch matches;
-
-    if (std::regex_match(directive, matches, rgx))
+    if (instruction == "include")
     {
-        // 0 is the whole match
-        std::string instruction = matches[1].str();
-        std::string body = matches[2].str();
-
-        if (instruction == "include")
-        {
-        }
-        else if (instruction == "define")
-        {
-            defineMacro(body);
-        }
-        else if (instruction == "undef")
-        {
-        }
-        else if (instruction == "if")
-        {
-        }
-        else if (instruction == "ifdef")
-        {
-        }
-        else if (instruction == "ifndef")
-        {
-        }
-        else if (instruction == "else")
-        {
-        }
-        else if (instruction == "endif")
-        {
-        }
-        else
-        {
-            error(line, col, "Unrecognised preprocessor directive '#" + instruction + "'");
-        }
+    }
+    else if (instruction == "define")
+    {
+        defineMacro(body);
+    }
+    else if (instruction == "undef")
+    {
+    }
+    else if (instruction == "if")
+    {
+    }
+    else if (instruction == "ifdef")
+    {
+    }
+    else if (instruction == "ifndef")
+    {
+    }
+    else if (instruction == "else")
+    {
+    }
+    else if (instruction == "endif")
+    {
     }
     else
     {
-        error(line, col, "Invalid preprocessor directive");
+        error(line, col, "Unrecognised preprocessor directive '#" + instruction + "'");
     }
 }
 

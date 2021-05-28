@@ -40,7 +40,7 @@ class Preprocessor
     void advance();
     void skipComment();
 
-    // Multimap since macros can be overloaded, ordered allows iteration over the subsets
+    // Regular map since macros cannot be overloaded
     std::unordered_map<std::string, MacroDefinition> macros_;
 
     // When used in subcontext parameter replacement may take place
