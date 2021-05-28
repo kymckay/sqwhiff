@@ -14,17 +14,17 @@
             << "Exception message is incorrect";   \
     }
 
-TEST(SyntaxError, ThrownOnUnclosedArray)
+TEST_F(ParserTest, ErrorsOnUnclosedArray)
 {
     ASSERT_EXCEPTION(parse("[1,2,3,4,5"), SyntaxError, "1:10 SyntaxError - Unexpected token '', expected a closing square bracket");
 }
 
-TEST(SyntaxError, ThrownOnUnclosedCode)
+TEST_F(ParserTest, ErrorsOnUnclosedCode)
 {
     ASSERT_EXCEPTION(parse("[1] select {_x == 1"), SyntaxError, "1:19 SyntaxError - Unexpected token '', expected a closing curly bracket");
 }
 
-TEST(LexicalError, DISABLED_ThrownByParser)
+TEST_F(ParserTest, DISABLED_ThrownByParser)
 {
     // See #16
     std::stringstream immediate("?");

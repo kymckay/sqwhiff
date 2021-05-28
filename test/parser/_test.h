@@ -4,13 +4,17 @@
 #include <string>
 #include <sstream>
 
-std::string parse(std::string s)
+class ParserTest : public ::testing::Test
 {
-    std::stringstream ss(s);
-    Preprocessor pp(ss);
-    Lexer l(pp);
-    Parser p(l);
-    Tester t(p);
+protected:
+    std::string parse(std::string s)
+    {
+        std::stringstream ss(s);
+        Preprocessor pp(ss);
+        Lexer l(pp);
+        Parser p(l);
+        Tester t(p);
 
-    return t.test();
-}
+        return t.test();
+    }
+};

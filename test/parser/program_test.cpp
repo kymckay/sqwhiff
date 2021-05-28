@@ -1,7 +1,7 @@
 #include "./_test.h"
 
 // Issue #10
-TEST(Program, CanEndWithoutFinalDelimiter)
+TEST_F(ParserTest, HandlesProgramWithoutFinalDelimiter)
 {
     EXPECT_EQ(
         "(allunits),(allunits)",
@@ -11,7 +11,7 @@ TEST(Program, CanEndWithoutFinalDelimiter)
 }
 
 // Issue #10
-TEST(Program, CanEndWithFinalDelimiter)
+TEST_F(ParserTest, HandlesProgramWithFinalDelimiter)
 {
     EXPECT_EQ(
         "(allunits),(allunits),<NoOp>",
@@ -21,7 +21,7 @@ TEST(Program, CanEndWithFinalDelimiter)
 }
 
 // Issue #10
-TEST(Program, CanBeEmpty)
+TEST_F(ParserTest, HandlesEmptyProgram)
 {
     EXPECT_EQ(
         "<NoOp>",

@@ -1,7 +1,7 @@
 #include "./_test.h"
 
 // See issue #8
-TEST(Private, CanModifyAssignment)
+TEST_F(ParserTest, HandlesPrivateAssignment)
 {
     EXPECT_EQ(
         "<p=><Var:_x> = (<Dec:1>)",
@@ -11,20 +11,11 @@ TEST(Private, CanModifyAssignment)
 }
 
 // See issue #8
-TEST(Private, CanBeUnaryWithVariable)
+TEST_F(ParserTest, HandlesPrivateAsUnaryOp)
 {
     EXPECT_EQ(
         "(private <Var:_x>)",
         parse("private _x")
     )
     << "Parse private as a unary used with a variable";
-}
-
-TEST(Private, CanAppearInArray)
-{
-    EXPECT_EQ(
-        "[(private <Str:_x>)]",
-        parse("[private \"_x\"]")
-    )
-    << "Parse private as a unary in an array expression";
 }
