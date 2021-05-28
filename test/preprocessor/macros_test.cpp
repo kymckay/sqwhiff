@@ -1,6 +1,6 @@
 #include "./_test.h"
 
-TEST(Macros, CanBeDefinedEmpty)
+TEST_F(PreprocessorTest, CanBeDefinedEmpty)
 {
     // A trailing comma in params is valid
     EXPECT_EQ(
@@ -10,7 +10,7 @@ TEST(Macros, CanBeDefinedEmpty)
     << "Macro definitions should not appear in output structure";
 }
 
-TEST(Macros, CanBeExpandedEmpty)
+TEST_F(PreprocessorTest, ExpandsMacrosEmpty)
 {
     EXPECT_EQ(
         "\n",
@@ -19,7 +19,7 @@ TEST(Macros, CanBeExpandedEmpty)
     << "Macro expansion should work with an empty body defined";
 }
 
-TEST(Macros, CanBeExpandedObjectLike)
+TEST_F(PreprocessorTest, ExpandsMacrosObjectLike)
 {
     EXPECT_EQ(
         "\n1",
@@ -28,7 +28,7 @@ TEST(Macros, CanBeExpandedObjectLike)
     << "Macro expansion should work with static content defined";
 }
 
-TEST(Macros, CanBeExpandedFunctionLike)
+TEST_F(PreprocessorTest, ExpandsMacrosFunctionLike)
 {
     EXPECT_EQ(
         "\n[1] select 0",
@@ -37,7 +37,7 @@ TEST(Macros, CanBeExpandedFunctionLike)
     << "Macro expansion should perform parameter replacement";
 }
 
-TEST(Macros, StripHorizontalWhitespaceInParams)
+TEST_F(PreprocessorTest, StripHorizontalWhitespaceInParams)
 {
     EXPECT_EQ(
         "\n1 + 1",
@@ -46,7 +46,7 @@ TEST(Macros, StripHorizontalWhitespaceInParams)
     << "Macro definition with parameters should strip their surrounding horizontal whitespace";
 }
 
-TEST(Macros, CanBeExpandedWithArgStringizing)
+TEST_F(PreprocessorTest, ExpandsMacrosWithArgStringizing)
 {
     EXPECT_EQ(
         "\n\"2\"",
@@ -55,7 +55,7 @@ TEST(Macros, CanBeExpandedWithArgStringizing)
     << "Macro expansion should stringize parameters with replacement";
 }
 
-TEST(Macros, CanBeExpandedWithStaticStringizing)
+TEST_F(PreprocessorTest, ExpandsMacrosWithStaticStringizing)
 {
     EXPECT_EQ(
         "\ncomment \"Y\"",
@@ -64,7 +64,7 @@ TEST(Macros, CanBeExpandedWithStaticStringizing)
     << "Macro expansion should stringize static content";
 }
 
-TEST(Macros, CanBeExpandedWithArgConcatenation)
+TEST_F(PreprocessorTest, ExpandsMacrosWithArgConcatenation)
 {
     EXPECT_EQ(
         "\n201",
@@ -73,7 +73,7 @@ TEST(Macros, CanBeExpandedWithArgConcatenation)
     << "Macro expansion should concatenate parameters with replacement";
 }
 
-TEST(Macros, CanBeExpandedWithStaticConcatenation)
+TEST_F(PreprocessorTest, ExpandsMacrosWithStaticConcatenation)
 {
     EXPECT_EQ(
         "\nAB",
@@ -82,7 +82,7 @@ TEST(Macros, CanBeExpandedWithStaticConcatenation)
     << "Macro expansion should concatenate static content";
 }
 
-TEST(Macros, CanBeExpandedWithConcatenationBesideStringizing)
+TEST_F(PreprocessorTest, ExpandsMacrosWithConcatenationBesideStringizing)
 {
     EXPECT_EQ(
         "\n\"concat\"\"strings\"",
@@ -91,7 +91,7 @@ TEST(Macros, CanBeExpandedWithConcatenationBesideStringizing)
     << "Macro expansion should not be confused by concatenation beside stringizing";
 }
 
-TEST(Macros, CanBeExpandedWithParenthesesArgs)
+TEST_F(PreprocessorTest, ExpandsMacrosWithParenthesesArgs)
 {
     EXPECT_EQ(
         "\n\"(()()())\"",
@@ -100,7 +100,7 @@ TEST(Macros, CanBeExpandedWithParenthesesArgs)
     << "Macro expansion should support balanced parantheses within the arguments";
 }
 
-TEST(Macros, CanBeNested)
+TEST_F(PreprocessorTest, ExpandsNestedMacros)
 {
     EXPECT_EQ(
         "\n\n3+1",
@@ -109,7 +109,7 @@ TEST(Macros, CanBeNested)
     << "Macro expansion should occur within macro body";
 }
 
-TEST(Macros, CanBeNestedStringized)
+TEST_F(PreprocessorTest, ExpandsNestedMacrosStringized)
 {
     EXPECT_EQ(
         "\n\n\"2\"",
@@ -118,7 +118,7 @@ TEST(Macros, CanBeNestedStringized)
     << "Nested macros should expand before being stringized";
 }
 
-TEST(Macros, CanBeNestedOutOfOrder)
+TEST_F(PreprocessorTest, ExpandsNestedMacrosOutOfOrder)
 {
     EXPECT_EQ(
         "\n\n2",
@@ -127,7 +127,7 @@ TEST(Macros, CanBeNestedOutOfOrder)
     << "A nested macro should be expanded as defined at the point when it is used";
 }
 
-TEST(Macros, NestedExpansionBeforeConcatenation)
+TEST_F(PreprocessorTest, ExpandsNestedMacrosBeforeConcatenation)
 {
     EXPECT_EQ(
         "\n\nTWO",
@@ -136,7 +136,7 @@ TEST(Macros, NestedExpansionBeforeConcatenation)
     << "Nested macro expansion should occur before concatenation";
 }
 
-TEST(Macros, CannotBeRecursive)
+TEST_F(PreprocessorTest, DoesNotExpandRecusriveMacroUse)
 {
     EXPECT_EQ(
         "\n\n\n\n1 + 2 + 3 + 4 + ONE + TWO + THR + FOU",
@@ -144,7 +144,7 @@ TEST(Macros, CannotBeRecursive)
         << "Macro expansion should not recursively expand any earlier link in the chain";
 }
 
-TEST(Macros, AreExpandedAsArgumentsFirst)
+TEST_F(PreprocessorTest, ExpandsArgumentsBeforeReplacement)
 {
     EXPECT_EQ(
         "\n\n\"1\"",
@@ -153,7 +153,7 @@ TEST(Macros, AreExpandedAsArgumentsFirst)
     << "Macro expansion in arguments should take place before parameter replacement";
 }
 
-TEST(Macros, CanBeExpandedWithRecursiveArgs)
+TEST_F(PreprocessorTest, ExpandsMacrosWithRecursiveArgs)
 {
     EXPECT_EQ(
         "\nABCD",
@@ -162,7 +162,7 @@ TEST(Macros, CanBeExpandedWithRecursiveArgs)
     << "Macro expansion in arguments should support nested argument structures";
 }
 
-TEST(Macros, CanContainRawCommentsInArguments)
+TEST_F(PreprocessorTest, CanContainRawCommentsInArguments)
 {
     EXPECT_EQ(
         "\n// /**/",
@@ -171,7 +171,7 @@ TEST(Macros, CanContainRawCommentsInArguments)
     << "Comments within macro arguments should not be removed during expansion";
 }
 
-TEST(Macros, CanContainRawDirectivesInArguments)
+TEST_F(PreprocessorTest, CanContainRawDirectivesInArguments)
 {
     EXPECT_EQ(
         "\n \n#define NEW(A) A",

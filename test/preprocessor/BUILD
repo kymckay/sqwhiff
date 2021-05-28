@@ -21,6 +21,13 @@ cc_test(
 )
 
 cc_test(
+  name = "errors",
+  size = "small",
+  srcs = ["errors_test.cpp"],
+  deps = [":test"],
+)
+
+cc_test(
   name = "macros",
   size = "small",
   srcs = ["macros_test.cpp"],

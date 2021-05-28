@@ -1,6 +1,6 @@
 #include "./_test.h"
 
-TEST(Comments, CanBeInline)
+TEST_F(PreprocessorTest, CanBeInline)
 {
     EXPECT_EQ(
         "selectRandom\n[1,2]",
@@ -9,7 +9,7 @@ TEST(Comments, CanBeInline)
     << "Inline comments should not be in the preprocessor output";
 }
 
-TEST(Comments, CanBeBlock)
+TEST_F(PreprocessorTest, CanBeBlock)
 {
     EXPECT_EQ(
         "selectRandom  [1,2]",
@@ -18,7 +18,7 @@ TEST(Comments, CanBeBlock)
     << "Block comments should not be in the preprocessor output";
 }
 
-TEST(Comments, AreRemovedInPreprocessing)
+TEST_F(PreprocessorTest, AreRemovedInPreprocessing)
 {
     EXPECT_EQ(
         "selectRandom [1,2]",
@@ -27,7 +27,7 @@ TEST(Comments, AreRemovedInPreprocessing)
     << "Block comments should not delimit tokens";
 }
 
-TEST(Comments, AreConsumedByDoubleQuotes)
+TEST_F(PreprocessorTest, AreConsumedByDoubleQuotes)
 {
     EXPECT_EQ(
         "\"/* this isn't a comment */\"",
@@ -37,7 +37,7 @@ TEST(Comments, AreConsumedByDoubleQuotes)
 }
 
 // The preprocessor ignores single quotes
-TEST(Comments, AreRemovedInSingleQuotes)
+TEST_F(PreprocessorTest, AreRemovedInSingleQuotes)
 {
     EXPECT_EQ(
         "''",
@@ -47,7 +47,7 @@ TEST(Comments, AreRemovedInSingleQuotes)
 }
 
 // This is consistent with being removed during preprocessing
-TEST(Comments, AreRemovedInBalancedQuotes)
+TEST_F(PreprocessorTest, AreRemovedInBalancedQuotes)
 {
     EXPECT_EQ(
         "\"\"\"\"",

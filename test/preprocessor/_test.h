@@ -4,18 +4,22 @@
 #include <string>
 #include <sstream>
 
-std::string preprocess(std::string s)
+class PreprocessorTest : public ::testing::Test
 {
-    std::stringstream ss(s);
-    Preprocessor pp(ss);
-
-    char c = pp.get();
-    std::string result = "";
-    while (c != '\0')
+protected:
+    std::string preprocess(std::string s)
     {
-        result.push_back(c);
-        c = pp.get();
-    }
+        std::stringstream ss(s);
+        Preprocessor pp(ss);
 
-    return result;
-}
+        char c = pp.get();
+        std::string result = "";
+        while (c != '\0')
+        {
+            result.push_back(c);
+            c = pp.get();
+        }
+
+        return result;
+    }
+};
