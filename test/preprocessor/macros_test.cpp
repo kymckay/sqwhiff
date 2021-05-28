@@ -136,37 +136,12 @@ TEST(Macros, NestedExpansionBeforeConcatenation)
     << "Nested macro expansion should occur before concatenation";
 }
 
-TEST(Macros, CannotBeRecursiveDirectly)
-{
-    EXPECT_EQ(
-        "\n2 + INVALID_RECUR",
-        preprocess("#define INVALID_RECUR 2 + INVALID_RECUR\nINVALID_RECUR")
-    )
-    << "Macro expansion should not recursively expand";
-}
-
-// TODO: Macros cannot be overloaded! (Whoops, that wouldv'e made my life easier earlier!)
-TEST(Macros, DISABLED_CannotBeRecursiveOverloaded)
-{
-    EXPECT_EQ(
-        "\n\n3+ONE",
-        preprocess("#define ONE 1\n#define ONE(A) A+ONE\nONE(3)")
-    )
-    << "A nested macro of the same name should not be expanded (case of less args)";
-
-    EXPECT_EQ(
-        "\n\nONE(3)",
-        preprocess("#define ONE ONE(3)\n#define ONE(A) A+1\nONE()")
-    )
-    << "A nested macro of the same name should not be expanded (case of more args)";
-}
-
-TEST(Macros, CannotBeRecursiveIndirectly)
+TEST(Macros, CannotBeRecursive)
 {
     EXPECT_EQ(
         "\n\n\n\n1 + 2 + 3 + 4 + ONE + TWO + THR + FOU",
         preprocess("#define FOU 4 + ONE + TWO + THR + FOU\n#define THR 3 + FOU\n#define TWO 2 + THR\n#define ONE 1 + TWO\nONE"))
-        << "Macro expansion should not recursively expand any earlier level";
+        << "Macro expansion should not recursively expand any earlier link in the chain";
 }
 
 TEST(Macros, AreExpandedAsArgumentsFirst)

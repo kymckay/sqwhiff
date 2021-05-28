@@ -5,7 +5,7 @@
 #include <string>
 #include <istream>
 #include <deque>
-#include <map>
+#include <unordered_map>
 #include <unordered_set>
 
 class Preprocessor
@@ -15,6 +15,11 @@ class Preprocessor
 
     // Use buffer to simplify lookahead logic with preprocessing
     std::deque<PosChar> peek_buffer_;
+
+    inline void appendToBuffer(const std::vector<PosChar> &chars)
+    {
+        peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
+    }
 
     char current_char_ = '\0';
     // Current physical position preprocessor has reached
@@ -35,16 +40,11 @@ class Preprocessor
     void advance();
     void skipComment();
 
-    inline void appendToBuffer(const std::vector<PosChar> &chars)
-    {
-        peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
-    }
-
     // Multimap since macros can be overloaded, ordered allows iteration over the subsets
-    std::multimap<std::string, MacroDefinition> macros_;
+    std::unordered_map<std::string, MacroDefinition> macros_;
 
     // When used in subcontext parameter replacement may take place
-    std::map<std::string, MacroArg> params_;
+    std::unordered_map<std::string, MacroArg> params_;
 
     // Set of macros that aren't expanded in the current context to prevent recursion
     std::unordered_set<std::string> macro_context_;
@@ -66,13 +66,13 @@ class Preprocessor
 
     // Class recursively used to expand nested macro usage contexts
     Preprocessor(std::istream &,
-        std::map<std::string, MacroArg> &, // Parameter map for replacement (only relevant to macro body expansion)
-        std::multimap<std::string, MacroDefinition> &, // Set of defined macros for expansion (nested)
-        std::unordered_set<std::string> & // Set of macros not to expand (prevents macro recursion)
+                 std::unordered_map<std::string, MacroArg> &,        // Parameter map for replacement (only relevant to macro body expansion)
+                 std::unordered_map<std::string, MacroDefinition> &, // Set of defined macros for expansion (nested)
+                 std::unordered_set<std::string> &                   // Set of macros not to expand (prevents macro recursion)
     );
 
     std::string getWord();
-    std::vector<MacroArg> getArgs(const std::string&);
+    std::vector<MacroArg> getArgs(const std::string &);
 
     void handleDirective();
     void defineMacro(const std::string &);

@@ -10,8 +10,8 @@ Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 }
 
 Preprocessor::Preprocessor(std::istream &to_read,
-                           std::map<std::string, MacroArg> &params,
-                           std::multimap<std::string, MacroDefinition> &defined,
+                           std::unordered_map<std::string, MacroArg> &params,
+                           std::unordered_map<std::string, MacroDefinition> &defined,
                            std::unordered_set<std::string> &context) : stream_(to_read), macros_(defined), params_(params), macro_context_(context)
 {
     // Preprocessor is being used recursively to expand macro bodies and arguments
@@ -277,8 +277,8 @@ void Preprocessor::processWord()
     // May just be object like
     std::string word = getWord();
 
-    // May be function like
-    std::vector<MacroArg> args;
+    MacroDefinition macro_def;
+    std::vector<MacroArg> args; // May be function like
 
     // Parameter replacement happens before macro expansion
     if (isParam(word))
@@ -288,6 +288,7 @@ void Preprocessor::processWord()
     }
     else if (isMacro(word) && !isRecursive(word))
     {
+        macro_def = macros_.at(word);
         args = getArgs(word);
     }
     else
@@ -306,32 +307,24 @@ void Preprocessor::processWord()
         return;
     }
 
-    // Check if the macro is defined for that same number of args
-    bool found = false;
-    MacroDefinition macro_def;
-
-    std::multimap<std::string, MacroDefinition>::iterator end = macros_.upper_bound(word);
-    for (std::multimap<std::string, MacroDefinition>::iterator i = macros_.lower_bound(word); i != end; i++)
+    // The real preprocessor outputs something in such cases, but for now throw an error
+    if (args.size() != macro_def.params.size())
     {
-        if (i->second.params.size() == args.size())
-        {
-            found = true;
-            macro_def = i->second;
-            break;
-        };
-    }
-
-    // TODO improve error message with details (expected no. args)
-    if (!found)
-    {
-        error(line, column, "Invalid number of macro arguments supplied '" + word + "'");
+        error(line, column,
+            "Invalid number of macro arguments supplied '"
+            + word
+            + "', found "
+            + std::to_string(args.size())
+            + " expected "
+            + std::to_string(macro_def.params.size())
+        );
     }
 
     // Arguments are expanded before parameter replacement
     for (MacroArg &arg : args)
     {
         std::stringstream arg_ss(arg.raw);
-        std::map<std::string, MacroArg> no_args;
+        std::unordered_map<std::string, MacroArg> no_args;
         Preprocessor pp(arg_ss, no_args, macros_, macro_context_);
         arg.chars = pp.getAll();
 
@@ -344,7 +337,7 @@ void Preprocessor::processWord()
     }
 
     // Construct a map of parameter replacements
-    std::map<std::string, MacroArg> param_map;
+    std::unordered_map<std::string, MacroArg> param_map;
     for (size_t i = 0; i < args.size(); ++i)
         param_map[macro_def.params[i]] = args[i];
 
