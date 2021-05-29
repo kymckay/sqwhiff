@@ -75,6 +75,8 @@ class Preprocessor
     void defineMacro(const PosStr &);
     void processWord();
 
+    PosChar nextChar();
+
 public:
     Preprocessor(std::istream &);
     PosChar get();

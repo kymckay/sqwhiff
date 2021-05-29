@@ -403,15 +403,8 @@ void Preprocessor::processWord()
     appendToBuffer(pp.getAll());
 }
 
-PosChar Preprocessor::get()
+PosChar Preprocessor::nextChar()
 {
-    // Pull from the buffer first if any peek has occured
-    if (!peek_buffer_.empty())
-    {
-        PosChar p = peek_buffer_.front();
-        peek_buffer_.pop_front();
-        return p;
-    }
 
     // Preprocessing does not occur within double quoted string literals
     if (!in_doubles_)
@@ -470,12 +463,25 @@ PosChar Preprocessor::get()
     return c;
 }
 
+PosChar Preprocessor::get()
+{
+    // Pull from the buffer first if any peek has occured
+    if (!peek_buffer_.empty())
+    {
+        PosChar p = peek_buffer_.front();
+        peek_buffer_.pop_front();
+        return p;
+    }
+
+    return nextChar();
+}
+
 // Allows looking ahead to future characters in order to differentiate tokens that start the same
 PosChar Preprocessor::peek(int peek_by)
 {
     while (peek_buffer_.size() < peek_by)
     {
-        peek_buffer_.push_back(get());
+        peek_buffer_.push_back(nextChar());
     }
 
     // Convert peek request to 0-indexed

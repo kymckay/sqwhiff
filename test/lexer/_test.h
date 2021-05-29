@@ -24,6 +24,13 @@ protected:
         }
     }
 
+    Token peek(std::string s, int i)
+    {
+        std::stringstream ss(s);
+        Preprocessor pp(ss);
+        return Lexer(pp).peek(i);
+    }
+
     TokenType getType(int i)
     {
         return tokens[i].type;

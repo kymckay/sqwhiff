@@ -19,3 +19,10 @@ cc_test(
   srcs = ["keywords_test.cpp"],
   deps = [":test"],
 )
+
+cc_test(
+  name = "peek",
+  size = "small",
+  srcs = ["peek_test.cpp"],
+  deps = [":test"],
+)

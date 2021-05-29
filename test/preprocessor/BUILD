@@ -33,3 +33,10 @@ cc_test(
   srcs = ["macros_test.cpp"],
   deps = [":test"],
 )
+
+cc_test(
+  name = "peek",
+  size = "small",
+  srcs = ["peek_test.cpp"],
+  deps = [":test"],
+)
