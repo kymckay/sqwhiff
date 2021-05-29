@@ -16,11 +16,11 @@ protected:
         Preprocessor pp(ss);
         Lexer l(pp);
 
-        Token t = l.nextToken();
+        Token t = l.get();
         while (t.type != TokenType::end_of_file)
         {
             tokens.push_back(t);
-            t = l.nextToken();
+            t = l.get();
         }
     }
 

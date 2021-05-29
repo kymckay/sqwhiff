@@ -17,12 +17,6 @@ void Lexer::error(Token t, std::string msg)
     throw LexicalError(t.line, t.column, msg);
 }
 
-// Preview the next character in order to differentiate tokens that start the same
-char Lexer::peek()
-{
-    return preproc_.peek();
-}
-
 void Lexer::advance()
 {
     current_char_ = preproc_.get();
@@ -85,7 +79,7 @@ Token Lexer::number()
         t.type = TokenType::hex_literal;
         advance();
     }
-    else if (current_char_ == '0' && peek() == 'x')
+    else if (current_char_ == '0' && preproc_.peek() == 'x')
     {
         t.type = TokenType::hex_literal;
         advance();
@@ -164,7 +158,7 @@ Token Lexer::string()
     advance();
 
     // Doubled enclosing character becomes single within string
-    while (current_char_ != enclosing || peek() == enclosing)
+    while (current_char_ != enclosing || preproc_.peek() == enclosing)
     {
         // Unclosed string cannot be tokenised
         if (current_char_ == '\0')
@@ -172,7 +166,7 @@ Token Lexer::string()
             error(t, "Unclosed string");
         }
 
-        if (current_char_ == enclosing && peek() == enclosing)
+        if (current_char_ == enclosing && preproc_.peek() == enclosing)
         {
             advance();
         }
@@ -219,9 +213,9 @@ Token Lexer::nextToken()
         if (
             std::isdigit(current_char_)
             // Decimal literals can start with the decimal point
-            || (current_char_ == '.' && std::isdigit(peek()))
+            || (current_char_ == '.' && std::isdigit(preproc_.peek()))
             // Hexadecimal literals can start with the dollar sign (or 0x)
-            || (current_char_ == '$' && std::isxdigit(peek())))
+            || (current_char_ == '$' && std::isxdigit(preproc_.peek())))
         {
             return number();
         }
@@ -284,14 +278,14 @@ Token Lexer::nextToken()
             return makeToken(TokenType::lt, "<");
         }
 
-        if (current_char_ == '|' && peek() == '|')
+        if (current_char_ == '|' && preproc_.peek() == '|')
         {
             advance();
             advance();
             return makeToken(TokenType::disjunction, "||");
         }
 
-        if (current_char_ == '&' && peek() == '&')
+        if (current_char_ == '&' && preproc_.peek() == '&')
         {
             advance();
             advance();
@@ -315,4 +309,28 @@ Token Lexer::nextToken()
     }
 
     return makeToken(TokenType::end_of_file, "");
+}
+
+Token Lexer::get()
+{
+    // Pull from the buffer first if any peek has occured
+    if (!peek_buffer_.empty())
+    {
+        Token t = peek_buffer_.front();
+        peek_buffer_.pop_front();
+        return t;
+    }
+
+    return nextToken();
+}
+
+Token Lexer::peek(int peek_by)
+{
+    while (peek_buffer_.size() < peek_by)
+    {
+        peek_buffer_.push_back(nextToken());
+    }
+
+    // Convert peek request to 0-indexed
+    return peek_buffer_.at(peek_by - 1);
 }

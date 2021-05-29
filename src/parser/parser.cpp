@@ -14,34 +14,13 @@ void Parser::eat(TokenType type)
 {
     if (current_token_.type == type)
     {
-        // Pull from the buffer first if any peek has occured
-        if (!peek_buffer_.empty())
-        {
-            current_token_ = peek_buffer_.front();
-            peek_buffer_.pop_front();
-        }
-        else
-        {
-            current_token_ = lexer_.nextToken();
-        }
+        current_token_ = lexer_.get();
     }
     else
     {
         throw SyntaxError(current_token_.line, current_token_.column,
             "Unexpected token '" + current_token_.raw + "', expected " + SQF_Token_Descriptors.at(type));
     }
-}
-
-// Allows looking ahead to future tokens as required due to grammar structures
-Token Parser::peek(int peek_by)
-{
-    while (peek_buffer_.size() < peek_by)
-    {
-        peek_buffer_.push_back(lexer_.nextToken());
-    }
-
-    // Convert peek request to 0-indexed
-    return peek_buffer_.at(peek_by - 1);
 }
 
 // program : statement_list EOF
@@ -78,7 +57,7 @@ std::unique_ptr<AST> Parser::statement()
     // Private keyword can modify assignment operation, but could also just be an expression, requires peeking to differentiate
     case TokenType::private_op:
     {
-        if (peek(2).type == TokenType::assign && peek().type == TokenType::id) {
+        if (lexer_.peek(2).type == TokenType::assign && lexer_.peek().type == TokenType::id) {
             return assignment();
         }
 
@@ -88,7 +67,7 @@ std::unique_ptr<AST> Parser::statement()
     // A variable could be the start of an assignment, but could also just be an expression, requires peeking to differentiate
     case TokenType::id:
     {
-        if (peek().type == TokenType::assign)
+        if (lexer_.peek().type == TokenType::assign)
         {
             return assignment();
         }
@@ -411,7 +390,7 @@ std::unique_ptr<AST> Parser::empty(){
 std::unique_ptr<AST> Parser::parse()
 {
     // Load the initial token for parsing
-    current_token_ = lexer_.nextToken();
+    current_token_ = lexer_.get();
     std::unique_ptr<AST> node = program();
 
     return node;
