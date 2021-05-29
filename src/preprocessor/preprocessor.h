@@ -21,11 +21,8 @@ class Preprocessor
         peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
     }
 
-    char current_char_ = '\0';
-    // Current physical position preprocessor has reached
-    // Used to give a position to errors and macros
-    int lineno_ = 1;
-    int column_ = 1;
+    // Position of current character required to report where there are errors
+    PosChar current_char_;
 
     // Preprocessor directives must appear at a line start (ignoring whitespace)
     bool line_start_ = true;

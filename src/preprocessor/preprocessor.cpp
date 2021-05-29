@@ -5,7 +5,7 @@
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
 {
     // Immediately read in the first character (not an advance, don't want to change state)
-    stream_.get(current_char_);
+    stream_.get(current_char_.c);
 }
 
 Preprocessor::Preprocessor(std::istream &to_read,
@@ -17,7 +17,7 @@ Preprocessor::Preprocessor(std::istream &to_read,
     expand_only_ = true;
 
     // Immediately read in the first character (not an advance, don't want to change state)
-    stream_.get(current_char_);
+    stream_.get(current_char_.c);
 }
 
 void Preprocessor::error(int line, int col, std::string msg)
@@ -30,8 +30,8 @@ void Preprocessor::advance()
     // Increment the line whenever a newline is passed
     if (current_char_ == '\n')
     {
-        lineno_++;
-        column_ = 0;
+        current_char_.line++;
+        current_char_.column = 0;
         line_start_ = true;
     }
     else if (line_start_ && !std::isspace(current_char_))
@@ -39,16 +39,16 @@ void Preprocessor::advance()
         line_start_ = false;
     }
 
-    stream_.get(current_char_);
+    stream_.get(current_char_.c);
 
     // When end of stream is reached return EOF character
     if (stream_.eof())
     {
-        current_char_ = '\0';
+        current_char_.c = '\0';
     }
     else
     {
-        column_++;
+        current_char_.column++;
     }
 }
 
@@ -89,8 +89,7 @@ std::string Preprocessor::getWord()
 
 std::vector<MacroArg> Preprocessor::getArgs(const std::string &word)
 {
-    int line = lineno_;
-    int column = column_;
+    PosChar open = current_char_;
 
     std::vector<MacroArg> args;
     if (current_char_ == '(')
@@ -99,8 +98,8 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string &word)
 
         // Position of each argument applied to replacements in full expansion
         MacroArg arg;
-        arg.line = lineno_;
-        arg.column = column_;
+        arg.line = current_char_.line;
+        arg.column = current_char_.column;
 
         int open_p = 1;
         while (current_char_ != '\0' && open_p != 0)
@@ -121,8 +120,8 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string &word)
                 args.push_back(arg);
                 advance();
                 arg.raw.clear();
-                arg.line = lineno_;
-                arg.column = column_;
+                arg.line = current_char_.line;
+                arg.column = current_char_.column;
             }
             else if (open_p != 0)
             {
@@ -133,7 +132,7 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string &word)
 
         if (open_p != 0)
         {
-            error(line, column, "Unclosed macro arguments '" + word + "('");
+            error(open.line, open.column, "Unclosed macro arguments '" + word + "('");
         }
         else
         {
@@ -149,8 +148,7 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string &word)
 void Preprocessor::handleDirective()
 {
     // Directive position important for errors and macros
-    int line = lineno_;
-    int col = column_;
+    PosChar hash = current_char_;
 
     // Skip the #
     advance();
@@ -181,7 +179,7 @@ void Preprocessor::handleDirective()
     // Instruction must immediately following the # (no spaces allowed)
     if (instruction.empty())
     {
-        error(line, col, "Invalid preprocessor directive, no instruction immediately following the # character");
+        error(hash.line, hash.column, "Invalid preprocessor directive, no instruction immediately following the # character");
     }
 
     // Space characters (not whitespace) between the instruction and body are skipped
@@ -202,11 +200,7 @@ void Preprocessor::handleDirective()
         }
         else
         {
-            PosChar c;
-            c.c = current_char_;
-            c.line = lineno_;
-            c.column = column_;
-            body.push_back(c);
+            body.push_back(current_char_);
             advance();
         }
     }
@@ -238,7 +232,7 @@ void Preprocessor::handleDirective()
     }
     else
     {
-        error(line, col, "Unrecognised preprocessor directive '#" + instruction + "'");
+        error(hash.line, hash.column, "Unrecognised preprocessor directive '#" + instruction + "'");
     }
 }
 
@@ -330,8 +324,7 @@ void Preprocessor::defineMacro(const PosStr &definition)
 void Preprocessor::processWord()
 {
     // Position of the macro applied to all expanded characters
-    int line = lineno_;
-    int column = column_;
+    PosChar initial = current_char_;
 
     // May just be object like
     std::string word = getWord();
@@ -354,8 +347,8 @@ void Preprocessor::processWord()
     {
         // Just a normal word, push to buffer
         PosChar pc;
-        pc.line = line;
-        pc.column = column;
+        pc.line = initial.line;
+        pc.column = initial.column;
         for (char &c : word)
         {
             pc.c = c;
@@ -369,7 +362,7 @@ void Preprocessor::processWord()
     // The real preprocessor outputs something in such cases, but for now throw an error
     if (args.size() != macro_def.params.size())
     {
-        error(line, column,
+        error(initial.line, initial.column,
             "Invalid number of macro arguments supplied '"
             + word
             + "', found "
@@ -469,10 +462,7 @@ PosChar Preprocessor::get()
         in_doubles_ = !in_doubles_;
     }
 
-    PosChar c;
-    c.line = lineno_;
-    c.column = column_;
-    c.c = current_char_;
+    PosChar c = current_char_;
 
     // Remember to actually progress through the input
     advance();
