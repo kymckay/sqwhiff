@@ -1,6 +1,5 @@
 #include "src/preprocessor/preprocessor.h"
 #include <sstream>
-#include <regex>
 #include <cctype>
 
 Preprocessor::Preprocessor(std::istream &to_read) : stream_(to_read)
@@ -241,50 +240,80 @@ void Preprocessor::handleDirective()
 
 void Preprocessor::defineMacro(const std::string &definition)
 {
-    // ID must start with alpha or underscore, can contain digits
-    // Parameters are optional, trailing comma is allowed
-    // Space characters (specifically spaces) following the head are skipped
-    // Body may be empty
-    std::regex rgx(R"(([a-zA-Z_][0-9a-zA-Z_]*)(?:\(((?:\s*[a-zA-Z_][0-9a-zA-Z_]*\s*,?)+)\s*\))? *(.*))");
-    std::smatch matches;
-
-    if (std::regex_match(definition, matches, rgx))
+    // Macro ID must start with alpha or underscore, can contain digits after
+    if (definition[0] != '_' && !std::isalpha(definition[0]))
     {
-        std::string keyword = matches[1].str();
-        std::string params = matches[2].str();
+        error(lineno_, column_, "Macro definition must start with an alpha character or _, found '" + std::string(1, definition[0]) + "'");
+    }
 
-        MacroDefinition m;
-        m.body = matches[3].str();
-
-        // Populate parameters vector
-        std::string tmp;
-        for (char &c : params)
+    bool inParams = false;
+    bool skipSpace = false;
+    bool inBody = false;
+    std::string keyword;
+    std::string param;
+    MacroDefinition m;
+    for (char c : definition)
+    {
+        if (inBody)
+        {
+            m.body.push_back(c);
+        }
+        else if (skipSpace)
+        {
+            // Spaces (not whitespace) following the head are ignored
+            if (c != ' ')
+            {
+                skipSpace = false;
+                inBody = true;
+                m.body.push_back(c);
+            }
+        }
+        else if (inParams)
         {
             if (c == ',')
             {
-                m.params.push_back(tmp);
-                tmp.clear();
+                m.params.push_back(param);
+                param.clear();
+            }
+            else if (c == ')')
+            {
+                // Trailing comma is valid
+                if (!param.empty())
+                {
+                    m.params.push_back(param);
+                }
+
+                inParams = false;
+                skipSpace = true;
             }
             // Horizontal whitespace in parameters is ignored
             else if (!std::isspace(c))
             {
-                tmp.push_back(c);
+                param.push_back(c);
             }
         }
-
-        // Final param may not end with a comma
-        if (tmp.length() > 0)
+        else
         {
-            m.params.push_back(tmp);
+            if (std::isalnum(c) || c == '_')
+            {
+                keyword.push_back(c);
+            }
+            else
+            {
+                // Parameters are optional, can be object like
+                if (c == '(')
+                {
+                    inParams = true;
+                }
+                else
+                {
+                    skipSpace = true;
+                }
+            }
         }
+    }
 
-        macros_.insert({keyword, m});
-    }
-    else
-    {
-        // TODO improve errors
-        error(lineno_, column_, "Invalid macro definition");
-    }
+    macros_.insert({keyword, m});
 }
 
 // Obtains next word and arguments if present and expands to a macro in the buffer
