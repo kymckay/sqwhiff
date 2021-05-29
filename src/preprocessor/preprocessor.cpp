@@ -191,7 +191,7 @@ void Preprocessor::handleDirective()
     }
 
     // Remaining logical line is the body of the directive
-    std::vector<PosChar> body;
+    PosStr body;
     while (current_char_ != '\n' && current_char_ != '\0')
     {
         // Logical line can be extended by escaped newlines (anywhere in the directive)
@@ -242,7 +242,7 @@ void Preprocessor::handleDirective()
     }
 }
 
-void Preprocessor::defineMacro(const std::vector<PosChar> &definition)
+void Preprocessor::defineMacro(const PosStr &definition)
 {
     // Macro ID must start with alpha or underscore, can contain digits after
     PosChar initial = definition[0];
@@ -493,10 +493,10 @@ PosChar Preprocessor::peek(int peek_by)
 }
 
 // Processes the whole input and returns the resulting sequence of positioned characters
-std::vector<PosChar> Preprocessor::getAll()
+PosStr Preprocessor::getAll()
 {
     PosChar c = get();
-    std::vector<PosChar> result;
+    PosStr result;
     while (c != '\0')
     {
         result.push_back(c);

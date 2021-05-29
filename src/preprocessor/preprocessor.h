@@ -16,7 +16,7 @@ class Preprocessor
     // Use buffer to simplify lookahead logic with preprocessing
     std::deque<PosChar> peek_buffer_;
 
-    inline void appendToBuffer(const std::vector<PosChar> &chars)
+    inline void appendToBuffer(const PosStr &chars)
     {
         peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
     }
@@ -75,12 +75,12 @@ class Preprocessor
     std::vector<MacroArg> getArgs(const std::string &);
 
     void handleDirective();
-    void defineMacro(const std::vector<PosChar> &);
+    void defineMacro(const PosStr &);
     void processWord();
 
 public:
     Preprocessor(std::istream &);
     PosChar get();
     PosChar peek(int = 1);
-    std::vector<PosChar> getAll();
+    PosStr getAll();
 };

@@ -14,7 +14,7 @@ struct MacroArg
     int line = 1;
     int column = 1;
     std::string raw;
-    std::vector<PosChar> chars;
+    PosStr chars;
 };
 
 typedef MacroDefinition MacroDefinition;

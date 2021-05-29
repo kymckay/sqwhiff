@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 // Character with an associated file position (may not correspond to physical position because of macros)
 struct PosChar
@@ -13,3 +14,4 @@ struct PosChar
 
 // Using a typedef prevents naming clashes in global name space
 typedef PosChar PosChar;
+typedef std::vector<PosChar> PosStr;
