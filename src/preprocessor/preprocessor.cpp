@@ -191,7 +191,7 @@ void Preprocessor::handleDirective()
     }
 
     // Remaining logical line is the body of the directive
-    std::string body;
+    std::vector<PosChar> body;
     while (current_char_ != '\n' && current_char_ != '\0')
     {
         // Logical line can be extended by escaped newlines (anywhere in the directive)
@@ -202,7 +202,11 @@ void Preprocessor::handleDirective()
         }
         else
         {
-            body.push_back(current_char_);
+            PosChar c;
+            c.c = current_char_;
+            c.line = lineno_;
+            c.column = column_;
+            body.push_back(c);
             advance();
         }
     }
@@ -238,12 +242,13 @@ void Preprocessor::handleDirective()
     }
 }
 
-void Preprocessor::defineMacro(const std::string &definition)
+void Preprocessor::defineMacro(const std::vector<PosChar> &definition)
 {
     // Macro ID must start with alpha or underscore, can contain digits after
-    if (definition[0] != '_' && !std::isalpha(definition[0]))
+    PosChar initial = definition[0];
+    if (initial != '_' && !std::isalpha(initial))
     {
-        error(lineno_, column_, "Macro definition must start with an alpha character or _, found '" + std::string(1, definition[0]) + "'");
+        error(initial.line, initial.column, "Macro ID must start with an alpha character or _, found '" + std::string(1, initial) + "'");
     }
 
     bool inParams = false;
@@ -252,7 +257,7 @@ void Preprocessor::defineMacro(const std::string &definition)
     std::string keyword;
     std::string param;
     MacroDefinition m;
-    for (char c : definition)
+    for (PosChar c : definition)
     {
         if (inBody)
         {
@@ -286,9 +291,14 @@ void Preprocessor::defineMacro(const std::string &definition)
                 inParams = false;
                 skipSpace = true;
             }
-            // Horizontal whitespace in parameters is ignored
+            // Horizontal whitespace around parameters is ignored
             else if (!std::isspace(c))
             {
+                if (param.empty() && c != '_' && !std::isalpha(c))
+                {
+                    error(c.line, c.column, "Macro parameter ID must start with an alpha character or _, found '" + std::string(1, c) + "'");
+                }
+
                 param.push_back(c);
             }
         }

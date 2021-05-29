@@ -75,7 +75,7 @@ class Preprocessor
     std::vector<MacroArg> getArgs(const std::string &);
 
     void handleDirective();
-    void defineMacro(const std::string &);
+    void defineMacro(const std::vector<PosChar> &);
     void processWord();
 
 public:

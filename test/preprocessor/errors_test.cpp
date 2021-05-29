@@ -26,16 +26,14 @@ TEST_F(PreprocessorTest, ErrorsOnUnrecognisedDirective)
     ASSERT_EXCEPTION(preprocess("#random"), PreprocessingError, "1:1 PreprocessingError - Unrecognised preprocessor directive '#random'");
 }
 
-// TODO
-TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidMacroName)
+TEST_F(PreprocessorTest, ErrorsOnInvalidMacroID)
 {
-    ASSERT_EXCEPTION(preprocess("#define 3"), PreprocessingError, "1:9 PreprocessingError - Invalid macro name");
+    ASSERT_EXCEPTION(preprocess("#define 3 body"), PreprocessingError, "1:9 PreprocessingError - Macro ID must start with an alpha character or _, found '3'");
 }
 
-// TODO
-TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidMacroParams)
+TEST_F(PreprocessorTest, ErrorsOnInvalidMacroParamID)
 {
-    ASSERT_EXCEPTION(preprocess("#define _M(A,B,3)"), PreprocessingError, "1:16 PreprocessingError - Invalid macro parameter");
+    ASSERT_EXCEPTION(preprocess("#define _M(A,B,3) body"), PreprocessingError, "1:16 PreprocessingError - Macro parameter ID must start with an alpha character or _, found '3'");
 }
 
 TEST_F(PreprocessorTest, ErrorsOnUnclosedMacroArguments)
