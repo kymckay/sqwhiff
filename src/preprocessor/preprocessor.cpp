@@ -363,11 +363,11 @@ void Preprocessor::processWord()
     if (args.size() != macro_def.params.size())
     {
         error(initial.line, initial.column,
-            "Invalid number of macro arguments supplied '"
+            "Invalid number of macro arguments for '"
             + word
-            + "', found "
+            + "' supplied, found "
             + std::to_string(args.size())
-            + " expected "
+            + ", expected "
             + std::to_string(macro_def.params.size())
         );
     }

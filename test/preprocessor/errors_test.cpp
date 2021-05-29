@@ -40,3 +40,8 @@ TEST_F(PreprocessorTest, ErrorsOnUnclosedMacroArguments)
 {
     ASSERT_EXCEPTION(preprocess("#define _M(A) A\n_M(anythinggoeshere\n"), PreprocessingError, "2:3 PreprocessingError - Unclosed macro arguments '_M('");
 }
+
+TEST_F(PreprocessorTest, ErrorsOnMismatchedMacroArguments)
+{
+    ASSERT_EXCEPTION(preprocess("#define _M(A) A\n_M(1,2)"), PreprocessingError, "2:1 PreprocessingError - Invalid number of macro arguments for '_M' supplied, found 2, expected 1");
+}
