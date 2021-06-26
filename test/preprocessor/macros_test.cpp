@@ -206,3 +206,12 @@ TEST_F(PreprocessorTest, CanUndefineUndefinedMacro)
     )
     << "Undefine directives for already undefined macros should silently do nothing";
 }
+
+TEST_F(PreprocessorTest, DISABLED_OnlyUndefinesFirstWord)
+{
+    EXPECT_EQ(
+        "\n 1",
+        preprocess("#define TRAILING 1\n#undef MACRO TRAILING")
+    )
+    << "An undefine directive should only consume the first following word";
+}
