@@ -179,3 +179,30 @@ TEST_F(PreprocessorTest, CanContainRawDirectivesInArguments)
     )
     << "Directives within macro arguments should not be preprocessed during expansion";
 }
+
+TEST_F(PreprocessorTest, CanUndefineMacros)
+{
+    EXPECT_EQ(
+        "\n\nTEST",
+        preprocess("#define TEST 35\n#undef TEST\nTEST")
+    )
+    << "Undefined macros should not be expanded";
+}
+
+TEST_F(PreprocessorTest, UndefinesMacrosWhereEncountered)
+{
+    EXPECT_EQ(
+        "\n35\n\nTEST",
+        preprocess("#define TEST 35\nTEST\n#undef TEST\nTEST")
+    )
+    << "Undefined macros should not be expanded only after line where undefined";
+}
+
+TEST_F(PreprocessorTest, CanUndefineUndefinedMacro)
+{
+    EXPECT_EQ(
+        "\n",
+        preprocess("#undef UNDEFINED\n")
+    )
+    << "Undefine directives for already undefined macros should silently do nothing";
+}

@@ -214,6 +214,7 @@ void Preprocessor::handleDirective()
     }
     else if (instruction == "undef")
     {
+        undefineMacro(body);
     }
     else if (instruction == "if")
     {
@@ -320,6 +321,20 @@ void Preprocessor::defineMacro(const PosStr &definition)
     macros_.insert({keyword, m});
 }
 
+void Preprocessor::undefineMacro(const PosStr &undef)
+{
+    std::string keyword;
+    for (char c : undef)
+    {
+        if (std::isalnum(c) || c == '_')
+        {
+            keyword.push_back(c);
+        }
+    }
+
+    macros_.erase(keyword);
+}
+
 // Obtains next word and arguments if present and expands to a macro in the buffer
 void Preprocessor::processWord()
 {
@@ -405,7 +420,6 @@ void Preprocessor::processWord()
 
 PosChar Preprocessor::nextChar()
 {
-
     // Preprocessing does not occur within double quoted string literals
     if (!in_doubles_)
     {

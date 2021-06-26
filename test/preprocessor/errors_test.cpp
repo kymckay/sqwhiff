@@ -55,3 +55,8 @@ TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroArguments)
 {
     ASSERT_EXCEPTION(preprocess("#define _M1(A) A\n_M1(1 + _M1(6)"), PreprocessingError, "2:9 PreprocessingError - Unclosed macro arguments '_M1('");
 }
+
+TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidUndefineMacroID)
+{
+    ASSERT_EXCEPTION(preprocess("#undef 3"), PreprocessingError, "1:8 PreprocessingError - Macro ID must start with an alpha character or _, found '3'");
+}

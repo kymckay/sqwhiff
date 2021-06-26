@@ -73,6 +73,7 @@ class Preprocessor
 
     void handleDirective();
     void defineMacro(const PosStr &);
+    void undefineMacro(const PosStr &);
     void processWord();
 
     PosChar nextChar();
