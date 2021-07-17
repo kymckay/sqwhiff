@@ -7,6 +7,7 @@ class AnalyzerTest : public ::testing::Test
 {
 protected:
     std::string output_;
+    int errorc_ = -1;
 
     void analyze(std::string s)
     {
@@ -16,8 +17,13 @@ protected:
         Lexer l(pp);
         Parser p(l);
         Analyzer a(p, output);
-        a.analyze();
+        errorc_ = a.analyze();
 
         output_ = output.str();
+    }
+
+    void SetUp() override {
+        // Reset this to an invalid value avoids leakage between tests
+        errorc_ = -1;
     }
 };

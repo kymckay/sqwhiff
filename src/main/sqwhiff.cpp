@@ -35,27 +35,23 @@ int main(int argc, char *argv[])
     {
         std::ifstream file_in(argv[i]);
 
-        // TODO: Sum up errors encountered
         if (file_in.is_open())
         {
             Preprocessor preproc(file_in);
             Lexer lex(preproc);
             Parser p(lex);
             Analyzer a(p, std::cout);
-            a.analyze();
+            errorc += a.analyze();
             file_in.close();
         }
         else
         {
-            std::cerr << "Unable to open file: " << argv[i];
+            std::cerr << "Unable to open file: " << argv[i] << "\n";
             errorc++; // Bad usage should count as an error
         }
     }
 
-    if (errorc == 0)
-    {
-        std::cout << "No errors found!" << std::endl;
-    }
+    std::cout << "\nsqwhiff result: " << errorc << " error(s) encountered" << std::endl;
 
     return errorc;
 }

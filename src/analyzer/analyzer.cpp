@@ -6,7 +6,7 @@
 
 Analyzer::Analyzer(Parser &p, std::ostream &out) : parser_(p), out_(out){};
 
-void Analyzer::analyze()
+int Analyzer::analyze()
 {
     try
     {
@@ -16,19 +16,25 @@ void Analyzer::analyze()
     catch (const PreprocessingError &e)
     {
         out_ << e.what();
+        return 1;
     }
-    catch(const LexicalError& e)
+    catch(const LexicalError &e)
     {
         out_ << e.what();
+        return 1;
     }
     catch (const SyntaxError &e)
     {
         out_ << e.what();
+        return 1;
     }
+
+    return errorc_;
 };
 
 void Analyzer::error(Token t, std::string msg) {
     out_ << t.line << ':' << t.column << " SemanticError - " << msg << ": " << t.raw << '\n';
+    errorc_++;
 }
 
 void Analyzer::visit(Compound &c)

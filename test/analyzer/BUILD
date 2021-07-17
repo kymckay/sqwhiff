@@ -7,6 +7,13 @@ cc_library(
 )
 
 cc_test(
+    name = "analyze",
+    size = "small",
+    srcs = ["analyze_test.cpp"],
+    deps = [":test"],
+)
+
+cc_test(
     name = "arity",
     size = "small",
     srcs = ["arity_test.cpp"],

@@ -9,12 +9,13 @@ class Analyzer : NodeVisitor
 {
     Parser &parser_;
     std::ostream &out_;
+    int errorc_ = 0;
 
     void error(Token, std::string);
 
 public:
     Analyzer(Parser &, std::ostream &);
-    void analyze();
+    int analyze();
 
     // Visitor interface implementation
 
