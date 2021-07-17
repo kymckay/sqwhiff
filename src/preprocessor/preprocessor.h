@@ -1,7 +1,7 @@
 #pragma once
-#include "src/preprocessor/pos_char.h"
-#include "src/preprocessor/macro.h"
-#include "src/preprocessor/preprocessing_error.h"
+#include "./pos_char.h"
+#include "./macro.h"
+#include "./preprocessing_error.h"
 #include <string>
 #include <istream>
 #include <deque>

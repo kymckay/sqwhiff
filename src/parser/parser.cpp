@@ -1,6 +1,6 @@
-#include "src/parser/parser.h"
-#include "src/lexer/lexer.h"
-#include "src/ast/all_nodes.h"
+#include "./parser.h"
+#include "../lexer/lexer.h"
+#include "../ast/all_nodes.h"
 #include <memory>
 #include <utility>
 #include <vector>

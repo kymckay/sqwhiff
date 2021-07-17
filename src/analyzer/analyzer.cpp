@@ -1,5 +1,5 @@
-#include "src/analyzer/analyzer.h"
-#include "src/sqf/all_keywords.h"
+#include "./analyzer.h"
+#include "../sqf/all_keywords.h"
 #include <memory>
 #include <string>
 #include <ostream>

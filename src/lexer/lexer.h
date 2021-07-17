@@ -1,7 +1,7 @@
 #pragma once
-#include "src/preprocessor/preprocessor.h"
-#include "src/lexer/token.h"
-#include "src/lexer/lexical_error.h"
+#include "./token.h"
+#include "./lexical_error.h"
+#include "../preprocessor/preprocessor.h"
 #include <deque>
 #include <string>
 #include <istream>

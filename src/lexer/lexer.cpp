@@ -1,6 +1,6 @@
-#include "src/lexer/lexer.h"
-#include "src/lexer/token_maps.h"
-#include "src/sqf/all_keywords.h"
+#include "./lexer.h"
+#include "./token_maps.h"
+#include "../sqf/all_keywords.h"
 #include <string>
 #include <istream>
 #include <algorithm>

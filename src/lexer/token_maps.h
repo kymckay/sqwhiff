@@ -1,4 +1,4 @@
-#include "src/lexer/token_types.h"
+#include "./token_types.h"
 #include <unordered_map>
 #include <string>
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "src/parser/parser.h"
-#include "src/ast/node_visitor.h"
-#include "src/ast/all_nodes.h"
+#include "../parser/parser.h"
+#include "../ast/node_visitor.h"
+#include "../ast/all_nodes.h"
 #include <ostream>
 #include <string>
 

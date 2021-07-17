@@ -1,5 +1,5 @@
 #pragma once
-#include "src/lexer/token_types.h"
+#include "./token_types.h"
 #include <string>
 
 struct Token {

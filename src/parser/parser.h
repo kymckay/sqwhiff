@@ -1,7 +1,7 @@
 #pragma once
-#include "src/lexer/lexer.h"
-#include "src/ast/ast.h"
-#include "src/parser/syntax_error.h"
+#include "./syntax_error.h"
+#include "../lexer/lexer.h"
+#include "../ast/ast.h"
 #include <memory>
 
 class Parser

@@ -1,7 +1,7 @@
-#include "src/preprocessor/preprocessor.h"
-#include "src/lexer/lexer.h"
-#include "src/parser/parser.h"
-#include "src/analyzer/analyzer.h"
+#include "../preprocessor/preprocessor.h"
+#include "../lexer/lexer.h"
+#include "../parser/parser.h"
+#include "../analyzer/analyzer.h"
 #include <iostream>
 #include <fstream>
 #include <string>

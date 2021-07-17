@@ -1,3 +1,4 @@
+#include "../lexer/token_types.h"
 #include <string>
 #include <stdexcept>
 #include <unordered_map>

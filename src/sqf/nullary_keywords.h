@@ -1,5 +1,5 @@
 #pragma once
-#include "src/sqf/sqf_type.h"
+#include "./sqf_type.h"
 #include <unordered_map>
 #include <string>
 

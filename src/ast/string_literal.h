@@ -1,7 +1,7 @@
 #pragma once
-#include "src/ast/ast.h"
-#include "src/lexer/token.h"
-#include "src/ast/node_visitor.h"
+#include "./ast.h"
+#include "./node_visitor.h"
+#include "../lexer/token.h"
 
 class StringLiteral : public AST
 {
