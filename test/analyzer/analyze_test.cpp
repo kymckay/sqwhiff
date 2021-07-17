@@ -10,10 +10,9 @@ TEST_F(AnalyzerTest, ReturnsNumberOfErrors)
     analyze("[1] select 1;");
     EXPECT_EQ(0, errorc_);
 
-    // TODO: Fix
     // Case with preprocessor error
-    // analyze("#random");
-    // EXPECT_EQ(1, errorc_);
+    analyze("#random");
+    EXPECT_EQ(1, errorc_);
 
     // Case with lexical error
     analyze("?");

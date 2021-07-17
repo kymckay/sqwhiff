@@ -14,6 +14,16 @@
         << "Exception message is incorrect";       \
     }
 
+TEST_F(LexerTest, NoErrorOnInstantiation)
+{
+    EXPECT_NO_THROW(
+        std::stringstream ss("#random");
+        Preprocessor pp(ss);
+        Lexer l(pp);
+    )
+    << "Lexer instantiation logic should not expose preprocessing exceptions";
+}
+
 TEST_F(LexerTest, ErrorsOnUnexpectedChar)
 {
     ASSERT_EXCEPTION(tokenize("?"), LexicalError, "1:1 LexicalError - Unexpected character '?'");

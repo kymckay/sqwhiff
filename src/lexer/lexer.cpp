@@ -6,11 +6,7 @@
 #include <algorithm>
 #include <cctype>
 
-Lexer::Lexer(Preprocessor &pre) : preproc_(pre)
-{
-    // Immediately read in the first character
-    advance();
-}
+Lexer::Lexer(Preprocessor &pre) : preproc_(pre) {}
 
 void Lexer::error(Token t, std::string msg)
 {
@@ -313,6 +309,8 @@ Token Lexer::nextToken()
 
 Token Lexer::get()
 {
+    init();
+
     // Pull from the buffer first if any peek has occured
     if (!peek_buffer_.empty())
     {
@@ -326,6 +324,8 @@ Token Lexer::get()
 
 Token Lexer::peek(int peek_by)
 {
+    init();
+
     while (peek_buffer_.size() < peek_by)
     {
         peek_buffer_.push_back(nextToken());

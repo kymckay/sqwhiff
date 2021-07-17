@@ -16,6 +16,17 @@ class Lexer
 
     PosChar current_char_;
 
+    // First time used need to preload the initial character
+    bool first_use_ = true;
+    inline void init()
+    {
+        if (first_use_)
+        {
+            first_use_ = false;
+            advance();
+        }
+    }
+
     void error(Token, std::string);
     void advance();
     void skipWhitespace();
