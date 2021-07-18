@@ -1,11 +1,36 @@
 # How to contribute
 
-As this is a learning project for myself, please make any feature/enhancement requests as issues for review as I'd like the chance to implement them myself or mark issues as "help wanted" where appropriate.
+Warning: The project is still heavily WIP while adding full language support and desired analysis features. The content below is more contribution guidance for once it is stable. For now your best bet is to mention @kymckay on relevant issues if you want to do anything.
 
-If you'd like to fix a bug or optimise my implementation then by all means submit a pull request for review and explain why it's better/how it works.
+It's always preferable to use the issue tracker before working on anything to avoid duplicating work. In general:
+
+1. Check if an existing issue covers your topic. Check the discussion and comment there if it does.
+  - If you would like to work on an issue, first check if anyone else is (either assigned or in the discussion) and make your intentions known.
+  - Issues marked "help wanted" are any deemed desirable, but not prioritised.
+2. If no issues cover your topic, open a new issue and describe your problem or proposal concisely. Then wait for a response.
+
+If you'd like to optimise any existing implementation make sure to explain why it's better/how it works. Ideally with some demonstrable results included.
+
+## Source code
+
+The project is written using modern C++. Officially C++11 standard, but that may be bumped up in future.
+
+The source files are structured into subdirectories (by logical divisions of responsibility) under the `src` directory.
 
 ## Build setup
 
-The project is configured to be built using [Bazel](https://www.bazel.build). For simplicity, I recommend you use [Bazelisk](https://github.com/bazelbuild/bazelisk) to ensure you're running the correct version at all times (the project contains a version file to control this).
+The project is configured to be built using [Bazel]. For simplicity, I recommend you use [Bazelisk] to ensure you're running the correct version at all times (the project contains a version file to control this).
 
-You can then build with the following command once `bazel.exe` is on your system path: `bazel build //src/main:sqf`
+You can then build with the following command once the Bazel binary is on your system path: `bazel build //src/main:sqf`
+
+## Testing
+
+Tests (found under the `test` directory) are written using [GoogleTest]. When a bug is fixed an equivalent test case should always be added to avoid future regression. Similarly, when a new feature is added appropriate tests should be included to capture intended behaviours.
+
+You can run the full test collection with `bazel test //test/...`.
+
+A GitHub Action is configured to run all tests on pushes to `main` and for pull requests targeting `main`. Pull requests must build and pass testing before they can be merged.
+
+[Bazel]: https://www.bazel.build
+[Bazelisk]: https://github.com/bazelbuild/bazelisk
+[GoogleTest]: https://github.com/google/googletest
