@@ -78,8 +78,8 @@ The following table summarizes the operator precedence in SQF, from highest prec
 |`number ^ number`|Exponentiation|
 |`*`, `/`, `%`, `mod`, `atan2`, `config / string`|Multiplication, division, modulo, atan2, slash config accessor|
 |`+`, `-`, `string + string`, `number min number`, `number max number`|Addition, subtraction, concatenation, min, max|
-|`if boolean then code else code`|If – else structure|
+|`code else code`|The else structure|
 |`expression commandName expression`|Binary operator|
 |`==`, `!=`, `>`, `<`, `<=`, `>=`, `config >> string`|Comparison, arrow config accessor|
-|`bool \|\| bool`, `bool or bool`|Logical OR|
 |`bool && bool`, `bool and bool`|Logical AND|
+|`bool \|\| bool`, `bool or bool`|Logical OR|
