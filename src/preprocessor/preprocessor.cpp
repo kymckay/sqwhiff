@@ -491,7 +491,7 @@ PosChar Preprocessor::get()
 }
 
 // Allows looking ahead to future characters in order to differentiate tokens that start the same
-PosChar Preprocessor::peek(int peek_by)
+PosChar Preprocessor::peek(size_t peek_by)
 {
     while (peek_buffer_.size() < peek_by)
     {

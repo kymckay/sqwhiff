@@ -39,5 +39,5 @@ class Lexer
 public:
     Lexer(Preprocessor&);
     Token get();
-    Token peek(int = 1);
+    Token peek(size_t = 1);
 };

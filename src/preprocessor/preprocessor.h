@@ -81,6 +81,6 @@ class Preprocessor
 public:
     Preprocessor(std::istream &);
     PosChar get();
-    PosChar peek(int = 1);
+    PosChar peek(size_t = 1);
     PosStr getAll();
 };

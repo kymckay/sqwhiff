@@ -322,7 +322,7 @@ Token Lexer::get()
     return nextToken();
 }
 
-Token Lexer::peek(int peek_by)
+Token Lexer::peek(size_t peek_by)
 {
     init();
 
