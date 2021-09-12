@@ -4,6 +4,8 @@
 #include "../ast/ast.h"
 #include <memory>
 
+using ast_ptr = std::unique_ptr<AST>;
+
 class Parser
 {
     // Reference member, no need to copy the supplied lexer
@@ -15,28 +17,28 @@ class Parser
     // Member functions for AST nodes
     // Dynamic allocation is needed for AST interface types
 
-    std::unique_ptr<AST> program();
-    std::unique_ptr<AST> statement_list();
-    std::unique_ptr<AST> statement();
-    std::unique_ptr<AST> assignment();
-    std::unique_ptr<AST> expr();
-    std::unique_ptr<AST> conjunction();
-    std::unique_ptr<AST> comparison();
-    std::unique_ptr<AST> binary_op();
-    std::unique_ptr<AST> else_op();
-    std::unique_ptr<AST> term();
-    std::unique_ptr<AST> factor();
-    std::unique_ptr<AST> power();
-    std::unique_ptr<AST> hash_select();
-    std::unique_ptr<AST> unary_op();
-    std::unique_ptr<AST> nullary_op();
-    std::unique_ptr<AST> atom();
-    std::unique_ptr<AST> array();
-    std::unique_ptr<AST> code();
-    std::unique_ptr<AST> variable();
-    std::unique_ptr<AST> empty();
+    ast_ptr program();
+    ast_ptr statement_list();
+    ast_ptr statement();
+    ast_ptr assignment();
+    ast_ptr expr();
+    ast_ptr conjunction();
+    ast_ptr comparison();
+    ast_ptr binary_op();
+    ast_ptr else_op();
+    ast_ptr term();
+    ast_ptr factor();
+    ast_ptr power();
+    ast_ptr hash_select();
+    ast_ptr unary_op();
+    ast_ptr nullary_op();
+    ast_ptr atom();
+    ast_ptr array();
+    ast_ptr code();
+    ast_ptr variable();
+    ast_ptr empty();
 
 public:
     Parser(Lexer &);
-    std::unique_ptr<AST> parse();
+    ast_ptr parse();
 };

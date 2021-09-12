@@ -7,7 +7,7 @@ class AST
 {
 public:
     // Virtual destructor allows deletion of subclasses via base class pointer
-    virtual ~AST() {};
+    virtual ~AST(){};
 
     virtual void accept(NodeVisitor &) = 0;
 };
