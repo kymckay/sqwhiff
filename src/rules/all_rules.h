@@ -4,5 +4,5 @@
 #include <vector>
 
 rule_set all_rules {
-    std::make_shared<ArityRule>()
+    {-1, std::make_shared<ArityRule>()}
 };

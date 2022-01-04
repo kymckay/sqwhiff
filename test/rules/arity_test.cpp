@@ -1,9 +1,7 @@
 #include "../analyzer/_test.h"
 #include "src/rules/all_rules.h"
 
-rule_set arity_rule = rule_set {
-    std::make_shared<ArityRule>()
-};
+rule_ptr arity_rule = std::make_shared<ArityRule>();
 
 TEST_F(AnalyzerTest, ReportsIncorrectUnaryUse)
 {

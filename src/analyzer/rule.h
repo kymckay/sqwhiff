@@ -3,6 +3,7 @@
 #include "../ast/node_visitor.h"
 #include "../ast/ast.h"
 #include <vector>
+#include <map>
 #include <memory>
 
 class Rule : protected NodeVisitor
@@ -15,4 +16,6 @@ public:
 };
 
 using rule_ptr = std::shared_ptr<Rule>;
-using rule_set = std::vector<rule_ptr>;
+// A map is used to ensure rules are applied in consistent order and
+// enable removal of rules in future while preserving indices
+using rule_set = std::map<int, rule_ptr>;

@@ -32,7 +32,7 @@ int Analyzer::analyze(std::ostream &out, rule_set &rules)
 
     for (auto &&s : rules)
     {
-        std::vector<SemanticError> errors = s->getErrors(*tree);
+        std::vector<SemanticError> errors = s.second->getErrors(*tree);
         for (auto &&e : errors)
         {
             out << e.what() << '\n';

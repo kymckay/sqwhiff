@@ -14,6 +14,12 @@ protected:
         analyze(s, rule_set());
     }
 
+    void analyze(std::string s, rule_ptr r)
+    {
+        rule_set singular_rule = rule_set {{0, r}};
+        analyze(s, singular_rule);
+    }
+
     void analyze(std::string s, rule_set rules)
     {
         std::stringstream input(s);
@@ -27,7 +33,8 @@ protected:
         output_ = output.str();
     }
 
-    void SetUp() override {
+    void SetUp() override
+    {
         // Reset this to an invalid value avoids leakage between tests
         errorc_ = -1;
     }
