@@ -7,6 +7,13 @@ cc_library(
 )
 
 cc_test(
+  name = "branches",
+  size = "small",
+  srcs = ["branches_test.cpp"],
+  deps = [":test"],
+)
+
+cc_test(
   name = "comments",
   size = "small",
   srcs = ["comments_test.cpp"],
