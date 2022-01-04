@@ -35,7 +35,7 @@ int Analyzer::analyze(std::ostream &out, rule_set &rules)
         std::vector<SemanticError> errors = s->getErrors(*tree);
         for (auto &&e : errors)
         {
-            out << e.what();
+            out << e.what() << '\n';
         }
 
         errorc += errors.size();

@@ -17,7 +17,7 @@ void ArityRule::visit(UnaryOp &op)
 {
     if (SQF_Unary_Keywords.find(op.op.raw) == SQF_Unary_Keywords.end())
     {
-        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected binary use"));
+        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected binary use: " + op.op.raw));
     }
 
     op.expr->accept(*this);
@@ -27,7 +27,7 @@ void ArityRule::visit(BinaryOp &op)
 {
     if (SQF_Binary_Keywords.find(op.op.raw) == SQF_Binary_Keywords.end())
     {
-        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected unary use"));
+        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected unary use: " + op.op.raw));
     }
 
     op.left->accept(*this);

@@ -11,13 +11,18 @@ protected:
 
     void analyze(std::string s)
     {
+        analyze(s, rule_set());
+    }
+
+    void analyze(std::string s, rule_set rules)
+    {
         std::stringstream input(s);
         std::stringstream output("");
         Preprocessor pp(input);
         Lexer l(pp);
         Parser p(l);
-        Analyzer a(p, output);
-        errorc_ = a.analyze();
+        Analyzer a(p);
+        errorc_ = a.analyze(output, rules);
 
         output_ = output.str();
     }
