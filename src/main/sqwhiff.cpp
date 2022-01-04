@@ -2,6 +2,7 @@
 #include "../lexer/lexer.h"
 #include "../parser/parser.h"
 #include "../analyzer/analyzer.h"
+#include "../rules/all_rules.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -40,8 +41,8 @@ int main(int argc, char *argv[])
             Preprocessor preproc(file_in);
             Lexer lex(preproc);
             Parser p(lex);
-            Analyzer a(p, std::cout);
-            errorc += a.analyze();
+            Analyzer a(p);
+            errorc += a.analyze(std::cout, all_rules);
             file_in.close();
         }
         else
