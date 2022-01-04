@@ -221,15 +221,32 @@ void Preprocessor::handleDirective()
     }
     else if (instruction == "ifdef")
     {
+        if (branch_directive_ == instruction)
+        {
+            error(hash.line, hash.column, "Cannot nest #" + instruction + " directives");
+        }
+        branchDirective(instruction, body);
     }
     else if (instruction == "ifndef")
     {
+        if (branch_directive_ == instruction)
+        {
+            error(hash.line, hash.column, "Cannot nest #" + instruction + " directives");
+        }
+        branchDirective(instruction, body);
     }
     else if (instruction == "else")
     {
+        if (branch_directive_.empty())
+        {
+            error(hash.line, hash.column, "Cannot use #else with no preceeding #if, #ifdef or #ifndef directive");
+        }
+        branchDirective(instruction, body);
     }
     else if (instruction == "endif")
     {
+        branch_directive_ = "";
+        branch_condition_ = false;
     }
     else
     {
@@ -333,6 +350,52 @@ void Preprocessor::undefineMacro(const PosStr &undef)
     }
 
     macros_.erase(keyword);
+}
+
+void Preprocessor::branchDirective(const std::string &instruction, const PosStr &body)
+{
+    branch_directive_ = instruction;
+
+    std::string word = "";
+    for (auto &&c : body)
+    {
+        word.push_back(c);
+    }
+
+    bool follow_branch = false;
+
+    // Skip over else block if first branch was followed
+    if (instruction == "else")
+    {
+        follow_branch = !branch_condition_;
+    }
+    else if (instruction == "ifdef")
+    {
+        follow_branch = isMacro(word);
+        branch_condition_ = follow_branch;
+    }
+    else if (instruction == "ifndef")
+    {
+        follow_branch = !isMacro(word);
+        branch_condition_ = follow_branch;
+    }
+
+    if (follow_branch)
+    {
+        PosStr block = PosStr();
+        while (branch_directive_ == instruction)
+        {
+            block.push_back(nextChar());
+        }
+        appendToBuffer(block);
+    }
+    else
+    {
+        while (branch_directive_ == instruction)
+        {
+            nextChar();
+        }
+    }
 }
 
 // Obtains next word and arguments if present and expands to a macro in the buffer

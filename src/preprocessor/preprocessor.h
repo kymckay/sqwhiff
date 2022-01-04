@@ -33,6 +33,10 @@ class Preprocessor
     // May be used recursively to expand nested macros and arguments
     bool expand_only_ = false;
 
+    // Track whether prebuffering a conditional branch
+    std::string branch_directive_ = "";
+    bool branch_condition_ = false;
+
     void error(int, int, std::string);
     void advance();
     void skipComment();
@@ -74,6 +78,7 @@ class Preprocessor
     void handleDirective();
     void defineMacro(const PosStr &);
     void undefineMacro(const PosStr &);
+    void branchDirective(const std::string &, const PosStr &);
     void processWord();
 
     PosChar nextChar();
