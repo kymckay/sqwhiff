@@ -21,7 +21,7 @@ The source files are structured into subdirectories (by logical divisions of res
 
 The project is configured to be built using [Bazel]. For simplicity, I recommend you use [Bazelisk] to ensure you're running the correct version at all times (the project contains a version file to control this).
 
-You can then build with the following command once the Bazel binary is on your system path: `bazel build //src/main:sqf`
+You can then build with the following command once the Bazel binary is on your system path: `bazel build //src/main:sqwhiff`
 
 ## Testing
 
