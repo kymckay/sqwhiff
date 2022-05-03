@@ -1,20 +1,20 @@
 #pragma once
-#include "test/parser/_tester.h"
 #include <gtest/gtest.h>
-#include <string>
+
 #include <sstream>
+#include <string>
 
-class ParserTest : public ::testing::Test
-{
-protected:
-    std::string parse(std::string s)
-    {
-        std::stringstream ss(s);
-        Preprocessor pp(ss);
-        Lexer l(pp);
-        Parser p(l);
-        Tester t(p);
+#include "test/parser/_tester.h"
 
-        return t.test();
-    }
+class ParserTest : public ::testing::Test {
+ protected:
+  std::string parse(std::string s) {
+    std::stringstream ss(s);
+    Preprocessor pp(ss);
+    Lexer l(pp);
+    Parser p(l);
+    Tester t(p);
+
+    return t.test();
+  }
 };

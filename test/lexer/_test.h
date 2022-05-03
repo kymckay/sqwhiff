@@ -1,43 +1,35 @@
 #pragma once
-#include "src/lexer/lexer.h"
 #include <gtest/gtest.h>
-#include <vector>
-#include <string>
+
 #include <sstream>
+#include <string>
+#include <vector>
 
-class LexerTest : public ::testing::Test
-{
-protected:
-    std::vector<Token> tokens;
+#include "src/lexer/lexer.h"
 
-    void tokenize(std::string s)
-    {
-        std::stringstream ss(s);
-        Preprocessor pp(ss);
-        Lexer l(pp);
+class LexerTest : public ::testing::Test {
+ protected:
+  std::vector<Token> tokens;
 
-        Token t = l.get();
-        while (t.type != TokenType::end_of_file)
-        {
-            tokens.push_back(t);
-            t = l.get();
-        }
+  void tokenize(std::string s) {
+    std::stringstream ss(s);
+    Preprocessor pp(ss);
+    Lexer l(pp);
+
+    Token t = l.get();
+    while (t.type != TokenType::end_of_file) {
+      tokens.push_back(t);
+      t = l.get();
     }
+  }
 
-    Token peek(std::string s, int i)
-    {
-        std::stringstream ss(s);
-        Preprocessor pp(ss);
-        return Lexer(pp).peek(i);
-    }
+  Token peek(std::string s, int i) {
+    std::stringstream ss(s);
+    Preprocessor pp(ss);
+    return Lexer(pp).peek(i);
+  }
 
-    TokenType getType(int i)
-    {
-        return tokens[i].type;
-    }
+  TokenType getType(int i) { return tokens[i].type; }
 
-    std::string getStr(int i)
-    {
-        return tokens[i].raw;
-    }
+  std::string getStr(int i) { return tokens[i].raw; }
 };

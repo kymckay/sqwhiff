@@ -1,8 +1,9 @@
-#include <string>
 #include <stdexcept>
+#include <string>
 
-class LexicalError : public std::runtime_error
-{
-public:
-    LexicalError(int line, int col, std::string msg) : std::runtime_error(std::to_string(line) + ":" + std::to_string(col) + " LexicalError - " + msg) {}
+class LexicalError : public std::runtime_error {
+ public:
+  LexicalError(int line, int col, std::string msg)
+      : std::runtime_error(std::to_string(line) + ":" + std::to_string(col) +
+                           " LexicalError - " + msg) {}
 };

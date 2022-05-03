@@ -1,43 +1,38 @@
-#include "./arity_rule.h"
 #include "../sqf/all_keywords.h"
+#include "./arity_rule.h"
 
-void ArityRule::visit(Compound &c)
-{
-    for (auto &&child : c.children)
-    {
-        child->accept(*this);
-    }
+void ArityRule::visit(Compound &c) {
+  for (auto &&child : c.children) {
+    child->accept(*this);
+  }
 };
 
 void ArityRule::visit(NoOp &){};
 
 void ArityRule::visit(NullaryOp &op){};
 
-void ArityRule::visit(UnaryOp &op)
-{
-    if (SQF_Unary_Keywords.find(op.op.raw) == SQF_Unary_Keywords.end())
-    {
-        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected binary use: " + op.op.raw));
-    }
+void ArityRule::visit(UnaryOp &op) {
+  if (SQF_Unary_Keywords.find(op.op.raw) == SQF_Unary_Keywords.end()) {
+    errors_.push_back(
+        SemanticError(op.op.line, op.op.column,
+                      "Incorrect arity, expected binary use: " + op.op.raw));
+  }
 
-    op.expr->accept(*this);
+  op.expr->accept(*this);
 };
 
-void ArityRule::visit(BinaryOp &op)
-{
-    if (SQF_Binary_Keywords.find(op.op.raw) == SQF_Binary_Keywords.end())
-    {
-        errors_.push_back(SemanticError(op.op.line, op.op.column, "Incorrect arity, expected unary use: " + op.op.raw));
-    }
+void ArityRule::visit(BinaryOp &op) {
+  if (SQF_Binary_Keywords.find(op.op.raw) == SQF_Binary_Keywords.end()) {
+    errors_.push_back(
+        SemanticError(op.op.line, op.op.column,
+                      "Incorrect arity, expected unary use: " + op.op.raw));
+  }
 
-    op.left->accept(*this);
-    op.right->accept(*this);
+  op.left->accept(*this);
+  op.right->accept(*this);
 };
 
-void ArityRule::visit(Assign &op)
-{
-    op.right->accept(*this);
-};
+void ArityRule::visit(Assign &op) { op.right->accept(*this); };
 
 void ArityRule::visit(Variable &var){};
 

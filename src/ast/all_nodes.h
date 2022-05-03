@@ -1,7 +1,7 @@
 // Convenience file to include all the AST node types
-#include "./ast.h"
 #include "./array.h"
 #include "./assign.h"
+#include "./ast.h"
 #include "./binary_op.h"
 #include "./code.h"
 #include "./compound.h"

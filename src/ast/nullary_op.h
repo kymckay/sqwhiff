@@ -1,16 +1,12 @@
 #pragma once
+#include "../lexer/token.h"
 #include "./ast.h"
 #include "./node_visitor.h"
-#include "../lexer/token.h"
 
-class NullaryOp : public AST
-{
-public:
-    Token op;
+class NullaryOp : public AST {
+ public:
+  Token op;
 
-    NullaryOp(const Token &op) : op(op) {};
-    void accept(NodeVisitor &visitor) override
-    {
-        visitor.visit(*this);
-    };
+  NullaryOp(const Token &op) : op(op){};
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); };
 };

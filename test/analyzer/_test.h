@@ -1,41 +1,36 @@
-#include "src/analyzer/analyzer.h"
 #include <gtest/gtest.h>
-#include <string>
+
 #include <sstream>
+#include <string>
 
-class AnalyzerTest : public ::testing::Test
-{
-protected:
-    std::string output_;
-    int errorc_ = -1;
+#include "src/analyzer/analyzer.h"
 
-    void analyze(std::string s)
-    {
-        analyze(s, rule_set());
-    }
+class AnalyzerTest : public ::testing::Test {
+ protected:
+  std::string output_;
+  int errorc_ = -1;
 
-    void analyze(std::string s, rule_ptr r)
-    {
-        rule_set singular_rule = rule_set {{0, r}};
-        analyze(s, singular_rule);
-    }
+  void analyze(std::string s) { analyze(s, rule_set()); }
 
-    void analyze(std::string s, rule_set rules)
-    {
-        std::stringstream input(s);
-        std::stringstream output("");
-        Preprocessor pp(input);
-        Lexer l(pp);
-        Parser p(l);
-        Analyzer a(p);
-        errorc_ = a.analyze(output, rules);
+  void analyze(std::string s, rule_ptr r) {
+    rule_set singular_rule = rule_set{{0, r}};
+    analyze(s, singular_rule);
+  }
 
-        output_ = output.str();
-    }
+  void analyze(std::string s, rule_set rules) {
+    std::stringstream input(s);
+    std::stringstream output("");
+    Preprocessor pp(input);
+    Lexer l(pp);
+    Parser p(l);
+    Analyzer a(p);
+    errorc_ = a.analyze(output, rules);
 
-    void SetUp() override
-    {
-        // Reset this to an invalid value avoids leakage between tests
-        errorc_ = -1;
-    }
+    output_ = output.str();
+  }
+
+  void SetUp() override {
+    // Reset this to an invalid value avoids leakage between tests
+    errorc_ = -1;
+  }
 };

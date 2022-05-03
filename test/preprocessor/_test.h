@@ -1,31 +1,29 @@
 #pragma once
-#include "src/preprocessor/preprocessor.h"
 #include <gtest/gtest.h>
-#include <string>
+
 #include <sstream>
+#include <string>
 
-class PreprocessorTest : public ::testing::Test
-{
-protected:
-    std::string preprocess(std::string s)
-    {
-        std::stringstream ss(s);
-        Preprocessor pp(ss);
+#include "src/preprocessor/preprocessor.h"
 
-        char c = pp.get();
-        std::string result = "";
-        while (c != '\0')
-        {
-            result.push_back(c);
-            c = pp.get();
-        }
+class PreprocessorTest : public ::testing::Test {
+ protected:
+  std::string preprocess(std::string s) {
+    std::stringstream ss(s);
+    Preprocessor pp(ss);
 
-        return result;
+    char c = pp.get();
+    std::string result = "";
+    while (c != '\0') {
+      result.push_back(c);
+      c = pp.get();
     }
 
-    PosChar peek(std::string s, int i)
-    {
-        std::stringstream ss(s);
-        return Preprocessor(ss).peek(i);
-    }
+    return result;
+  }
+
+  PosChar peek(std::string s, int i) {
+    std::stringstream ss(s);
+    return Preprocessor(ss).peek(i);
+  }
 };

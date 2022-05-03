@@ -1,15 +1,15 @@
 #pragma once
 #include <vector>
 
-// Character with an associated file position (may not correspond to physical position because of macros)
-struct PosChar
-{
-    char c = '\0';
-    int line = 1;
-    int column = 1;
+// Character with an associated file position (may not correspond to physical
+// position because of macros)
+struct PosChar {
+  char c = '\0';
+  int line = 1;
+  int column = 1;
 
-    // Convenience conversion operator
-    operator char() const { return c; }
+  // Convenience conversion operator
+  operator char() const { return c; }
 };
 
 // Using a typedef prevents naming clashes in global name space

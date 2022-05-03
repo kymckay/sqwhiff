@@ -1,15 +1,15 @@
 #pragma once
-#include "./rule.h"
-#include "../parser/parser.h"
+#include <memory>
 #include <ostream>
 #include <vector>
-#include <memory>
 
-class Analyzer
-{
-    Parser &parser_;
+#include "../parser/parser.h"
+#include "./rule.h"
 
-public:
-    Analyzer(Parser &);
-    int analyze(std::ostream &, rule_set &);
+class Analyzer {
+  Parser &parser_;
+
+ public:
+  Analyzer(Parser &);
+  int analyze(std::ostream &, rule_set &);
 };
