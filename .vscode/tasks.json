@@ -26,8 +26,9 @@
             "command": "bazel",
             "args": [
                 "build",
-                "...",
-                "--compilation_mode=dbg"
+                "--config",
+                "debug",
+                "..."
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
