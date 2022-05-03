@@ -60,3 +60,10 @@ TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidUndefineMacroID)
 {
     ASSERT_EXCEPTION(preprocess("#undef 3"), PreprocessingError, "1:8 PreprocessingError - Macro ID must start with an alpha character or _, found '3'");
 }
+
+// TODO: Check if mixed nesting should work (I suspect not)
+TEST_F(PreprocessorTest, ErrorsOnNestedBranching)
+{
+    ASSERT_EXCEPTION(preprocess("#ifdef ONE\n#ifdef TWO\n#endif\n#endif"), PreprocessingError, "2:1 PreprocessingError - Cannot nest #ifdef directives");
+    ASSERT_EXCEPTION(preprocess("#ifndef ONE\n#ifndef TWO\n#endif\n#endif"), PreprocessingError, "2:1 PreprocessingError - Cannot nest #ifndef directives");
+}
