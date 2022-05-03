@@ -19,7 +19,7 @@ TEST_F(PreprocessorTest, SkipsSimpleBranch)
 }
 
 // TODO: The first char of else branch seems to be skipped
-TEST_F(PreprocessorTest, DISABLED_FollowsElseBranch)
+TEST_F(PreprocessorTest, FollowsElseBranch)
 {
     EXPECT_EQ(
         "\n2\n",

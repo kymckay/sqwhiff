@@ -383,10 +383,18 @@ void Preprocessor::branchDirective(const std::string &instruction, const PosStr 
     if (follow_branch)
     {
         PosStr block = PosStr();
+
+        // TODO: This is a hacky fix for a minor problem, see issue #30
+        // Dummy character is immediately removed by recursive call to nextChar
+        if (instruction == "else") {
+            block.push_back(PosChar());
+        }
+
         while (branch_directive_ == instruction)
         {
             block.push_back(nextChar());
         }
+
         appendToBuffer(block);
     }
     else
