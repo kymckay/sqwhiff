@@ -67,3 +67,8 @@ TEST_F(PreprocessorTest, ErrorsOnNestedBranching)
     ASSERT_EXCEPTION(preprocess("#ifdef ONE\n#ifdef TWO\n#endif\n#endif"), PreprocessingError, "2:1 PreprocessingError - Cannot nest #ifdef directives");
     ASSERT_EXCEPTION(preprocess("#ifndef ONE\n#ifndef TWO\n#endif\n#endif"), PreprocessingError, "2:1 PreprocessingError - Cannot nest #ifndef directives");
 }
+
+TEST_F(PreprocessorTest, ErrorsOnLoneElse)
+{
+    ASSERT_EXCEPTION(preprocess("#else\n#endif"), PreprocessingError, "1:1 PreprocessingError - Cannot use #else with no preceeding #if, #ifdef or #ifndef directive");
+}
