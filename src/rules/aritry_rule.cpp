@@ -36,9 +36,9 @@ void ArityRule::visit(Assign &op) { op.right->accept(*this); };
 
 void ArityRule::visit(Variable &var){};
 
-void ArityRule::visit(Array &node){};
+void ArityRule::visit(Array &node) { node.expressions->accept(*this); };
 
-void ArityRule::visit(Code &node){};
+void ArityRule::visit(Code &node) { node.children->accept(*this); };
 
 void ArityRule::visit(Number &num){};
 

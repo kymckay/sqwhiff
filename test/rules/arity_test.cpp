@@ -27,3 +27,19 @@ TEST_F(AnalyzerTest, ReportsMultipleErrors) {
       "SemanticError - Incorrect arity, expected binary use: select\n",
       output_);
 }
+
+TEST_F(AnalyzerTest, ReportsErrorsInCodeDisplay) {
+  analyze("{select 1}", arity_rule);
+  EXPECT_EQ(1, errorc_);
+  EXPECT_EQ(
+      "1:2 SemanticError - Incorrect arity, expected binary use: select\n",
+      output_);
+}
+
+TEST_F(AnalyzerTest, ReportsErrorsInArrayDisplay) {
+  analyze("[0,1,2,3,select 4]", arity_rule);
+  EXPECT_EQ(1, errorc_);
+  EXPECT_EQ(
+      "1:10 SemanticError - Incorrect arity, expected binary use: select\n",
+      output_);
+}
