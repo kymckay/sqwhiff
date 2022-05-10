@@ -6,3 +6,10 @@ cc_test(
     srcs = ["arity_test.cpp"],
     deps = ["//test/analyzer:test", "//src/rules:sqf-rules"],
 )
+
+cc_test(
+    name = "type",
+    size = "small",
+    srcs = ["type_test.cpp"],
+    deps = ["//test/analyzer:test", "//src/rules:sqf-rules"],
+)
