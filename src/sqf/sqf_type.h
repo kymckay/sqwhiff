@@ -1,8 +1,10 @@
 #pragma once
 
+namespace SQF {
+
 // Actual data types that exist in SQF at runtime, used for
 // interpreting/analysis
-enum SQFType {
+enum Type {
   any,
   array,
   boolean,
@@ -32,3 +34,5 @@ enum SQFType {
   while_type,
   with_type,
 };
+
+}  // namespace SQF

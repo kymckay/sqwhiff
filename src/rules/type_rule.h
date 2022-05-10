@@ -4,7 +4,7 @@
 #include "../sqf/all_keywords.h"
 
 class TypeRule : public Rule {
-  SQFType last_type_;
+  SQF::Type last_type_;
 
   // Visitor interface implementation
 

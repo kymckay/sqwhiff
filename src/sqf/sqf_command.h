@@ -1,22 +1,21 @@
 #pragma once
 #include "./sqf_type.h"
 
-struct SQFUnaryCommand {
-  SQFType right;
-  SQFType value;
+namespace SQF {
 
-  SQFUnaryCommand(SQFType r, SQFType v) : right(r), value(v){};
+struct UnaryCommand {
+  Type right;
+  Type value;
+
+  UnaryCommand(Type r, Type v) : right(r), value(v){};
 };
 
-struct SQFBinaryCommand {
-  SQFType left;
-  SQFType right;
-  SQFType value;
+struct BinaryCommand {
+  Type left;
+  Type right;
+  Type value;
 
-  SQFBinaryCommand(SQFType l, SQFType r, SQFType v)
-      : left(l), right(r), value(v){};
+  BinaryCommand(Type l, Type r, Type v) : left(l), right(r), value(v){};
 };
 
-// Using a typedef prevents naming clashes in global name space
-typedef SQFUnaryCommand SQFUnaryCommand;
-typedef SQFBinaryCommand SQFBinaryCommand;
+}  // namespace SQF

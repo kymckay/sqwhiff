@@ -38,13 +38,13 @@ Token Lexer::_id() {
     t.type = SQF_Token_Keywords.at(t.raw);
   }
   // Differentiate nullarys for grammar clarity (see issue #11)
-  else if (SQF_Nullary_Keywords.find(t.raw) != SQF_Nullary_Keywords.end()) {
+  else if (SQF::Nullary_Keywords.find(t.raw) != SQF::Nullary_Keywords.end()) {
     t.type = TokenType::nullary;
   }
   // Remaining keywords may be unary or binary, parser differentiates these
   // (cannot be done here due to ambiguity, consider getDir can be either)
-  else if (SQF_Unary_Keywords.find(t.raw) != SQF_Unary_Keywords.end() ||
-           SQF_Binary_Keywords.find(t.raw) != SQF_Binary_Keywords.end()) {
+  else if (SQF::Unary_Keywords.find(t.raw) != SQF::Unary_Keywords.end() ||
+           SQF::Binary_Keywords.find(t.raw) != SQF::Binary_Keywords.end()) {
     t.type = TokenType::keyword;
   } else {
     t.type = TokenType::id;

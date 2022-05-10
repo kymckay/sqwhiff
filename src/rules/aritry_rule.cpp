@@ -12,7 +12,7 @@ void ArityRule::visit(NoOp &){};
 void ArityRule::visit(NullaryOp &op){};
 
 void ArityRule::visit(UnaryOp &op) {
-  if (SQF_Unary_Keywords.find(op.op.raw) == SQF_Unary_Keywords.end()) {
+  if (SQF::Unary_Keywords.find(op.op.raw) == SQF::Unary_Keywords.end()) {
     errors_.push_back(
         SemanticError(op.op.line, op.op.column,
                       "Incorrect arity, expected binary use: " + op.op.raw));
@@ -22,7 +22,7 @@ void ArityRule::visit(UnaryOp &op) {
 };
 
 void ArityRule::visit(BinaryOp &op) {
-  if (SQF_Binary_Keywords.find(op.op.raw) == SQF_Binary_Keywords.end()) {
+  if (SQF::Binary_Keywords.find(op.op.raw) == SQF::Binary_Keywords.end()) {
     errors_.push_back(
         SemanticError(op.op.line, op.op.column,
                       "Incorrect arity, expected unary use: " + op.op.raw));
