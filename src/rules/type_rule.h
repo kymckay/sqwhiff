@@ -1,12 +1,10 @@
 #pragma once
-#include <stack>
-
 #include "../analyzer/rule.h"
 #include "../ast/all_nodes.h"
 #include "../sqf/all_keywords.h"
 
 class TypeRule : public Rule {
-  std::stack<SQFType> type_stack_;
+  SQFType last_type_;
 
   // Visitor interface implementation
 
