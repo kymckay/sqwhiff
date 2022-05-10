@@ -6,8 +6,6 @@
 
 namespace SQF {
 
-// Nullary keywords need to be differentiated to resolve grammar ambigutity that
-// would otherwise arise (see issue #11)
 const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"acctime", Type::scalar},
     {"activatedaddons", Type::array},
@@ -22,6 +20,7 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"alldead", Type::array},
     {"alldeadmen", Type::array},
     {"alldisplays", Type::array},
+    {"allenv3dsoundsources", Type::array},
     {"allgroups", Type::array},
     {"allmapmarkers", Type::array},
     {"allmines", Type::array},
@@ -29,7 +28,9 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"allsites", Type::array},
     {"allunits", Type::array},
     {"allunitsuav", Type::array},
-    {"apertureparams", Type::boolean},
+    {"allusers", Type::array},
+    {"ambienttemperature", Type::array},
+    {"apertureparams", Type::array},
     {"armorypoints", Type::scalar},
     {"benchmark", Type::scalar},
     {"blufor", Type::side},
@@ -74,15 +75,11 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"diag_activesqsscripts", Type::array},
     {"diag_allmissioneventhandlers", Type::array},
     {"diag_deltatime", Type::scalar},
-    {"diag_dumpcalltracetolog", Type::boolean},
-    {"diag_dumpterrainsynth", Type::array},
     {"diag_fps", Type::scalar},
     {"diag_fpsmin", Type::scalar},
     {"diag_frameno", Type::scalar},
-    {"diag_getterraingrid", Type::array},
-    {"diag_resetfsm", Type::nothing},
-    {"diag_resetshapes", Type::nothing},
     {"diag_scope", Type::scalar},
+    {"diag_stacktrace", Type::array},
     {"diag_ticktime", Type::scalar},
     {"dialog", Type::boolean},
     {"diaryrecordnull", Type::task},
@@ -130,6 +127,7 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"getmouseposition", Type::array},
     {"getmusicplayedtime", Type::scalar},
     {"getobjectviewdistance", Type::array},
+    {"getpipviewdistance", Type::scalar},
     {"getremotesensorsdisabled", Type::boolean},
     {"getresolution", Type::array},
     {"getshadowdistance", Type::scalar},
@@ -163,6 +161,7 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"ispipenabled", Type::boolean},
     {"isremoteexecuted", Type::boolean},
     {"isremoteexecutedjip", Type::boolean},
+    {"issaving", Type::boolean},
     {"isserver", Type::boolean},
     {"issteammission", Type::boolean},
     {"isstreamfriendlyuienabled", Type::boolean},
@@ -184,6 +183,7 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"markasfinishedonsteam", Type::boolean},
     {"missionconfigfile", Type::config},
     {"missiondifficulty", Type::scalar},
+    {"missionend", Type::array},
     {"missionname", Type::string},
     {"missionnamesource", Type::string},
     {"missionnamespace", Type::name_space},
@@ -215,9 +215,11 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"profilename", Type::string},
     {"profilenamespace", Type::name_space},
     {"profilenamesteam", Type::string},
+    {"radioenabled", Type::boolean},
     {"radiovolume", Type::scalar},
     {"rain", Type::scalar},
     {"rainbow", Type::scalar},
+    {"rainparams", Type::array},
     {"remoteexecutedowner", Type::scalar},
     {"resetcamshake", Type::nothing},
     {"resistance", Type::side},
@@ -235,7 +237,9 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"savingenabled", Type::boolean},
     {"scriptnull", Type::script},
     {"selectnoplayer", Type::nothing},
+    {"sentencesenabled", Type::boolean},
     {"servername", Type::string},
+    {"servernamespace", Type::name_space},
     {"servertime", Type::scalar},
     {"shownartillerycomputer", Type::boolean},
     {"shownchat", Type::boolean},
@@ -247,6 +251,7 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"shownpad", Type::boolean},
     {"shownradio", Type::boolean},
     {"shownscoretable", Type::scalar},
+    {"shownsubtitles", Type::boolean},
     {"shownuavfeed", Type::boolean},
     {"shownwarrant", Type::boolean},
     {"shownwatch", Type::boolean},
@@ -291,4 +296,5 @@ const std::unordered_map<std::string, Type> Nullary_Keywords{
     {"worldname", Type::string},
     {"worldsize", Type::scalar},
 };
-}  // namespace SQF
+
+}
