@@ -24,3 +24,11 @@ TEST_F(PreprocessorTest, SkipsElseBranch) {
       << "The contents of the else branch should not appear in preprocessor "
          "output";
 }
+
+// TODO: Proper handling of #if directive requires interpretation, then remove
+// this test
+TEST_F(PreprocessorTest, AlwaysFollowsIfBranch) {
+  EXPECT_EQ("\n1\n", preprocess("#if 0\n1\n#else\n2\n#endif"))
+      << "The first if branch should always be followed until proper handling "
+         "is added";
+}

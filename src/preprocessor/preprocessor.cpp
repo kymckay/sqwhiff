@@ -181,6 +181,11 @@ void Preprocessor::handleDirective() {
   } else if (instruction == "undef") {
     undefineMacro(body);
   } else if (instruction == "if") {
+    if (branch_directive_ == instruction) {
+      error(hash.line, hash.column,
+            "Cannot nest #" + instruction + " directives");
+    }
+    branchDirective(instruction, body);
   } else if (instruction == "ifdef") {
     if (branch_directive_ == instruction) {
       error(hash.line, hash.column,
@@ -300,13 +305,17 @@ void Preprocessor::branchDirective(const std::string& instruction,
   // Skip over else block if first branch was followed
   if (instruction == "else") {
     follow_branch = !branch_condition_;
+  } else if (instruction == "if") {
+    // TODO: if treated always true for simplicity, requires some interpretation
+    follow_branch = true;
   } else if (instruction == "ifdef") {
     follow_branch = isMacro(word);
-    branch_condition_ = follow_branch;
   } else if (instruction == "ifndef") {
     follow_branch = !isMacro(word);
-    branch_condition_ = follow_branch;
   }
+
+  // Store whether branch followed to handle else directive
+  branch_condition_ = follow_branch;
 
   if (follow_branch) {
     PosStr block = PosStr();

@@ -32,8 +32,9 @@ class Preprocessor {
   // May be used recursively to expand nested macros and arguments
   bool expand_only_ = false;
 
-  // Track whether prebuffering a conditional branch
+  // The current conditional branch directive being prebuffered
   std::string branch_directive_ = "";
+  // Whether the if clause is true or false (used to follow else)
   bool branch_condition_ = false;
 
   void error(int, int, std::string);
