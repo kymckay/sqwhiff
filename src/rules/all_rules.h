@@ -3,5 +3,7 @@
 #include <vector>
 
 #include "./arity_rule.h"
+#include "./type_rule.h"
 
-rule_set all_rules{{-1, std::make_shared<ArityRule>()}};
+rule_set all_rules{{-1, std::make_shared<ArityRule>()},
+                   {0, std::make_shared<TypeRule>()}};
