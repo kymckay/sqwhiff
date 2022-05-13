@@ -1,6 +1,7 @@
 #include "./preprocessor.h"
 
 #include <cctype>
+#include <fstream>
 #include <sstream>
 
 Preprocessor::Preprocessor(std::istream& to_read,
@@ -178,6 +179,7 @@ void Preprocessor::handleDirective() {
   }
 
   if (instruction == "include") {
+    includeFile(body);
   } else if (instruction == "define") {
     defineMacro(body);
   } else if (instruction == "undef") {
@@ -213,6 +215,37 @@ void Preprocessor::handleDirective() {
   } else {
     error(hash.line, hash.column,
           "Unrecognised preprocessor directive '#" + instruction + "'");
+  }
+}
+
+void Preprocessor::includeFile(const PosStr& toInclude) {
+  const PosChar delimiter = toInclude.front();
+  const PosChar delimiterEnd = toInclude.back();
+
+  // File name must be wrapped in double quotes or angled brackets
+  if (!(delimiter == '"' && delimiterEnd == '"') &&
+      !(delimiter == '<' && delimiterEnd == '>')) {
+    error(delimiter.line, delimiter.column,
+          "Malformed #include directive: " +
+              std::string(toInclude.begin(), toInclude.end()));
+    return;
+  }
+
+  // File path does not include delimiters
+  std::string filename(toInclude.begin() + 1, toInclude.end() - 1);
+
+  // Open file as a stream
+  std::ifstream file(filename);
+
+  if (file.is_open()) {
+    Preprocessor pp(file);
+
+    appendToBuffer(pp.getAll());
+
+    file.close();
+  } else {
+    error(delimiter.line, delimiter.column,
+          "Included file not found: " + filename);
   }
 }
 

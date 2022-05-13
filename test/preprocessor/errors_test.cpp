@@ -82,3 +82,19 @@ TEST_F(PreprocessorTest, ErrorsOnLoneElse) {
                    "1:1 PreprocessingError - Cannot use #else with no "
                    "preceeding #if, #ifdef or #ifndef directive");
 }
+
+TEST_F(PreprocessorTest, ErrorsOnMalformedInclude) {
+  ASSERT_EXCEPTION(
+      preprocess("#include unquoted.sqf"), PreprocessingError,
+      "1:10 PreprocessingError - Malformed #include directive: unquoted.sqf");
+
+  ASSERT_EXCEPTION(preprocess("#include [misquoted.sqf]"), PreprocessingError,
+                   "1:10 PreprocessingError - Malformed #include directive: "
+                   "[misquoted.sqf]");
+}
+
+TEST_F(PreprocessorTest, ErrorsOnMissingInclude) {
+  ASSERT_EXCEPTION(
+      preprocess("#include \"missing.sqf\""), PreprocessingError,
+      "1:10 PreprocessingError - Included file not found: missing.sqf");
+}

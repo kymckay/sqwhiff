@@ -35,6 +35,13 @@ cc_test(
 )
 
 cc_test(
+  name = "include",
+  size = "small",
+  srcs = ["include_test.cpp"],
+  deps = [":test"],
+)
+
+cc_test(
   name = "macros",
   size = "small",
   srcs = ["macros_test.cpp"],

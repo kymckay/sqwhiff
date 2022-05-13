@@ -83,6 +83,7 @@ class Preprocessor {
   std::vector<MacroArg> getArgs(const std::string&);
 
   void handleDirective();
+  void includeFile(const PosStr&);
   void defineMacro(const PosStr&);
   void undefineMacro(const PosStr&);
   void branchDirective(const std::string&, const PosStr&);
