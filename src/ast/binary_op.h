@@ -7,12 +7,11 @@
 
 class BinaryOp : public AST {
  public:
-  std::unique_ptr<AST> left;
+  ast_ptr left;
   Token op;
-  std::unique_ptr<AST> right;
+  ast_ptr right;
 
-  BinaryOp(std::unique_ptr<AST> left, const Token &op,
-           std::unique_ptr<AST> right)
+  BinaryOp(ast_ptr left, const Token &op, ast_ptr right)
       : left(std::move(left)), op(op), right(std::move(right)){};
   void accept(NodeVisitor &visitor) override { visitor.visit(*this); };
 };

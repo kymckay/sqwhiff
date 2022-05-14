@@ -1,11 +1,8 @@
 #pragma once
-#include <memory>
 
 #include "../ast/ast.h"
 #include "../lexer/lexer.h"
 #include "./syntax_error.h"
-
-using ast_ptr = std::unique_ptr<AST>;
 
 class Parser {
   // Reference member, no need to copy the supplied lexer

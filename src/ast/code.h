@@ -10,8 +10,8 @@
 class Code : public AST {
  public:
   // A compound AST node to capture an ordered list of statements
-  std::unique_ptr<AST> children;
+  ast_ptr children;
 
-  Code(std::unique_ptr<AST> children) : children(std::move(children)){};
+  Code(ast_ptr children) : children(std::move(children)){};
   void accept(NodeVisitor &visitor) override { visitor.visit(*this); };
 };

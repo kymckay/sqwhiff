@@ -11,9 +11,8 @@ class Array : public AST {
  public:
   // A compound AST node to capture an ordered list of statements (in this case
   // expressions)
-  std::unique_ptr<AST> expressions;
+  ast_ptr expressions;
 
-  Array(std::unique_ptr<AST> expressions)
-      : expressions(std::move(expressions)){};
+  Array(ast_ptr expressions) : expressions(std::move(expressions)){};
   void accept(NodeVisitor &visitor) override { visitor.visit(*this); };
 };

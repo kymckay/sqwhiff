@@ -10,9 +10,8 @@
 class Compound : public AST {
  public:
   // A compound AST node to capture an ordered list of statements
-  std::vector<std::unique_ptr<AST>> children;
+  std::vector<ast_ptr> children;
 
-  Compound(std::vector<std::unique_ptr<AST>> children)
-      : children(std::move(children)){};
+  Compound(std::vector<ast_ptr> children) : children(std::move(children)){};
   void accept(NodeVisitor &visitor) override { visitor.visit(*this); };
 };

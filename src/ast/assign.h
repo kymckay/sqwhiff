@@ -8,12 +8,11 @@
 class Assign : public AST {
  public:
   bool isPrivate;
-  std::unique_ptr<AST> left;
+  ast_ptr left;
   Token op;
-  std::unique_ptr<AST> right;
+  ast_ptr right;
 
-  Assign(bool isPrivate, std::unique_ptr<AST> left, const Token &op,
-         std::unique_ptr<AST> right)
+  Assign(bool isPrivate, ast_ptr left, const Token &op, ast_ptr right)
       : isPrivate(isPrivate),
         left(std::move(left)),
         op(op),
