@@ -1,7 +1,5 @@
 # How to contribute
 
-Warning: The project is still heavily WIP while adding full language support and desired analysis features. The content below is more contribution guidance for once it is stable. For now your best bet is to mention @kymckay on relevant issues if you want to do anything.
-
 It's always preferable to use the issue tracker before working on anything to avoid duplicating work. In general:
 
 1. Check if an existing issue covers your topic. Check the discussion and comment there if it does.
@@ -13,7 +11,7 @@ If you'd like to optimise any existing implementation make sure to explain why i
 
 ## Source code
 
-The project is written using modern C++. Officially C++11 standard, but that may be bumped up in future.
+The project is written using modern C++. Officially C++17 standard, but that may be bumped up in future.
 
 The source files are structured into subdirectories (by logical divisions of responsibility) under the `src` directory.
 
