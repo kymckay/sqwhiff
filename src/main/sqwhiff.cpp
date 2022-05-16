@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -30,10 +31,11 @@ int main(int argc, char *argv[]) {
 
   int errorc = 0;
   for (int i = 1; i < argc; i++) {
-    std::ifstream file_in(argv[i]);
+    std::filesystem::path file_path(argv[i]);
+    std::ifstream file_in(file_path);
 
     if (file_in.is_open()) {
-      Preprocessor preproc(file_in);
+      Preprocessor preproc(file_in, file_path);
       Lexer lex(preproc);
       Parser p(lex);
       Analyzer a(p);

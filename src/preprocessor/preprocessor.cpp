@@ -3,7 +3,9 @@
 #include <cctype>
 #include <sstream>
 
-Preprocessor::Preprocessor(std::istream& to_read) : stream_(to_read) {
+Preprocessor::Preprocessor(std::istream& to_read,
+                           std::filesystem::path open_file)
+    : open_file_(open_file), stream_(to_read) {
   // Immediately read in the first character (not an advance, don't want to
   // change state)
   stream_.get(current_char_.c);

@@ -1,5 +1,6 @@
 #pragma once
 #include <deque>
+#include <filesystem>
 #include <istream>
 #include <string>
 #include <unordered_map>
@@ -10,6 +11,8 @@
 #include "./preprocessing_error.h"
 
 class Preprocessor {
+  std::filesystem::path open_file_;
+
   // Reference member for polymorphism
   std::istream& stream_;
 
@@ -88,7 +91,7 @@ class Preprocessor {
   PosChar nextChar();
 
  public:
-  Preprocessor(std::istream&);
+  Preprocessor(std::istream&, std::filesystem::path = "fake.sqf");
   PosChar get();
   PosChar peek(size_t = 1);
   PosStr getAll();
