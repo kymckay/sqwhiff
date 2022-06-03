@@ -28,9 +28,4 @@ class AnalyzerTest : public ::testing::Test {
 
     output_ = output.str();
   }
-
-  void SetUp() override {
-    // Reset this to an invalid value avoids leakage between tests
-    errorc_ = -1;
-  }
 };
