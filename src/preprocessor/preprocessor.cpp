@@ -6,7 +6,11 @@
 
 Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
                            fs::path internal_dir)
-    : open_file_(open_file), internal_dir_(internal_dir), stream_(to_read) {
+    : stream_(to_read) {
+  // Ensure paths are absolute since CWD may later change before use
+  open_file_ = fs::absolute(open_file);
+  internal_dir_ = fs::absolute(internal_dir);
+
   // Immediately read in the first character (not an advance, don't want to
   // change state)
   stream_.get(current_char_.c);
