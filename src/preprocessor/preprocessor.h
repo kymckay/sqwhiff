@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 
 class Preprocessor {
   fs::path open_file_;
-  fs::path internal_dir_;
+  fs::path internal_dir_ = "";
 
   // Reference member for polymorphism
   std::istream& stream_;
@@ -76,24 +76,6 @@ class Preprocessor {
     return inclusion_context_.find(path) != inclusion_context_.end();
   }
 
-  // Class recursively used to expand nested macro usage contexts
-  Preprocessor(
-      std::istream&,
-      std::unordered_map<std::string,
-                         MacroArg>&,  // Parameter map for replacement (only
-                                      // relevant to macro body expansion)
-      std::unordered_map<std::string,
-                         MacroDefinition>&,  // Set of defined macros for
-                                             // expansion (nested)
-      std::unordered_set<std::string>&       // Set of macros not to expand
-                                             // (prevents macro recursion)
-  );
-
-  Preprocessor(std::istream&, fs::path, fs::path,
-               std::unordered_set<std::string>&  // Set of paths not to include
-                                                 // (prevent recursion)
-  );
-
   std::string getWord();
   std::vector<MacroArg> getArgs(const std::string&);
 
@@ -107,7 +89,24 @@ class Preprocessor {
   PosChar nextChar();
 
  public:
-  Preprocessor(std::istream&, fs::path = "fake.sqf", fs::path = "internal");
+  // Constructor enables recursive reuse of the class. Used for:
+  //   - Nested macro expansion
+  //   - Nested file inclusion
+  Preprocessor(
+      std::istream&, fs::path = "", fs::path = "",
+      const std::unordered_set<std::string>* =
+          nullptr,  // Set of paths not to include (prevent recursion)
+      const std::unordered_map<std::string,
+                               MacroArg>* =
+          nullptr,  // Parameter map for replacement (only relevant to macro
+                    // body expansion)
+      const std::unordered_map<std::string,
+                               MacroDefinition>* =
+          nullptr,  // Set of defined macros for expansion (nested)
+      const std::unordered_set<std::string>* =
+          nullptr  // Set of macros not to expand (prevents macro recursion)
+
+  );
   PosChar get();
   PosChar peek(size_t = 1);
   PosStr getAll();

@@ -4,47 +4,38 @@
 #include <fstream>
 #include <sstream>
 
-// TODO clean up constructors with delegation
-Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
-                           fs::path internal_dir)
-    : stream_(to_read) {
-  // Ensure paths are absolute since CWD may later change before use
-  open_file_ = fs::absolute(open_file);
-  internal_dir_ = fs::absolute(internal_dir);
-
-  inclusion_context_.emplace(open_file_);
-
-  // Immediately read in the first character (not an advance, don't want to
-  // change state)
-  stream_.get(current_char_.c);
-}
-
-Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
-                           fs::path internal_dir,
-                           std::unordered_set<std::string>& context)
-    : stream_(to_read), inclusion_context_(context) {
-  // Ensure paths are absolute since CWD may later change before use
-  open_file_ = fs::absolute(open_file);
-  internal_dir_ = fs::absolute(internal_dir);
-
-  inclusion_context_.emplace(open_file_);
-
-  // Immediately read in the first character (not an advance, don't want to
-  // change state)
-  stream_.get(current_char_.c);
-}
-
 Preprocessor::Preprocessor(
-    std::istream& to_read, std::unordered_map<std::string, MacroArg>& params,
-    std::unordered_map<std::string, MacroDefinition>& defined,
-    std::unordered_set<std::string>& context)
-    : stream_(to_read),
-      macros_(defined),
-      params_(params),
-      macro_context_(context) {
-  // Preprocessor is being used recursively to expand macro bodies and
-  // arguments
-  expand_only_ = true;
+    std::istream& to_read, fs::path open_file, fs::path internal_dir,
+    const std::unordered_set<std::string>* include_context,
+    const std::unordered_map<std::string, MacroArg>* macro_params,
+    const std::unordered_map<std::string, MacroDefinition>* macros_defined,
+    const std::unordered_set<std::string>* macro_context)
+    : stream_(to_read) {
+  if (include_context != nullptr) {
+    inclusion_context_ = *include_context;
+  }
+
+  // Ensure paths are absolute since CWD may later change before use
+  if (!open_file.empty()) {
+    open_file_ = fs::absolute(open_file);
+    inclusion_context_.insert(open_file_);
+  }
+
+  // Allow internal directory to remain empty, may not be needed
+  if (!internal_dir.empty()) {
+    internal_dir_ = fs::absolute(internal_dir);
+  }
+
+  // TODO: Unsafely assuming if params given the rest is, should group macro
+  // context into a struct or similar
+  if (macro_params != nullptr) {
+    // Only expand macros when preprocessing a macro context
+    expand_only_ = true;
+
+    params_ = *macro_params;
+    macros_ = *macros_defined;
+    macro_context_ = *macro_context;
+  }
 
   // Immediately read in the first character (not an advance, don't want to
   // change state)
@@ -259,7 +250,7 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // Included path could be internal, user must specify a directory for this
   fs::path abs_path;
   if (filename.front() == '\\') {
-    if (!fs::is_directory(internal_dir_)) {
+    if (internal_dir_.empty() || !fs::is_directory(internal_dir_)) {
       error(delimiter.line, delimiter.column,
             "Invalid internal directory given to find included file: " +
                 filename);
@@ -282,7 +273,7 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // Open file as a stream
   std::ifstream file(abs_path);
   if (file.is_open()) {
-    Preprocessor pp(file, abs_path, internal_dir_, inclusion_context_);
+    Preprocessor pp(file, abs_path, internal_dir_, &inclusion_context_);
 
     appendToBuffer(pp.getAll());
 
@@ -463,7 +454,8 @@ void Preprocessor::processWord() {
   for (MacroArg& arg : args) {
     std::stringstream arg_ss(arg.raw);
     std::unordered_map<std::string, MacroArg> no_args;
-    Preprocessor pp(arg_ss, no_args, macros_, macro_context_);
+    Preprocessor pp(arg_ss, open_file_, internal_dir_, nullptr, &no_args,
+                    &macros_, &macro_context_);
     arg.chars = pp.getAll();
 
     // Update reference position for all expanded argument characters
@@ -486,7 +478,8 @@ void Preprocessor::processWord() {
   // Finally macro body is expanded and processed (done sequentially to
   // preserve correct behaviour)
   std::stringstream body_ss(macro_def.body);
-  Preprocessor pp(body_ss, param_map, macros_, body_context);
+  Preprocessor pp(body_ss, open_file_, internal_dir_, nullptr, &param_map,
+                  &macros_, &body_context);
   appendToBuffer(pp.getAll());
 }
 

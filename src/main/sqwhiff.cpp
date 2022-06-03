@@ -21,7 +21,7 @@ static void show_usage() {
       << "\t--internal DIRECTORY_PATH\t\tSpecify directory to be\n"
          "\t\t\tused as the RV engine internal filesystem root. This is the\n"
          "\t\t\tpath used for preprocessor inclusion of file paths that begin\n"
-         "\t\t\twith the \\ character (default: \"internal\")\n"
+         "\t\t\twith the \\ character\n"
       << std::endl;
 }
 
@@ -38,8 +38,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  // TODO: Default to empty string, error if internal is include then found
-  std::string internal_root = "internal";
+  std::string internal_root = "";
   if (args.hasArgument("--internal")) {
     internal_root = args.getArgument("--internal");
 
