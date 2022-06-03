@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 
 class PreprocessorTest : public ::testing::Test {
  protected:
-  fs::path tmp_dir_ = fs::temp_directory_path() / "sqwhiff";
+  static fs::path tmp_dir_;
 
   std::string preprocess(std::string s) {
     std::stringstream ss(s);
@@ -35,10 +35,14 @@ class PreprocessorTest : public ::testing::Test {
     return Preprocessor(ss).peek(i);
   }
 
- public:
   //  Ensure unique temporary directory exists for creation of test files
-  PreprocessorTest() {
+  static void SetUpTestSuite() {
     fs::create_directory(tmp_dir_);
     fs::create_directory(tmp_dir_ / "internal");
   }
+
+  // Don't leave files around to ensure consistent testing environment
+  static void TearDownTestSuite() { fs::remove_all(tmp_dir_); }
 };
+
+fs::path PreprocessorTest::tmp_dir_ = fs::temp_directory_path() / "sqwhiff";
