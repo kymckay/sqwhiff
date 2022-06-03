@@ -241,6 +241,12 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // Included path could be internal, user must specify a directory for this
   fs::path abs_path;
   if (filename.front() == '\\') {
+    if (!fs::is_directory(internal_dir_)) {
+      error(delimiter.line, delimiter.column,
+            "Invalid internal directory given to find included file: " +
+                filename);
+    }
+
     filename.erase(filename.begin());
     abs_path = internal_dir_ / filename;
   } else {
@@ -248,6 +254,8 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
     fs::current_path(open_file_.parent_path());
     abs_path = fs::absolute(filename);
   }
+
+  // TODO: Check for recursive inclusion
 
   // Open file as a stream
   std::ifstream file(abs_path);
