@@ -1,3 +1,4 @@
+#include <fstream>
 #include <string>
 
 #include "./_test.h"
@@ -97,4 +98,16 @@ TEST_F(PreprocessorTest, ErrorsOnMissingInclude) {
   ASSERT_EXCEPTION(
       preprocess("#include \"missing.sqf\""), PreprocessingError,
       "1:10 PreprocessingError - Included file not found: missing.sqf");
+}
+
+TEST_F(PreprocessorTest, ErrorsAtPositonInIncludedFile) {
+  fs::path temp_file = tmp_dir_ / "simple.inc";
+
+  std::ofstream(temp_file) << "[1,2,3]\n #2\n";
+
+  ASSERT_EXCEPTION(
+      preprocess("\n\n\n\n#include \"" + temp_file.string() + "\""),
+      PreprocessingError,
+      "2:2 PreprocessingError - Invalid preprocessor directive, "
+      "no instruction immediately following the # character");
 }
