@@ -238,23 +238,11 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   fs::path abs_path;
   if (filename.front() == '\\') {
     filename.erase(filename.begin());
-
-    try {
-      abs_path = internal_dir_ / filename;
-    } catch (const fs::filesystem_error& e) {
-      error(delimiter.line, delimiter.column,
-            "Included file not found: " + filename);
-    }
+    abs_path = internal_dir_ / filename;
   } else {
     // Included path could be relative, set CWD to resolve correctly
     fs::current_path(open_file_.parent_path());
-
-    try {
-      abs_path = fs::absolute(filename);
-    } catch (const fs::filesystem_error& e) {
-      error(delimiter.line, delimiter.column,
-            "Included file not found: " + filename);
-    }
+    abs_path = fs::absolute(filename);
   }
 
   // Open file as a stream
