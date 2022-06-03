@@ -9,6 +9,8 @@
 #include "../preprocessor/preprocessor.h"
 #include "../rules/all_rules.h"
 
+namespace fs = std::filesystem;
+
 // TODO: Add way to input a directory to fully analyze
 static void show_usage() {
   std::cerr << "Usage: sqwhiff <option(s)> FILE_PATHS\n"
@@ -31,11 +33,11 @@ int main(int argc, char *argv[]) {
 
   int errorc = 0;
   for (int i = 1; i < argc; i++) {
-    std::filesystem::path file_path(argv[i]);
+    fs::path file_path(argv[i]);
     std::ifstream file_in(file_path);
 
     if (file_in.is_open()) {
-      Preprocessor preproc(file_in, file_path);
+      Preprocessor preproc(file_in, fs::absolute(file_path));
       Lexer lex(preproc);
       Parser p(lex);
       Analyzer a(p);

@@ -15,7 +15,8 @@ class PreprocessorTest : public ::testing::Test {
 
   std::string preprocess(std::string s) {
     std::stringstream ss(s);
-    Preprocessor pp(ss);
+    // Pretend processing file in temp dir for relative path testing
+    Preprocessor pp(ss, tmp_dir_ / "fake.sqf");
 
     char c = pp.get();
     std::string result = "";
