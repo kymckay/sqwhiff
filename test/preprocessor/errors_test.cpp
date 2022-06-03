@@ -102,12 +102,42 @@ TEST_F(PreprocessorTest, ErrorsOnMissingInclude) {
 
 TEST_F(PreprocessorTest, ErrorsAtPositonInIncludedFile) {
   fs::path temp_file = tmp_dir_ / "simple.inc";
-
   std::ofstream(temp_file) << "[1,2,3]\n #2\n";
 
-  ASSERT_EXCEPTION(
-      preprocess("\n\n\n\n#include \"" + temp_file.string() + "\""),
-      PreprocessingError,
-      "2:2 PreprocessingError - Invalid preprocessor directive, "
-      "no instruction immediately following the # character");
+  ASSERT_EXCEPTION(preprocess("\n\n\n\n#include <./simple.inc>"),
+                   PreprocessingError,
+                   "2:2 PreprocessingError - Invalid preprocessor directive, "
+                   "no instruction immediately following the # character");
 }
+
+TEST_F(PreprocessorTest, ErrorsOnBadInternalDirectory) {
+  fs::remove_all(tmp_dir_ / "internal");
+
+  ASSERT_EXCEPTION(preprocess("#include <\\internal.inc>"), PreprocessingError,
+                   "1:10 PreprocessingError - Invalid internal directory given "
+                   "to find included file: \\internal.inc");
+}
+
+// This will actually crash the RV engine
+TEST_F(PreprocessorTest, ErrorsOnRecursiveInclusion) {
+  fs::path temp_file = tmp_dir_ / "meta.inc";
+  std::ofstream(temp_file) << "#include <./meta.inc>";
+
+  ASSERT_EXCEPTION(
+      preprocess("#include <./meta.inc>"), PreprocessingError,
+      "1:10 PreprocessingError - Recursive inclusion of file: ./meta.inc");
+}
+
+TEST_F(PreprocessorTest, ErrorsOnNestedRecursiveInclusion) {
+  fs::path temp_file = tmp_dir_ / "meta1.inc";
+  std::ofstream(temp_file) << "#include <./meta2.inc>";
+
+  temp_file = tmp_dir_ / "meta2.inc";
+  std::ofstream(temp_file) << "#include <./meta1.inc>";
+
+  ASSERT_EXCEPTION(
+      preprocess("#include <./meta1.inc>"), PreprocessingError,
+      "1:10 PreprocessingError - Recursive inclusion of file: ./meta1.inc");
+}
+
+// TODO: Test bad inclusion of a binary file

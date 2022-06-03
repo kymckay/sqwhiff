@@ -36,10 +36,7 @@ class PreprocessorTest : public ::testing::Test {
   }
 
   //  Ensure unique temporary directory exists for creation of test files
-  static void SetUpTestSuite() {
-    fs::create_directory(tmp_dir_);
-    fs::create_directory(tmp_dir_ / "internal");
-  }
+  static void SetUpTestSuite() { fs::create_directory(tmp_dir_); }
 
   // Don't leave files around to ensure consistent testing environment
   static void TearDownTestSuite() { fs::remove_all(tmp_dir_); }
