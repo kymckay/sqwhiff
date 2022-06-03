@@ -57,6 +57,9 @@ class Preprocessor {
   // recursion
   std::unordered_set<std::string> macro_context_;
 
+  // Included files to error on and prevent recursion
+  std::unordered_set<std::string> inclusion_context_;
+
   inline bool isMacro(const std::string& word) {
     return macros_.find(word) != macros_.end();
   }
@@ -67,6 +70,10 @@ class Preprocessor {
 
   inline bool isRecursive(const std::string& word) {
     return macro_context_.find(word) != macro_context_.end();
+  }
+
+  inline bool isRecursiveInclude(const fs::path& path) {
+    return inclusion_context_.find(path) != inclusion_context_.end();
   }
 
   // Class recursively used to expand nested macro usage contexts
@@ -80,6 +87,11 @@ class Preprocessor {
                                              // expansion (nested)
       std::unordered_set<std::string>&       // Set of macros not to expand
                                              // (prevents macro recursion)
+  );
+
+  Preprocessor(std::istream&, fs::path, fs::path,
+               std::unordered_set<std::string>&  // Set of paths not to include
+                                                 // (prevent recursion)
   );
 
   std::string getWord();

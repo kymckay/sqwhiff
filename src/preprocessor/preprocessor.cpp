@@ -4,12 +4,30 @@
 #include <fstream>
 #include <sstream>
 
+// TODO clean up constructors with delegation
 Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
                            fs::path internal_dir)
     : stream_(to_read) {
   // Ensure paths are absolute since CWD may later change before use
   open_file_ = fs::absolute(open_file);
   internal_dir_ = fs::absolute(internal_dir);
+
+  inclusion_context_.emplace(open_file_);
+
+  // Immediately read in the first character (not an advance, don't want to
+  // change state)
+  stream_.get(current_char_.c);
+}
+
+Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
+                           fs::path internal_dir,
+                           std::unordered_set<std::string>& context)
+    : stream_(to_read), inclusion_context_(context) {
+  // Ensure paths are absolute since CWD may later change before use
+  open_file_ = fs::absolute(open_file);
+  internal_dir_ = fs::absolute(internal_dir);
+
+  inclusion_context_.emplace(open_file_);
 
   // Immediately read in the first character (not an advance, don't want to
   // change state)
@@ -248,19 +266,23 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
     }
 
     filename.erase(filename.begin());
-    abs_path = internal_dir_ / filename;
+    abs_path = fs::absolute(internal_dir_ / filename);
   } else {
     // Included path could be relative, set CWD to resolve correctly
     fs::current_path(open_file_.parent_path());
     abs_path = fs::absolute(filename);
   }
 
-  // TODO: Check for recursive inclusion
+  // Recursive inclusion of a file results in RV engine crashing
+  if (isRecursiveInclude(abs_path)) {
+    error(delimiter.line, delimiter.column,
+          "Recursive inclusion of file: " + filename);
+  }
 
   // Open file as a stream
   std::ifstream file(abs_path);
   if (file.is_open()) {
-    Preprocessor pp(file, abs_path, internal_dir_);
+    Preprocessor pp(file, abs_path, internal_dir_, inclusion_context_);
 
     appendToBuffer(pp.getAll());
 
