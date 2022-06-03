@@ -26,3 +26,13 @@ TEST_F(PreprocessorTest, IncludesSimpleFileRelative) {
   EXPECT_EQ("230494\n", preprocess("#include \"../sqwhiff/simpleRel.inc\""))
       << "Parent directory traversal is supported in relative file paths";
 }
+
+TEST_F(PreprocessorTest, IncludesSimpleFileInternal) {
+  fs::path temp_file = tmp_dir_ / "internal/definitions.inc";
+
+  std::ofstream(temp_file) << "4\n";
+
+  EXPECT_EQ("4\n", preprocess("#include \"\\definitions.inc\""))
+      << "Internal file paths (an RV concept) should be included from the set "
+         "directory";
+}

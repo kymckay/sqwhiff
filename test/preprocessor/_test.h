@@ -15,8 +15,10 @@ class PreprocessorTest : public ::testing::Test {
 
   std::string preprocess(std::string s) {
     std::stringstream ss(s);
+
     // Pretend processing file in temp dir for relative path testing
-    Preprocessor pp(ss, tmp_dir_ / "fake.sqf");
+    // Set internal directory for internal path testing
+    Preprocessor pp(ss, tmp_dir_ / "fake.sqf", tmp_dir_ / "internal");
 
     char c = pp.get();
     std::string result = "";
@@ -35,5 +37,8 @@ class PreprocessorTest : public ::testing::Test {
 
  public:
   //  Ensure unique temporary directory exists for creation of test files
-  PreprocessorTest() { fs::create_directory(tmp_dir_); }
+  PreprocessorTest() {
+    fs::create_directory(tmp_dir_);
+    fs::create_directory(tmp_dir_ / "internal");
+  }
 };

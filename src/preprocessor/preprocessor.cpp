@@ -4,10 +4,9 @@
 #include <fstream>
 #include <sstream>
 
-namespace fs = std::filesystem;
-
-Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file)
-    : open_file_(open_file), stream_(to_read) {
+Preprocessor::Preprocessor(std::istream& to_read, fs::path open_file,
+                           fs::path internal_dir)
+    : open_file_(open_file), internal_dir_(internal_dir), stream_(to_read) {
   // Immediately read in the first character (not an advance, don't want to
   // change state)
   stream_.get(current_char_.c);
@@ -235,23 +234,33 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // File path does not include delimiters
   std::string filename(toInclude.begin() + 1, toInclude.end() - 1);
 
-  // TODO: Included path could be virtual
-
-  // Included path could be relative, set CWD to resolve correctly
-  fs::current_path(open_file_.parent_path());
-
+  // Included path could be internal, user must specify a directory for this
   fs::path abs_path;
-  try {
-    abs_path = fs::absolute(filename);
-  } catch (const fs::filesystem_error& e) {
-    error(delimiter.line, delimiter.column,
-          "Included file not found: " + filename);
+  if (filename.front() == '\\') {
+    filename.erase(filename.begin());
+
+    try {
+      abs_path = internal_dir_ / filename;
+    } catch (const fs::filesystem_error& e) {
+      error(delimiter.line, delimiter.column,
+            "Included file not found: " + filename);
+    }
+  } else {
+    // Included path could be relative, set CWD to resolve correctly
+    fs::current_path(open_file_.parent_path());
+
+    try {
+      abs_path = fs::absolute(filename);
+    } catch (const fs::filesystem_error& e) {
+      error(delimiter.line, delimiter.column,
+            "Included file not found: " + filename);
+    }
   }
 
   // Open file as a stream
   std::ifstream file(abs_path);
   if (file.is_open()) {
-    Preprocessor pp(file, abs_path);
+    Preprocessor pp(file, abs_path, internal_dir_);
 
     appendToBuffer(pp.getAll());
 

@@ -10,8 +10,11 @@
 #include "./pos_char.h"
 #include "./preprocessing_error.h"
 
+namespace fs = std::filesystem;
+
 class Preprocessor {
-  std::filesystem::path open_file_;
+  fs::path open_file_;
+  fs::path internal_dir_;
 
   // Reference member for polymorphism
   std::istream& stream_;
@@ -92,7 +95,7 @@ class Preprocessor {
   PosChar nextChar();
 
  public:
-  Preprocessor(std::istream&, std::filesystem::path = "fake.sqf");
+  Preprocessor(std::istream&, fs::path = "fake.sqf", fs::path = "internal");
   PosChar get();
   PosChar peek(size_t = 1);
   PosStr getAll();
