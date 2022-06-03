@@ -8,12 +8,12 @@ ArgParser::ArgParser(int argc, char** argv) {
     std::string arg = argv[i];
 
     // Leading argument identifiers always start with this character
-    if (arg.front() == '-') {
-      arg_id = arg;
-      arg_map_[arg_id] = "";
-    } else if (!arg_id.empty()) {
+    if (!arg_id.empty()) {
       arg_map_[arg_id] = arg;
       arg_id.clear();
+    } else if (arg.front() == '-') {
+      arg_id = arg;
+      arg_map_[arg_id] = "";
     } else {
       loose_args_.push_back(arg);
     }
