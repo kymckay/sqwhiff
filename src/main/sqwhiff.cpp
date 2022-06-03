@@ -8,6 +8,7 @@
 #include "../parser/parser.h"
 #include "../preprocessor/preprocessor.h"
 #include "../rules/all_rules.h"
+#include "./argparser.h"
 
 namespace fs = std::filesystem;
 
@@ -15,7 +16,7 @@ namespace fs = std::filesystem;
 static void show_usage() {
   std::cerr << "Usage: sqwhiff <option(s)> FILE_PATHS\n"
             << "Options:\n"
-            << "\t-h,--help\t\tShow this help message and exit\n"
+            << "\t--help\t\tShow this help message and exit\n"
             << std::endl;
 }
 
@@ -25,15 +26,16 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::string p1(argv[1]);
-  if (p1 == "-h" || p1 == "--help") {
+  ArgParser args(argc, argv);
+
+  if (args.hasArgument("--help")) {
     show_usage();
     return 0;
   }
 
   int errorc = 0;
-  for (int i = 1; i < argc; i++) {
-    fs::path file_path(argv[i]);
+  for (auto &&file : args.getRemaining()) {
+    fs::path file_path(file);
     std::ifstream file_in(file_path);
 
     if (file_in.is_open()) {
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
       errorc += a.analyze(std::cout, all_rules);
       file_in.close();
     } else {
-      std::cerr << "Unable to open file: " << argv[i] << "\n";
+      std::cerr << "Unable to open file: " << file << "\n";
       errorc++;  // Bad usage should count as an error
     }
   }
