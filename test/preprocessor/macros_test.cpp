@@ -142,3 +142,9 @@ TEST_F(PreprocessorTest, DISABLED_OnlyUndefinesFirstWord) {
   EXPECT_EQ("\n 1", preprocess("#define TRAILING 1\n#undef MACRO TRAILING"))
       << "An undefine directive should only consume the first following word";
 }
+
+TEST_F(PreprocessorTest, CanRedefineMacro) {
+  EXPECT_EQ("\n1\n\n2",
+            preprocess("#define TEST 1\nTEST\n#define TEST 2\nTEST"))
+      << "The last define encountered overrides all earlier macro definitions";
+}

@@ -355,7 +355,7 @@ void Preprocessor::defineMacro(const PosStr& definition) {
     }
   }
 
-  macros_->insert({keyword, m});
+  (*macros_)[keyword] = m;
 }
 
 void Preprocessor::undefineMacro(const PosStr& undef) {
