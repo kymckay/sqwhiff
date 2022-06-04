@@ -26,14 +26,18 @@ Preprocessor::Preprocessor(
     internal_dir_ = fs::absolute(internal_dir);
   }
 
+  // Macro definitions can carry through inclusions
+  if (macros_defined != nullptr) {
+    macros_ = *macros_defined;
+  }
+
   // TODO: Unsafely assuming if params given the rest is, should group macro
   // context into a struct or similar
   if (macro_params != nullptr) {
-    // Only expand macros when preprocessing a macro context
+    // When expanding a macro context, don't perform regular preprocessing
     expand_only_ = true;
 
     params_ = *macro_params;
-    macros_ = *macros_defined;
     macro_context_ = *macro_context;
   }
 
@@ -273,7 +277,8 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // Open file as a stream
   std::ifstream file(abs_path);
   if (file.is_open()) {
-    Preprocessor pp(file, abs_path, internal_dir_, &inclusion_context_);
+    Preprocessor pp(file, abs_path, internal_dir_, &inclusion_context_, nullptr,
+                    &macros_);
 
     appendToBuffer(pp.getAll());
 
@@ -282,6 +287,8 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
     error(delimiter.line, delimiter.column,
           "Included file not found: " + filename);
   }
+
+  // TODO: Pull up changes defined macros
 }
 
 void Preprocessor::defineMacro(const PosStr& definition) {
