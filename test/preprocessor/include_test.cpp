@@ -88,3 +88,14 @@ TEST_F(PreprocessorTest, RedefsMacrosFromIncluder) {
       preprocess("#define PARENT 1\nPARENT\n#include <./child.inc>\nPARENT"))
       << "The macro defined in the parent should be overridden after inclusion";
 }
+
+TEST_F(PreprocessorTest, HandlesBackslashCharacters) {
+  fs::create_directory(tmp_dir_ / "foo");
+  fs::create_directory(tmp_dir_ / "foo/bar");
+
+  fs::path temp_file = tmp_dir_ / "foo/bar/simple.inc";
+  std::ofstream(temp_file) << "1\n";
+
+  EXPECT_EQ("1\n", preprocess("#include <.\\foo\\bar\\simple.inc>"))
+      << "The backslash characters should be treated as path delimiters";
+}

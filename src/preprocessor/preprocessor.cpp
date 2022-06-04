@@ -1,5 +1,6 @@
 #include "./preprocessor.h"
 
+#include <algorithm>
 #include <cctype>
 #include <fstream>
 #include <sstream>
@@ -252,6 +253,12 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   // File path does not include delimiters
   std::string filename(toInclude.begin() + 1, toInclude.end() - 1);
 
+  // RV engine supports `\` character for paths, replace with `/` since RV is
+  // cross platform
+  std::string sanatized(filename.length(), ' ');
+  std::replace_copy(filename.begin(), filename.end(), sanatized.begin(), '\\',
+                    '/');
+
   // Included path could be internal, user must specify a directory for this
   fs::path abs_path;
   if (filename.front() == '\\') {
@@ -261,12 +268,12 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
                 filename);
     }
 
-    filename.erase(filename.begin());
-    abs_path = fs::absolute(internal_dir_ / filename);
+    sanatized.erase(sanatized.begin());
+    abs_path = fs::absolute(internal_dir_ / sanatized);
   } else {
     // Included path could be relative, set CWD to resolve correctly
     fs::current_path(open_file_.parent_path());
-    abs_path = fs::absolute(filename);
+    abs_path = fs::absolute(sanatized);
   }
 
   // Recursive inclusion of a file results in RV engine crashing
@@ -288,8 +295,6 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
     error(delimiter.line, delimiter.column,
           "Included file not found: " + filename);
   }
-
-  // TODO: Pull up changes defined macros
 }
 
 void Preprocessor::defineMacro(const PosStr& definition) {
