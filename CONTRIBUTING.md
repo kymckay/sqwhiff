@@ -3,8 +3,8 @@
 It's always preferable to use the issue tracker before working on anything to avoid duplicating work. In general:
 
 1. Check if an existing issue covers your topic. Check the discussion and comment there if it does.
-  - If you would like to work on an issue, first check if anyone else is (either assigned or in the discussion) and make your intentions known.
-  - Issues marked "help wanted" are any deemed desirable, but not prioritised.
+    - If you would like to work on an issue, first check if anyone else is (either assigned or in the discussion) and make your intentions known.
+    - Issues marked "help wanted" are any deemed desirable, but not prioritised.
 2. If no issues cover your topic, open a new issue and describe your problem or proposal concisely. Then wait for a response.
 
 If you'd like to optimise any existing implementation make sure to explain why it's better/how it works. Ideally with some demonstrable results included.
