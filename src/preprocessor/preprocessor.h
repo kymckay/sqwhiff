@@ -2,6 +2,7 @@
 #include <deque>
 #include <filesystem>
 #include <istream>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -11,6 +12,11 @@
 #include "./preprocessing_error.h"
 
 namespace fs = std::filesystem;
+
+// Regular map since macros cannot be overloaded
+using macro_storage = std::unordered_map<std::string, MacroDefinition>;
+// Macro definitions are modified across included files, so share the storage
+using shared_macro_storage = std::shared_ptr<macro_storage>;
 
 class Preprocessor {
   fs::path open_file_;
@@ -47,8 +53,8 @@ class Preprocessor {
   void advance();
   void skipComment();
 
-  // Regular map since macros cannot be overloaded
-  std::unordered_map<std::string, MacroDefinition> macros_;
+  // Stores the currently defined set of macros
+  shared_macro_storage macros_;
 
   // When used in subcontext parameter replacement may take place
   std::unordered_map<std::string, MacroArg> params_;
@@ -61,7 +67,7 @@ class Preprocessor {
   std::unordered_set<std::string> inclusion_context_;
 
   inline bool isMacro(const std::string& word) {
-    return macros_.find(word) != macros_.end();
+    return macros_->find(word) != macros_->end();
   }
 
   inline bool isParam(const std::string& word) {
@@ -91,7 +97,7 @@ class Preprocessor {
  public:
   // Constructor enables recursive reuse of the class. Used for:
   //   - Nested macro expansion
-  //   - Nested file inclusion
+  //   - Nested file inclusion (with macro modification)
   Preprocessor(
       std::istream&, fs::path = "", fs::path = "",
       const std::unordered_set<std::string>* =
@@ -100,9 +106,8 @@ class Preprocessor {
                                MacroArg>* =
           nullptr,  // Parameter map for replacement (only relevant to macro
                     // body expansion)
-      const std::unordered_map<std::string,
-                               MacroDefinition>* =
-          nullptr,  // Set of defined macros for expansion (nested)
+      shared_macro_storage =
+          nullptr,  // Map of defined macros for expansion (nested)
       const std::unordered_set<std::string>* =
           nullptr  // Set of macros not to expand (prevents macro recursion)
 

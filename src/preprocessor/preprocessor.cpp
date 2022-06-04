@@ -8,7 +8,7 @@ Preprocessor::Preprocessor(
     std::istream& to_read, fs::path open_file, fs::path internal_dir,
     const std::unordered_set<std::string>* include_context,
     const std::unordered_map<std::string, MacroArg>* macro_params,
-    const std::unordered_map<std::string, MacroDefinition>* macros_defined,
+    shared_macro_storage macros_defined,
     const std::unordered_set<std::string>* macro_context)
     : stream_(to_read) {
   if (include_context != nullptr) {
@@ -26,9 +26,10 @@ Preprocessor::Preprocessor(
     internal_dir_ = fs::absolute(internal_dir);
   }
 
-  // Macro definitions can carry through inclusions
-  if (macros_defined != nullptr) {
-    macros_ = *macros_defined;
+  // Macro definitions can carry through and are modified by inclusions
+  macros_ = macros_defined;
+  if (macros_ == nullptr) {
+    macros_ = std::make_shared<macro_storage>();
   }
 
   // TODO: Unsafely assuming if params given the rest is, should group macro
@@ -278,7 +279,7 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   std::ifstream file(abs_path);
   if (file.is_open()) {
     Preprocessor pp(file, abs_path, internal_dir_, &inclusion_context_, nullptr,
-                    &macros_);
+                    macros_);
 
     appendToBuffer(pp.getAll());
 
@@ -354,7 +355,7 @@ void Preprocessor::defineMacro(const PosStr& definition) {
     }
   }
 
-  macros_.insert({keyword, m});
+  macros_->insert({keyword, m});
 }
 
 void Preprocessor::undefineMacro(const PosStr& undef) {
@@ -365,7 +366,7 @@ void Preprocessor::undefineMacro(const PosStr& undef) {
     }
   }
 
-  macros_.erase(keyword);
+  macros_->erase(keyword);
 }
 
 void Preprocessor::branchDirective(const std::string& instruction,
@@ -432,7 +433,7 @@ void Preprocessor::processWord() {
     appendToBuffer(params_.at(word).chars);
     return;
   } else if (isMacro(word) && !isRecursive(word)) {
-    macro_def = macros_.at(word);
+    macro_def = macros_->at(word);
     args = getArgs(word);
   } else {
     // Just a normal word, push to buffer
@@ -462,7 +463,7 @@ void Preprocessor::processWord() {
     std::stringstream arg_ss(arg.raw);
     std::unordered_map<std::string, MacroArg> no_args;
     Preprocessor pp(arg_ss, open_file_, internal_dir_, nullptr, &no_args,
-                    &macros_, &macro_context_);
+                    macros_, &macro_context_);
     arg.chars = pp.getAll();
 
     // Update reference position for all expanded argument characters
@@ -486,7 +487,7 @@ void Preprocessor::processWord() {
   // preserve correct behaviour)
   std::stringstream body_ss(macro_def.body);
   Preprocessor pp(body_ss, open_file_, internal_dir_, nullptr, &param_map,
-                  &macros_, &body_context);
+                  macros_, &body_context);
   appendToBuffer(pp.getAll());
 }
 
