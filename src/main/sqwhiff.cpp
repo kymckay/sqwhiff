@@ -25,6 +25,22 @@ static void show_usage() {
       << std::endl;
 }
 
+static int analyzeFile(fs::path file_path, std::string internal_root) {
+  std::ifstream file_in(file_path);
+
+  if (file_in.is_open()) {
+    Preprocessor preproc(file_in, file_path, internal_root);
+    Lexer lex(preproc);
+    Parser p(lex);
+    Analyzer a(p);
+    return a.analyze(std::cout, all_rules);
+    file_in.close();
+  }
+
+  std::cerr << "Unable to open file: " << file_path << "\n";
+  return 1;  // Bad usage should count as an error
+}
+
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     show_usage();
@@ -50,20 +66,17 @@ int main(int argc, char *argv[]) {
   }
 
   int errorc = 0;
-  for (auto &&file : args.getRemaining()) {
-    fs::path file_path(file);
-    std::ifstream file_in(file_path);
+  for (auto &&token : args.getRemaining()) {
+    fs::path target_path(token);
 
-    if (file_in.is_open()) {
-      Preprocessor preproc(file_in, file_path, internal_root);
-      Lexer lex(preproc);
-      Parser p(lex);
-      Analyzer a(p);
-      errorc += a.analyze(std::cout, all_rules);
-      file_in.close();
+    if (fs::is_directory(target_path)) {
+      for (auto &&target : fs::recursive_directory_iterator(target_path)) {
+        if (target.is_regular_file() && target.path().extension() == ".sqf") {
+          errorc += analyzeFile(target.path(), internal_root);
+        }
+      }
     } else {
-      std::cerr << "Unable to open file: " << file << "\n";
-      errorc++;  // Bad usage should count as an error
+      errorc += analyzeFile(target_path, internal_root);
     }
   }
 
