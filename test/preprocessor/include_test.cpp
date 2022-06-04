@@ -51,5 +51,40 @@ TEST_F(PreprocessorTest, IncludesNestedIncludes) {
          "preprocessor output";
 }
 
-// TODO: Test macro definition behaviour of include (defined before works in
-// file?)
+TEST_F(PreprocessorTest, ExpandsMacrosFromIncluder) {
+  fs::path temp_file = tmp_dir_ / "child.inc";
+  std::ofstream(temp_file) << "PARENT";
+
+  EXPECT_EQ("\n1", preprocess("#define PARENT 1\n#include <./child.inc>"))
+      << "The macro defined in the parent should be expanded when used in the "
+         "child";
+}
+
+TEST_F(PreprocessorTest, ExpandsMacrosFromIncluded) {
+  fs::path temp_file = tmp_dir_ / "child.inc";
+  std::ofstream(temp_file) << "#define CHILD 2";
+
+  EXPECT_EQ("CHILD\n2", preprocess("CHILD\n#include <./child.inc>\nCHILD"))
+      << "The macro defined in the child should be expanded in the parent "
+         "after inclusion";
+}
+
+TEST_F(PreprocessorTest, UndefsMacrosFromIncluder) {
+  fs::path temp_file = tmp_dir_ / "child.inc";
+  std::ofstream(temp_file) << "#undef PARENT";
+
+  EXPECT_EQ(
+      "1\nPARENT",
+      preprocess("#define PARENT 1\nPARENT\n#include <./child.inc>\nPARENT"))
+      << "The macro defined in the parent should be undefined after inclusion";
+}
+
+TEST_F(PreprocessorTest, RedefsMacrosFromIncluder) {
+  fs::path temp_file = tmp_dir_ / "child.inc";
+  std::ofstream(temp_file) << "#define PARENT 2";
+
+  EXPECT_EQ(
+      "1\n2",
+      preprocess("#define PARENT 1\nPARENT\n#include <./child.inc>\nPARENT"))
+      << "The macro defined in the parent should be overridden after inclusion";
+}
