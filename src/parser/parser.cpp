@@ -70,7 +70,8 @@ ast_ptr Parser::statement() {
     // empty
     case TokenType::semi:
     case TokenType::comma:
-    case TokenType::end_of_file: {
+    case TokenType::end_of_file:
+    case TokenType::rcurl: {
       return empty();
     }
     default:
@@ -308,17 +309,8 @@ ast_ptr Parser::array() {
 }
 
 ast_ptr Parser::code() {
-  ast_ptr content;
-
   eat(TokenType::lcurl);
-
-  // Code display could be empty
-  if (current_token_.type == TokenType::rcurl) {
-    content = empty();
-  } else {
-    content = statement_list();
-  }
-
+  ast_ptr content = statement_list();
   eat(TokenType::rcurl);
 
   return ast_ptr(new Code(std::move(content)));
