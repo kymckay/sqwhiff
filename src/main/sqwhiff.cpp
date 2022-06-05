@@ -12,7 +12,6 @@
 
 namespace fs = std::filesystem;
 
-// TODO: Add way to input a directory to fully analyze
 static void show_usage() {
   std::cerr
       << "Usage: sqwhiff <option(s)> FILE_PATHS\n"
@@ -66,6 +65,7 @@ int main(int argc, char *argv[]) {
   }
 
   int errorc = 0;
+  int filec = 0;
   for (auto &&token : args.getRemaining()) {
     fs::path target_path(token);
 
@@ -73,15 +73,17 @@ int main(int argc, char *argv[]) {
       for (auto &&target : fs::recursive_directory_iterator(target_path)) {
         if (target.is_regular_file() && target.path().extension() == ".sqf") {
           errorc += analyzeFile(target.path(), internal_root);
+          filec++;
         }
       }
     } else {
       errorc += analyzeFile(target_path, internal_root);
+      filec++;
     }
   }
 
-  std::cout << "\nsqwhiff result: " << errorc << " error(s) encountered"
-            << std::endl;
+  std::cout << "\nsqwhiff result: " << filec << " file(s) processed, " << errorc
+            << " error(s) encountered" << std::endl;
 
   return errorc;
 }
