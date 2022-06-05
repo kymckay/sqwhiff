@@ -1,15 +1,10 @@
+#include <gmock/gmock.h>
+
 #include <string>
 
 #include "./_test.h"
 
-#define ASSERT_EXCEPTION(TO_TRY, EXCEPTION, MSG)              \
-  try {                                                       \
-    TO_TRY;                                                   \
-    FAIL() << "Expected an exception of type " << #EXCEPTION; \
-  } catch (EXCEPTION const &err) {                            \
-    EXPECT_EQ(std::string(MSG), err.what())                   \
-        << "Exception message is incorrect";                  \
-  }
+using sqwhiff::LexicalError;
 
 TEST_F(LexerTest, NoErrorOnInstantiation) {
   EXPECT_NO_THROW(std::stringstream ss("#random"); Preprocessor pp(ss);
@@ -18,16 +13,17 @@ TEST_F(LexerTest, NoErrorOnInstantiation) {
 }
 
 TEST_F(LexerTest, ErrorsOnUnexpectedChar) {
-  ASSERT_EXCEPTION(tokenize("?"), sqwhiff::LexicalError,
-                   "1:1 LexicalError - Unexpected character '?'");
+  EXPECT_THAT([this] { tokenize("?"); }, ::testing::ThrowsMessage<LexicalError>(
+                                             "Unexpected character '?'"));
 }
 
 TEST_F(LexerTest, ErrorsOnUnclosedStr) {
-  ASSERT_EXCEPTION(tokenize("\""), sqwhiff::LexicalError,
-                   "1:1 LexicalError - Unclosed string");
+  EXPECT_THAT([this] { tokenize("\""); },
+              ::testing::ThrowsMessage<LexicalError>("Unclosed string"));
 }
 
 TEST_F(LexerTest, ErrorsOnIncompleteSciNotation) {
-  ASSERT_EXCEPTION(tokenize("1e+"), sqwhiff::LexicalError,
-                   "1:1 LexicalError - Unfinished numeric literal '1e+'");
+  EXPECT_THAT([this] { tokenize("1e+"); },
+              ::testing::ThrowsMessage<LexicalError>(
+                  "Unfinished numeric literal '1e+'"));
 }
