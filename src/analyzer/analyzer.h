@@ -1,8 +1,4 @@
 #pragma once
-#include <memory>
-#include <ostream>
-#include <vector>
-
 #include "../parser/parser.h"
 #include "./rule.h"
 
@@ -11,5 +7,5 @@ class Analyzer {
 
  public:
   Analyzer(Parser &);
-  int analyze(std::ostream &, rule_set &);
+  error_storage analyze(rule_set &);
 };

@@ -28,12 +28,27 @@ static int analyzeFile(fs::path file_path, std::string internal_root) {
   std::ifstream file_in(file_path);
 
   if (file_in.is_open()) {
+    std::cout << "\nAnalyzing " << file_path << '\n';
+
     Preprocessor preproc(file_in, file_path, internal_root);
     Lexer lex(preproc);
     Parser p(lex);
     Analyzer a(p);
-    return a.analyze(std::cout, all_rules);
+
+    error_storage result = a.analyze(all_rules);
     file_in.close();
+
+    for (auto &&[key, err] : result) {
+      if (err->file != file_path) {
+        std::cout << "\tError in included file " << err->file << '\n';
+      }
+
+      std::cout << '\t' << std::to_string(err->line) << ':'
+                << std::to_string(err->col) << ' ' << err->type() << " - "
+                << err->what() << '\n';
+    }
+
+    return result.size();
   }
 
   std::cerr << "Unable to open file: " << file_path << "\n";

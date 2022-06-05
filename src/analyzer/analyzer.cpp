@@ -1,33 +1,27 @@
 #include "./analyzer.h"
 
-#include <ostream>
-#include <vector>
-
 Analyzer::Analyzer(Parser &p) : parser_(p){};
 
-inline void log_error(std::ostream &out, const std::string &err) {
-  out << '\n' << err << '\n';
-};
+error_storage Analyzer::analyze(rule_set &rules) {
+  auto result = error_storage();
 
-int Analyzer::analyze(std::ostream &out, rule_set &rules) {
   ast_ptr tree = nullptr;
   try {
     tree = parser_.parse();
-  } catch (const sqwhiff::BaseError &e) {
-    log_error(out, e.pretty());
-    return 1;
+  } catch (const sqwhiff::PreprocessingError &e) {
+    result[e.uid()] = std::make_unique<sqwhiff::PreprocessingError>(e);
+    return result;
+  } catch (const sqwhiff::LexicalError &e) {
+    result[e.uid()] = std::make_unique<sqwhiff::LexicalError>(e);
+    return result;
+  } catch (const sqwhiff::SyntaxError &e) {
+    result[e.uid()] = std::make_unique<sqwhiff::SyntaxError>(e);
+    return result;
   }
-
-  int errorc = 0;
 
   for (auto &&s : rules) {
-    std::vector<sqwhiff::SemanticError> errors = s.second->getErrors(*tree);
-    for (auto &&e : errors) {
-      log_error(out, e.pretty());
-    }
-
-    errorc += errors.size();
+    result.merge(s.second->getErrors(*tree));
   }
 
-  return errorc;
+  return result;
 };

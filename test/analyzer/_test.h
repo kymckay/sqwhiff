@@ -7,8 +7,7 @@
 
 class AnalyzerTest : public ::testing::Test {
  protected:
-  std::string output_;
-  int errorc_ = -1;
+  error_storage errors_;
 
   void analyze(std::string s) { analyze(s, rule_set()); }
 
@@ -19,13 +18,36 @@ class AnalyzerTest : public ::testing::Test {
 
   void analyze(std::string s, rule_set rules) {
     std::stringstream input(s);
-    std::stringstream output("");
     Preprocessor pp(input);
     Lexer l(pp);
     Parser p(l);
     Analyzer a(p);
-    errorc_ = a.analyze(output, rules);
+    errors_ = a.analyze(rules);
+  }
 
-    output_ = output.str();
+  inline int errorCount() { return errors_.size(); }
+
+  inline std::string errorMessage(int index) {
+    auto it = errors_.begin();
+    std::advance(it, index);
+    return it->second->what();
+  }
+
+  inline std::string errorType(int index) {
+    auto it = errors_.begin();
+    std::advance(it, index);
+    return it->second->type();
+  }
+
+  inline int errorLine(int index) {
+    auto it = errors_.begin();
+    std::advance(it, index);
+    return it->second->line;
+  }
+
+  inline int errorColumn(int index) {
+    auto it = errors_.begin();
+    std::advance(it, index);
+    return it->second->col;
   }
 };

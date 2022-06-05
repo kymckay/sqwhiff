@@ -8,7 +8,7 @@ namespace sqwhiff {
 class PreprocessingError : public BaseError {
  public:
   using BaseError::BaseError;
-  using BaseError::pretty;
+  using BaseError::uid;
 
   std::string type() const override;
 };

@@ -13,7 +13,10 @@ class BaseError : public std::runtime_error {
   BaseError(int line, int col, std::string file, std::string msg)
       : std::runtime_error(msg), line(line), col(col), file(file) {}
 
-  std::string pretty() const;
+  virtual ~BaseError() = default;
+
+  // Unique (in context of file error belongs to) identifer for storage
+  std::string uid() const;
   virtual std::string type() const = 0;
 };
 
