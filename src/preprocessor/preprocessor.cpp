@@ -440,9 +440,8 @@ void Preprocessor::processWord() {
     args = getArgs(word);
   } else {
     // Just a normal word, push to buffer
-    PosChar pc;
-    pc.line = initial.line;
-    pc.column = initial.column;
+    // Copy properties of initial for position
+    PosChar pc = initial;
     for (char& c : word) {
       pc.c = c;
       peek_buffer_.push_back(pc);
