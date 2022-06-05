@@ -11,7 +11,7 @@
 Lexer::Lexer(Preprocessor &pre) : preproc_(pre) {}
 
 void Lexer::error(Token t, std::string msg) {
-  throw LexicalError(t.line, t.column, t.file, msg);
+  throw sqwhiff::LexicalError(t.line, t.column, t.file, msg);
 }
 
 void Lexer::advance() { current_char_ = preproc_.get(); }

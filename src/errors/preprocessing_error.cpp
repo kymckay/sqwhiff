@@ -1,8 +1,7 @@
 #include "./preprocessing_error.h"
 
-const std::string PreprocessingError::id = "PreprocessingError";
+namespace sqwhiff {
 
-std::string PreprocessingError::pretty() const {
-  return file + "\n\n\t" + std::to_string(line) + ":" + std::to_string(col) +
-         " " + id + " - " + what();
-}
+std::string PreprocessingError::type() const { return "PreprocessingError"; }
+
+}  // namespace sqwhiff

@@ -1,8 +1,8 @@
 #include "./rule.h"
 
-std::vector<SemanticError> Rule::getErrors(AST &tree) {
+std::vector<sqwhiff::SemanticError> Rule::getErrors(AST &tree) {
   // New set of errors each time rule is called
-  errors_ = std::vector<SemanticError>();
+  errors_ = std::vector<sqwhiff::SemanticError>();
   tree.accept(*this);
   return errors_;
 }

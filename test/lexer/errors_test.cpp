@@ -18,16 +18,16 @@ TEST_F(LexerTest, NoErrorOnInstantiation) {
 }
 
 TEST_F(LexerTest, ErrorsOnUnexpectedChar) {
-  ASSERT_EXCEPTION(tokenize("?"), LexicalError,
+  ASSERT_EXCEPTION(tokenize("?"), sqwhiff::LexicalError,
                    "1:1 LexicalError - Unexpected character '?'");
 }
 
 TEST_F(LexerTest, ErrorsOnUnclosedStr) {
-  ASSERT_EXCEPTION(tokenize("\""), LexicalError,
+  ASSERT_EXCEPTION(tokenize("\""), sqwhiff::LexicalError,
                    "1:1 LexicalError - Unclosed string");
 }
 
 TEST_F(LexerTest, ErrorsOnIncompleteSciNotation) {
-  ASSERT_EXCEPTION(tokenize("1e+"), LexicalError,
+  ASSERT_EXCEPTION(tokenize("1e+"), sqwhiff::LexicalError,
                    "1:1 LexicalError - Unfinished numeric literal '1e+'");
 }

@@ -9,10 +9,10 @@
 
 class Rule : protected NodeVisitor {
  protected:
-  std::vector<SemanticError> errors_;
+  std::vector<sqwhiff::SemanticError> errors_;
 
  public:
-  std::vector<SemanticError> getErrors(AST &);
+  std::vector<sqwhiff::SemanticError> getErrors(AST &);
 };
 
 using rule_ptr = std::shared_ptr<Rule>;

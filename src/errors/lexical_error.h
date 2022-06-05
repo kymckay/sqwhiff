@@ -1,17 +1,16 @@
 #pragma once
-#include <stdexcept>
 #include <string>
 
-class LexicalError : public std::runtime_error {
+#include "./base_error.h"
+
+namespace sqwhiff {
+
+class LexicalError : public BaseError {
  public:
-  static const std::string id;
+  using BaseError::BaseError;
+  using BaseError::pretty;
 
-  const int line;
-  const int col;
-  const std::string file;
-
-  LexicalError(int line, int col, std::string file, std::string msg)
-      : std::runtime_error(msg), line(line), col(col), file(file) {}
-
-  std::string pretty() const;
+  std::string type() const override;
 };
+
+}  // namespace sqwhiff

@@ -49,8 +49,8 @@ class Preprocessor {
   // Whether the if clause is true or false (used to follow else)
   bool branch_condition_ = false;
 
-  inline PreprocessingError error(int line, int col, std::string msg) {
-    return PreprocessingError(line, col, open_file_, msg);
+  inline sqwhiff::PreprocessingError error(int line, int col, std::string msg) {
+    return sqwhiff::PreprocessingError(line, col, open_file_, msg);
   };
 
   void advance();

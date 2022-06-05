@@ -1,23 +1,21 @@
 #pragma once
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 
 #include "../lexer/token_types.h"
+#include "./base_error.h"
 
-class SyntaxError : public std::runtime_error {
+namespace sqwhiff {
+
+class SyntaxError : public BaseError {
  public:
-  static const std::string id;
+  using BaseError::BaseError;
+  using BaseError::pretty;
 
-  const int line;
-  const int col;
-  const std::string file;
-
-  SyntaxError(int line, int col, std::string file, std::string msg)
-      : std::runtime_error(msg), line(line), col(col), file(file) {}
-
-  std::string pretty() const;
+  std::string type() const override;
 };
+
+}  // namespace sqwhiff
 
 const std::unordered_map<TokenType, std::string> SQF_Token_Descriptors{
     {TokenType::id,

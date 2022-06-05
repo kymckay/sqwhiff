@@ -12,13 +12,13 @@
   }
 
 TEST_F(ParserTest, ErrorsOnUnclosedArray) {
-  ASSERT_EXCEPTION(parse("[1,2,3,4,5"), SyntaxError,
+  ASSERT_EXCEPTION(parse("[1,2,3,4,5"), sqwhiff::SyntaxError,
                    "1:10 SyntaxError - Unexpected token '', expected a closing "
                    "square bracket");
 }
 
 TEST_F(ParserTest, ErrorsOnUnclosedCode) {
-  ASSERT_EXCEPTION(parse("[1] select {_x == 1"), SyntaxError,
+  ASSERT_EXCEPTION(parse("[1] select {_x == 1"), sqwhiff::SyntaxError,
                    "1:19 SyntaxError - Unexpected token '', expected a closing "
                    "curly bracket");
 }
@@ -30,7 +30,7 @@ TEST_F(ParserTest, DISABLED_ThrownByParser) {
   Lexer l1(pp1);
   Parser p1(l1);
 
-  EXPECT_THROW(p1.parse(), LexicalError)
+  EXPECT_THROW(p1.parse(), sqwhiff::LexicalError)
       << "Immediate lexical error was not thrown out of parser";
 
   std::stringstream otherwise("statement;statement;\n\n\n'this is unclosed");
@@ -38,6 +38,6 @@ TEST_F(ParserTest, DISABLED_ThrownByParser) {
   Lexer l2(pp2);
   Parser p2(l2);
 
-  EXPECT_THROW(p2.parse(), LexicalError)
+  EXPECT_THROW(p2.parse(), sqwhiff::LexicalError)
       << "Lexical error was not thrown out of parser during parsing";
 }
