@@ -66,3 +66,18 @@ TEST_F(AnalyzerTest, DISABLED_ReportsIncorrectTypeFromVariable) {
   EXPECT_EQ("1:11 SemanticError - Incorrect type used with: allturrets\n",
             output_);
 }
+
+// TODO: Should be more explicitly testing that the rule gets the correct type
+TEST_F(AnalyzerTest, HandlesUnknownReturnType) {
+  analyze("_a / _b * _c", type_rule);
+  EXPECT_EQ(0, errorc_);
+  EXPECT_EQ("", output_)
+      << "When an unknown type is used with a command which may return "
+         "multiple types, the return type must also be unknown";
+
+  analyze("+_a get []; +_a * 2; +_a select 1", type_rule);
+  EXPECT_EQ(0, errorc_);
+  EXPECT_EQ("", output_)
+      << "When an unknown type is used with a command which may return "
+         "multiple types, the return type must also be unknown";
+}

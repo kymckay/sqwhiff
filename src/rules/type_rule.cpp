@@ -17,6 +17,20 @@ void TypeRule::visit(UnaryOp &op) {
   op.expr->accept(*this);
 
   auto range = SQF::Unary_Keywords.equal_range(op.op.raw);
+
+  // If input is unknown type and command has differing return types then
+  // the return type must be unknown also
+  if (last_type_ == SQF::Type::any) {
+    const SQF::Type target_type = range.first->second.value;
+
+    for (auto it = range.first; it != range.second; ++it) {
+      if (it->second.value != target_type) {
+        last_type_ = SQF::Type::any;
+        return;
+      }
+    }
+  }
+
   for (auto it = range.first; it != range.second; ++it) {
     SQF::UnaryCommand command = it->second;
 
@@ -42,6 +56,20 @@ void TypeRule::visit(BinaryOp &op) {
   SQF::Type right_type = last_type_;
 
   auto range = SQF::Binary_Keywords.equal_range(op.op.raw);
+
+  // If either input is unknown type and command has differing return types then
+  // the return type must be unknown also
+  if (left_type == SQF::Type::any || right_type == SQF::Type::any) {
+    const SQF::Type target_type = range.first->second.value;
+
+    for (auto it = range.first; it != range.second; ++it) {
+      if (it->second.value != target_type) {
+        last_type_ = SQF::Type::any;
+        return;
+      }
+    }
+  }
+
   for (auto it = range.first; it != range.second; ++it) {
     SQF::BinaryCommand command = it->second;
 
