@@ -1,3 +1,4 @@
+#pragma once
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -6,9 +7,16 @@
 
 class SyntaxError : public std::runtime_error {
  public:
-  SyntaxError(int line, int col, std::string msg)
-      : std::runtime_error(std::to_string(line) + ":" + std::to_string(col) +
-                           " SyntaxError - " + msg) {}
+  static const std::string id;
+
+  const int line;
+  const int col;
+  const std::string file;
+
+  SyntaxError(int line, int col, std::string file, std::string msg)
+      : std::runtime_error(msg), line(line), col(col), file(file) {}
+
+  std::string pretty() const;
 };
 
 const std::unordered_map<TokenType, std::string> SQF_Token_Descriptors{

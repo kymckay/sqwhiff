@@ -5,7 +5,7 @@
 
 #include "../ast/ast.h"
 #include "../ast/node_visitor.h"
-#include "./semantic_error.h"
+#include "../errors/semantic_error.h"
 
 class Rule : protected NodeVisitor {
  protected:

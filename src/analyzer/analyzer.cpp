@@ -3,22 +3,24 @@
 #include <ostream>
 #include <vector>
 
-#include "./semantic_error.h"
-
 Analyzer::Analyzer(Parser &p) : parser_(p){};
+
+inline void log_error(std::ostream &out, const std::string &err) {
+  out << '\n' << err << '\n';
+};
 
 int Analyzer::analyze(std::ostream &out, rule_set &rules) {
   ast_ptr tree = nullptr;
   try {
     tree = parser_.parse();
   } catch (const PreprocessingError &e) {
-    out << e.what();
+    log_error(out, e.pretty());
     return 1;
   } catch (const LexicalError &e) {
-    out << e.what();
+    log_error(out, e.pretty());
     return 1;
   } catch (const SyntaxError &e) {
-    out << e.what();
+    log_error(out, e.pretty());
     return 1;
   }
 
@@ -27,7 +29,7 @@ int Analyzer::analyze(std::ostream &out, rule_set &rules) {
   for (auto &&s : rules) {
     std::vector<SemanticError> errors = s.second->getErrors(*tree);
     for (auto &&e : errors) {
-      out << e.what() << '\n';
+      log_error(out, e.pretty());
     }
 
     errorc += errors.size();

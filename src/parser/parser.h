@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../ast/ast.h"
+#include "../errors/syntax_error.h"
 #include "../lexer/lexer.h"
-#include "./syntax_error.h"
 
 class Parser {
   // Reference member, no need to copy the supplied lexer

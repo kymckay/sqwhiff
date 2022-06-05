@@ -11,7 +11,7 @@
 Lexer::Lexer(Preprocessor &pre) : preproc_(pre) {}
 
 void Lexer::error(Token t, std::string msg) {
-  throw LexicalError(t.line, t.column, msg);
+  throw LexicalError(t.line, t.column, t.file, msg);
 }
 
 void Lexer::advance() { current_char_ = preproc_.get(); }
@@ -153,6 +153,7 @@ Token Lexer::makeToken(TokenType type, std::string raw) {
   t.raw = raw;
   t.line = current_char_.line;
   t.column = current_char_.column;
+  t.file = current_char_.file;
   return t;
 }
 

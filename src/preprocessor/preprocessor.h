@@ -7,9 +7,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "../errors/preprocessing_error.h"
 #include "./macro.h"
 #include "./pos_char.h"
-#include "./preprocessing_error.h"
 
 namespace fs = std::filesystem;
 
@@ -49,7 +49,10 @@ class Preprocessor {
   // Whether the if clause is true or false (used to follow else)
   bool branch_condition_ = false;
 
-  void error(int, int, std::string);
+  inline PreprocessingError error(int line, int col, std::string msg) {
+    return PreprocessingError(line, col, open_file_, msg);
+  };
+
   void advance();
   void skipComment();
 

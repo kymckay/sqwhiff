@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 
 // Character with an associated file position (may not correspond to physical
@@ -7,6 +8,7 @@ struct PosChar {
   char c = '\0';
   int line = 1;
   int column = 1;
+  std::string file = "";
 
   // Convenience conversion operator
   operator char() const { return c; }

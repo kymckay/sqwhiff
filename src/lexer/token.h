@@ -11,6 +11,7 @@ struct Token {
   // Position of token's first character in the file
   int line = npos;
   int column = npos;
+  std::string file = "";
 };
 
 // Using a typedef prevents naming clashes in global name space

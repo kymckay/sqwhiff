@@ -3,8 +3,8 @@
 #include <istream>
 #include <string>
 
+#include "../errors/lexical_error.h"
 #include "../preprocessor/preprocessor.h"
-#include "./lexical_error.h"
 #include "./token.h"
 
 class Lexer {

@@ -41,7 +41,7 @@ void TypeRule::visit(UnaryOp &op) {
   }
 
   // Error when no version of the command matched the expected type
-  errors_.push_back(SemanticError(op.op.line, op.op.column,
+  errors_.push_back(SemanticError(op.op.line, op.op.column, op.op.file,
                                   "Incorrect type used with: " + op.op.raw));
 
   // When command was not found, consider as any type to avoid cascading errors
@@ -81,7 +81,7 @@ void TypeRule::visit(BinaryOp &op) {
   }
 
   // Error when no version of the command matched the expected type
-  errors_.push_back(SemanticError(op.op.line, op.op.column,
+  errors_.push_back(SemanticError(op.op.line, op.op.column, op.op.file,
                                   "Incorrect type used with: " + op.op.raw));
 
   // When command was not found, consider as any type to avoid cascading errors

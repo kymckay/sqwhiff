@@ -18,6 +18,7 @@ void Parser::eat(TokenType type) {
     current_token_ = lexer_.get();
   } else {
     throw SyntaxError(current_token_.line, current_token_.column,
+                      current_token_.file,
                       "Unexpected token '" + current_token_.raw +
                           "', expected " + SQF_Token_Descriptors.at(type));
   }
