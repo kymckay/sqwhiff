@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "cppbuild",
-      "label": "Bazel: Build Project",
+      "type": "shell",
+      "label": "GCC: Build",
       "command": "bazel",
-      "args": ["build", "//sqwhiff"],
+      "args": ["build", "--config", "gcc", "//sqwhiff"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -16,10 +16,10 @@
       }
     },
     {
-      "type": "cppbuild",
-      "label": "Bazel: Build Debug",
+      "type": "shell",
+      "label": "GCC: Build Debug",
       "command": "bazel",
-      "args": ["build", "--config", "debug", "//sqwhiff"],
+      "args": ["build", "--config", "gcc:debug", "//sqwhiff"],
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -27,15 +27,37 @@
       "group": "build"
     },
     {
-      "type": "cppbuild",
-      "label": "Bazel: Test Project",
+      "type": "shell",
+      "label": "GCC: Test",
       "command": "bazel",
-      "args": ["test", "//..."],
+      "args": ["test", "--config", "gcc", "//..."],
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": ["$msCompile"],
       "group": "test"
-    }
+    },
+    {
+      "type": "shell",
+      "label": "MSVC: Build",
+      "command": "bazel",
+      "args": ["build", "--config", "msvc", "//sqwhiff"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$msCompile"],
+      "group": "build"
+    },
+    {
+      "type": "shell",
+      "label": "MSVC: Test",
+      "command": "bazel",
+      "args": ["test", "--config", "msvc", "//..."],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$msCompile"],
+      "group": "test"
+    },
   ]
 }

@@ -1,5 +1,10 @@
-build --copt="-std=c++17"
+# GCC
+build:gcc --cxxopt="-std=c++17"
 
-build:debug -c dbg
-build:debug --copt="-g"
-build:debug --strip="never"
+build:gcc:debug -c dbg
+build:gcc:debug --cxxopt="-std=c++17"
+build:gcc:debug --copt="-g"
+build:gcc:debug --strip="never"
+
+# MSVC
+build:msvc --cxxopt="/std:c++17"
