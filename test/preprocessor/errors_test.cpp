@@ -1,7 +1,6 @@
 #include <gmock/gmock.h>
 
 #include <fstream>
-#include <string>
 
 #include "./_test.h"
 
@@ -10,7 +9,6 @@ using sqwhiff::PreprocessingError;
 // Any line starting with # (ignoring leading spaces) is taken to be a directive
 TEST_F(PreprocessorTest, ErrorsOnInvalidDirective) {
   // Can't use SQF hash selection operator at line start due to preprocessing
-  // 2,2
   EXPECT_THAT([this] { preprocess("[1,2,3]\n #2"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Invalid preprocessor directive, "
@@ -18,7 +16,6 @@ TEST_F(PreprocessorTest, ErrorsOnInvalidDirective) {
 }
 
 TEST_F(PreprocessorTest, ErrorsOnUnrecognisedDirective) {
-  // 1,1
   EXPECT_THAT(
       [this] { preprocess("#random"); },
       ::testing::ThrowsMessage<PreprocessingError>("Unrecognised preprocessor "
@@ -26,15 +23,13 @@ TEST_F(PreprocessorTest, ErrorsOnUnrecognisedDirective) {
 }
 
 TEST_F(PreprocessorTest, ErrorsOnInvalidMacroID) {
-  // 1,9
-  EXPECT_THAT([this] { preprocess("#define 3 body"); },
-              ::testing::ThrowsMessage<PreprocessingError>(
-                  "Macro ID must start with an "
-                  "alpha character or _, found '3'"));
+  EXPECT_THAT(
+      [this] { preprocess("#define 3 body"); },
+      ::testing::ThrowsMessage<PreprocessingError>(
+          "Macro ID must start with an alpha character or _, found '3'"));
 }
 
 TEST_F(PreprocessorTest, ErrorsOnInvalidMacroParamID) {
-  // 1,16
   EXPECT_THAT([this] { preprocess("#define _M(A,B,3) body"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Macro parameter ID must start "
@@ -42,37 +37,19 @@ TEST_F(PreprocessorTest, ErrorsOnInvalidMacroParamID) {
 }
 
 TEST_F(PreprocessorTest, ErrorsOnUnclosedMacroArguments) {
-  // 2:3
   EXPECT_THAT([this] { preprocess("#define _M(A) A\n_M(anythinggoeshere\n"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Unclosed macro arguments '_M('"));
 }
 
 TEST_F(PreprocessorTest, ErrorsOnMismatchedMacroArguments) {
-  // 2:1
   EXPECT_THAT([this] { preprocess("#define _M(A) A\n_M(1,2)"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Invalid number of macro arguments for '_M' supplied, found "
                   "2, expected 1"));
 }
 
-TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroBody) {
-  // 2:13
-  EXPECT_THAT(
-      [this] { preprocess("#define _M1(A) A\n#define _M2 _M1(2\n_M2"); },
-      ::testing::ThrowsMessage<PreprocessingError>(
-          "Unclosed macro arguments '_M1('"));
-}
-
-TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroArguments) {
-  // 2:9
-  EXPECT_THAT([this] { preprocess("#define _M1(A) A\n_M1(1 + _M1(6)"); },
-              ::testing::ThrowsMessage<PreprocessingError>(
-                  "Unclosed macro arguments '_M1('"));
-}
-
 TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidUndefineMacroID) {
-  // 1:8
   EXPECT_THAT(
       [this] { preprocess("#undef 3"); },
       ::testing::ThrowsMessage<PreprocessingError>(
@@ -81,12 +58,9 @@ TEST_F(PreprocessorTest, DISABLED_ErrorsOnInvalidUndefineMacroID) {
 
 // TODO: Check if mixed nesting should work (I suspect not)
 TEST_F(PreprocessorTest, ErrorsOnNestedBranching) {
-  // 2:1
   EXPECT_THAT([this] { preprocess("#ifdef ONE\n#ifdef TWO\n#endif\n#endif"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Cannot nest #ifdef directives"));
-
-  // 2:1
   EXPECT_THAT(
       [this] { preprocess("#ifndef ONE\n#ifndef TWO\n#endif\n#endif"); },
       ::testing::ThrowsMessage<PreprocessingError>(
@@ -94,7 +68,6 @@ TEST_F(PreprocessorTest, ErrorsOnNestedBranching) {
 }
 
 TEST_F(PreprocessorTest, ErrorsOnLoneElse) {
-  // 1:1
   EXPECT_THAT([this] { preprocess("#else\n#endif"); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Cannot use #else with no preceeding #if, #ifdef or #ifndef "
@@ -115,16 +88,6 @@ TEST_F(PreprocessorTest, ErrorsOnMissingInclude) {
   EXPECT_THAT([this] { preprocess("#include \"missing.sqf\""); },
               ::testing::ThrowsMessage<PreprocessingError>(
                   "Included file not found: missing.sqf"));
-}
-
-TEST_F(PreprocessorTest, ErrorsAtPositonInIncludedFile) {
-  fs::path temp_file = tmp_dir_ / "simple.inc";
-  std::ofstream(temp_file) << "[1,2,3]\n #2\n";
-
-  EXPECT_THAT([this] { preprocess("\n\n\n\n#include <./simple.inc>"); },
-              ::testing::ThrowsMessage<PreprocessingError>(
-                  "Invalid preprocessor directive, no instruction immediately "
-                  "following the # character"));
 }
 
 TEST_F(PreprocessorTest, ErrorsOnBadInternalDirectory) {
