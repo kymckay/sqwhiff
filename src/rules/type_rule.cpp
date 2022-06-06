@@ -34,7 +34,8 @@ void TypeRule::visit(UnaryOp &op) {
   for (auto it = range.first; it != range.second; ++it) {
     SQF::UnaryCommand command = it->second;
 
-    if (command.right == last_type_ || last_type_ == SQF::Type::any) {
+    if (command.right == last_type_ || command.right == SQF::Type::any ||
+        last_type_ == SQF::Type::any) {
       last_type_ = command.value;
       return;
     }
@@ -72,8 +73,10 @@ void TypeRule::visit(BinaryOp &op) {
   for (auto it = range.first; it != range.second; ++it) {
     SQF::BinaryCommand command = it->second;
 
-    if ((left_type == SQF::Type::any || left_type == command.left) &&
-        (right_type == SQF::Type::any || right_type == command.right)) {
+    if ((left_type == SQF::Type::any || command.left == SQF::Type::any ||
+         left_type == command.left) &&
+        (right_type == SQF::Type::any || command.right == SQF::Type::any ||
+         right_type == command.right)) {
       last_type_ = command.value;
       return;
     }

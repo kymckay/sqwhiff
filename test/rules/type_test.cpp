@@ -88,3 +88,11 @@ TEST_F(AnalyzerTest, HandlesUnknownReturnType) {
       << "When an unknown type is used with a command which may return "
          "multiple types, the return type must also be unknown";
 }
+
+TEST_F(AnalyzerTest, HandlesParameterTypeAny) {
+  analyze("[] call somefunc; 0 call somefunc;", type_rule);
+
+  EXPECT_EQ(0, errorCount())
+      << "If a command (e.g. call) allows any type to be used with it then "
+         "that should not be compared against the actual type given";
+}
