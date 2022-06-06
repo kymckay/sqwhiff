@@ -29,8 +29,6 @@ static int analyzeFile(fs::path file_path, std::string internal_root) {
   std::ifstream file_in(file_path);
 
   if (file_in.is_open()) {
-    std::cout << "\nAnalyzing " << file_path << '\n';
-
     Preprocessor preproc(file_in, file_path, internal_root);
     Lexer lex(preproc);
     Parser p(lex);
@@ -39,11 +37,18 @@ static int analyzeFile(fs::path file_path, std::string internal_root) {
     error_storage result = a.analyze(all_rules);
     file_in.close();
 
+    // Only files with errors are significant to the end user
+    if (result.size() > 0) {
+      std::cout << '\n' << file_path << "\n\n";
+    }
+
     for (auto &&[key, err] : result) {
+      // Errors in included files should report their extenral position
       if (err->file != file_path) {
         std::cout << "\tError in included file " << err->file << '\n';
       }
 
+      // User wants to know where and what the error is
       std::cout << '\t' << std::to_string(err->line) << ':'
                 << std::to_string(err->col) << ' ' << err->type() << " - "
                 << err->what() << '\n';
