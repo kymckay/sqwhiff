@@ -1,9 +1,9 @@
 #pragma once
-#include "sqwhiff/analyzer/rule.hpp"
 #include "sqwhiff/ast/all_nodes.hpp"
+#include "sqwhiff/rules/base_rule.hpp"
 #include "sqwhiff/sqf/type.hpp"
 
-class TypeRule : public Rule {
+class TypeRule : public BaseRule {
   SQF::Type last_type_;
 
   // Visitor interface implementation

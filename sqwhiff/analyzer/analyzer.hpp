@@ -1,6 +1,6 @@
 #pragma once
-#include "sqwhiff/analyzer/rule.hpp"
 #include "sqwhiff/parser/parser.hpp"
+#include "sqwhiff/rules/base_rule.hpp"
 
 class Analyzer {
   Parser &parser_;

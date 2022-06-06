@@ -1,8 +1,8 @@
 #pragma once
-#include "sqwhiff/analyzer/rule.hpp"
 #include "sqwhiff/ast/all_nodes.hpp"
+#include "sqwhiff/rules/base_rule.hpp"
 
-class ArityRule : public Rule {
+class ArityRule : public BaseRule {
   // Visitor interface implementation
 
   void visit(Compound&) override;

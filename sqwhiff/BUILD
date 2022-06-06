@@ -46,18 +46,18 @@ cc_library(
 )
 
 cc_library(
-    name = "analyzer",
-    hdrs = ["analyzer/analyzer.hpp", "analyzer/rule.hpp"],
-    srcs = ["analyzer/analyzer.cpp", "analyzer/rule.cpp"],
-    deps = [":parser"],
+    name = "rules",
+    hdrs = glob(["rules/*.hpp"]),
+    srcs = glob(["rules/*.cpp"]),
+    deps = [":abstract-syntax-tree", ":errors", ":sqf-lang"],
     visibility = ["//tests:__pkg__"],
 )
 
 cc_library(
-    name = "rules",
-    hdrs = glob(["rules/*.hpp"]),
-    srcs = glob(["rules/*.cpp"]),
-    deps = [":sqf-lang", ":analyzer"],
+    name = "analyzer",
+    hdrs = ["analyzer/analyzer.hpp"],
+    srcs = ["analyzer/analyzer.cpp"],
+    deps = [":parser", ":rules"],
     visibility = ["//tests:__pkg__"],
 )
 
@@ -70,5 +70,5 @@ cc_library(
 cc_binary(
     name = "sqwhiff",
     srcs = ["main.cpp"],
-    deps = [":argparser", ":rules"],
+    deps = [":argparser", ":analyzer"],
 )
