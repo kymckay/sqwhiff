@@ -11,21 +11,21 @@ If you'd like to optimise any existing implementation make sure to explain why i
 
 ## Source code
 
-The project is written using modern C++. Officially C++17 standard, but that may be bumped up in future.
+The project is written in modern C++ and officially targets C++17, but that may be bumped up in future.
 
-The source files are structured into subdirectories (by logical divisions of responsibility) under the `src` directory.
+The source files are following a modern cannonical project structure outlined [here](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1204r0.html).
 
 ## Build setup
 
 The project is configured to be built using [Bazel]. For simplicity, I recommend you use [Bazelisk] to ensure you're running the correct version at all times (the project contains a version file to control this).
 
-You can then build with the following command once the Bazel binary is on your system path: `bazel build //src/main:sqwhiff`
+You can then build with the following command once the Bazel binary is on your system path: `bazel build //sqwhiff`.
 
 ## Testing
 
-Tests (found under the `test` directory) are written using [GoogleTest]. When a bug is fixed an equivalent test case should always be added to avoid future regression. Similarly, when a new feature is added appropriate tests should be included to capture intended behaviours.
+Tests are written using [GoogleTest]. When a bug is fixed an equivalent test case should always be added to avoid future regression. Similarly, when a new feature is added appropriate tests should be included to capture intended behaviours.
 
-You can run the full test collection with `bazel test //test/...`.
+You can run the full test collection (unit and integration) with `bazel test //...`.
 
 A GitHub Action is configured to run all tests on pushes to `main` and for pull requests targeting `main`. Pull requests must build and pass testing before they can be merged.
 
