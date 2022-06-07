@@ -1,3 +1,10 @@
+# Components
+cc_library(
+    name = "structures",
+    hdrs = glob(["structures/*.hpp"]),
+    srcs = glob(["structures/*.cpp"], ["structures/*.test.cpp"]),
+)
+
 cc_library(
     name = "errors",
     hdrs = glob(["errors/*.hpp"]),
@@ -71,4 +78,12 @@ cc_binary(
     name = "sqwhiff",
     srcs = ["main.cpp"],
     deps = [":argparser", ":analyzer"],
+)
+
+# Unit tests
+cc_test(
+    name = "test-structures",
+    size = "small",
+    srcs = glob(["structures/*.test.cpp"]),
+    deps = [":structures", "@com_google_googletest//:gtest_main"],
 )
