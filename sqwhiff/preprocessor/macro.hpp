@@ -6,7 +6,7 @@
 
 struct MacroDefinition {
   std::vector<std::string> params;
-  std::string body;
+  sqwhiff::SourceString body;
 };
 
 struct MacroArg {

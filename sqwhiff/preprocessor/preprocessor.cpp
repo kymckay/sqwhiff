@@ -316,13 +316,13 @@ void Preprocessor::defineMacro(const SourceString& definition) {
   MacroDefinition m;
   for (SourceChar c : definition.chars) {
     if (inBody) {
-      m.body.push_back(c);
+      m.body.chars.push_back(c);
     } else if (skipSpace) {
       // Spaces (not whitespace) following the head are ignored
       if (c != ' ') {
         skipSpace = false;
         inBody = true;
-        m.body.push_back(c);
+        m.body.chars.push_back(c);
       }
     } else if (inParams) {
       if (c == ',') {
