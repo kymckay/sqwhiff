@@ -14,7 +14,7 @@ class Lexer {
   // Use buffer to simplify lookahead logic
   std::deque<Token> peek_buffer_;
 
-  PosChar current_char_;
+  SourceChar current_char_;
 
   // First time used need to preload the initial character
   bool first_use_ = true;

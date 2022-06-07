@@ -16,7 +16,7 @@ cc_library(
     name = "preprocessor",
     hdrs = glob(["preprocessor/*.hpp"]),
     srcs = glob(["preprocessor/*.cpp"]),
-    deps = [":errors"],
+    deps = [":structures", ":errors"],
     visibility = ["//tests:__pkg__"],
 )
 

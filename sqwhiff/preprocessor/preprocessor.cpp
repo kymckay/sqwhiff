@@ -12,6 +12,19 @@ Preprocessor::Preprocessor(
     shared_macro_storage macros_defined,
     const std::unordered_set<std::string>* macro_context)
     : stream_(to_read) {
+  // Immediately read in the first character (not an advance, don't want to
+  // change state)
+  stream_.get(current_char_.character);
+  current_char_.line = 1;
+  current_char_.column = 1;
+  current_char_.file = open_file;
+
+  // TODO: revisit the stream handling logic to clean up excess edge case
+  // handling
+  if (stream_.eof()) {
+    current_char_ = '\0';
+  }
+
   if (include_context != nullptr) {
     inclusion_context_ = *include_context;
   }
@@ -43,10 +56,6 @@ Preprocessor::Preprocessor(
     params_ = *macro_params;
     macro_context_ = *macro_context;
   }
-
-  // Immediately read in the first character (not an advance, don't want to
-  // change state)
-  stream_.get(current_char_.c);
 }
 
 void Preprocessor::advance() {
@@ -59,11 +68,11 @@ void Preprocessor::advance() {
     line_start_ = false;
   }
 
-  stream_.get(current_char_.c);
+  stream_.get(current_char_.character);
 
   // When end of stream is reached return EOF character
   if (stream_.eof()) {
-    current_char_.c = '\0';
+    current_char_ = '\0';
   } else {
     current_char_.column++;
   }
@@ -98,7 +107,7 @@ std::string Preprocessor::getWord() {
 }
 
 std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
-  PosChar open = current_char_;
+  SourceChar open = current_char_;
 
   std::vector<MacroArg> args;
   if (current_char_ == '(') {
@@ -146,7 +155,7 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
 
 void Preprocessor::handleDirective() {
   // Directive position important for errors and macros
-  PosChar hash = current_char_;
+  SourceChar hash = current_char_;
 
   // Skip the #
   advance();
@@ -181,7 +190,7 @@ void Preprocessor::handleDirective() {
   }
 
   // Remaining logical line is the body of the directive
-  PosStr body;
+  SourceString body;
   while (current_char_ != '\n' && current_char_ != '\0') {
     // Logical line can be extended by escaped newlines (anywhere in the
     // directive)
@@ -189,7 +198,7 @@ void Preprocessor::handleDirective() {
       advance();
       advance();
     } else {
-      body.push_back(current_char_);
+      body.chars.push_back(current_char_);
       advance();
     }
   }
@@ -231,20 +240,22 @@ void Preprocessor::handleDirective() {
   }
 }
 
-void Preprocessor::includeFile(const PosStr& toInclude) {
-  const PosChar delimiter = toInclude.front();
-  const PosChar delimiterEnd = toInclude.back();
+void Preprocessor::includeFile(const SourceString& toInclude) {
+  const SourceChar delimiter = toInclude.chars.front();
+  const SourceChar delimiterEnd = toInclude.chars.back();
 
   // File name must be wrapped in double quotes or angled brackets
   if (!(delimiter == '"' && delimiterEnd == '"') &&
       !(delimiter == '<' && delimiterEnd == '>')) {
-    throw error(delimiter, "Malformed #include directive: " +
-                               std::string(toInclude.begin(), toInclude.end()));
+    throw error(delimiter,
+                "Malformed #include directive: " + (std::string)toInclude);
     return;
   }
 
   // File path does not include delimiters
-  std::string filename(toInclude.begin() + 1, toInclude.end() - 1);
+  std::string filename(toInclude);
+  filename.pop_back();
+  filename.erase(0, 1);
 
   // RV engine supports `\` character for paths, replace with `/` since RV is
   // cross platform
@@ -288,9 +299,9 @@ void Preprocessor::includeFile(const PosStr& toInclude) {
   }
 }
 
-void Preprocessor::defineMacro(const PosStr& definition) {
+void Preprocessor::defineMacro(const SourceString& definition) {
   // Macro ID must start with alpha or underscore, can contain digits after
-  PosChar initial = definition[0];
+  SourceChar initial = definition.chars[0];
   if (initial != '_' && !std::isalpha(initial)) {
     throw error(initial,
                 "Macro ID must start with an alpha character or _, found '" +
@@ -303,7 +314,7 @@ void Preprocessor::defineMacro(const PosStr& definition) {
   std::string keyword;
   std::string param;
   MacroDefinition m;
-  for (PosChar c : definition) {
+  for (SourceChar c : definition.chars) {
     if (inBody) {
       m.body.push_back(c);
     } else if (skipSpace) {
@@ -354,9 +365,9 @@ void Preprocessor::defineMacro(const PosStr& definition) {
   (*macros_)[keyword] = m;
 }
 
-void Preprocessor::undefineMacro(const PosStr& undef) {
+void Preprocessor::undefineMacro(const SourceString& undef) {
   std::string keyword;
-  for (char c : undef) {
+  for (SourceChar c : undef.chars) {
     if (std::isalnum(c) || c == '_') {
       keyword.push_back(c);
     }
@@ -366,11 +377,11 @@ void Preprocessor::undefineMacro(const PosStr& undef) {
 }
 
 void Preprocessor::branchDirective(const std::string& instruction,
-                                   const PosStr& body) {
+                                   const SourceString& body) {
   branch_directive_ = instruction;
 
   std::string word = "";
-  for (auto&& c : body) {
+  for (SourceChar c : body.chars) {
     word.push_back(c);
   }
 
@@ -392,16 +403,16 @@ void Preprocessor::branchDirective(const std::string& instruction,
   branch_condition_ = follow_branch;
 
   if (follow_branch) {
-    PosStr block = PosStr();
+    SourceString block;
 
     // TODO: This is a hacky fix for a minor problem, see issue #30
     // Dummy character is immediately removed by recursive call to nextChar
     if (instruction == "else") {
-      block.push_back(PosChar());
+      block.chars.push_back(SourceChar());
     }
 
     while (branch_directive_ == instruction) {
-      block.push_back(nextChar());
+      block.chars.push_back(nextChar());
     }
 
     appendToBuffer(block);
@@ -416,7 +427,7 @@ void Preprocessor::branchDirective(const std::string& instruction,
 // buffer
 void Preprocessor::processWord() {
   // Position of the macro applied to all expanded characters
-  PosChar initial = current_char_;
+  SourceChar initial = current_char_;
 
   // May just be object like
   std::string word = getWord();
@@ -434,9 +445,9 @@ void Preprocessor::processWord() {
   } else {
     // Just a normal word, push to buffer
     // Copy properties of initial for position
-    PosChar pc = initial;
+    SourceChar pc = initial;
     for (char& c : word) {
-      pc.c = c;
+      pc = c;
       peek_buffer_.push_back(pc);
       pc.column++;
     }
@@ -462,7 +473,7 @@ void Preprocessor::processWord() {
     arg.chars = pp.getAll();
 
     // Update reference position for all expanded argument characters
-    for (PosChar& pc : arg.chars) {
+    for (SourceChar pc : arg.chars.chars) {
       pc.line += arg.line - 1;
       pc.column += arg.column - 1;
     }
@@ -486,7 +497,7 @@ void Preprocessor::processWord() {
   appendToBuffer(pp.getAll());
 }
 
-PosChar Preprocessor::nextChar() {
+SourceChar Preprocessor::nextChar() {
   // Preprocessing does not occur within double quoted string literals
   if (!in_doubles_) {
     // Comments are irrelevant (block and line)
@@ -509,8 +520,8 @@ PosChar Preprocessor::nextChar() {
       // Stringize the following word token
       else {
         // Position will become macro position later
-        PosChar quote;
-        quote.c = '"';
+        SourceChar quote;
+        quote = '"';
         advance();
 
         processWord();
@@ -528,7 +539,7 @@ PosChar Preprocessor::nextChar() {
     in_doubles_ = !in_doubles_;
   }
 
-  PosChar c = current_char_;
+  SourceChar c = current_char_;
 
   // Remember to actually progress through the input
   advance();
@@ -536,10 +547,10 @@ PosChar Preprocessor::nextChar() {
   return c;
 }
 
-PosChar Preprocessor::get() {
+SourceChar Preprocessor::get() {
   // Pull from the buffer first if any peek has occured
   if (!peek_buffer_.empty()) {
-    PosChar p = peek_buffer_.front();
+    SourceChar p = peek_buffer_.front();
     peek_buffer_.pop_front();
     return p;
   }
@@ -549,7 +560,7 @@ PosChar Preprocessor::get() {
 
 // Allows looking ahead to future characters in order to differentiate tokens
 // that start the same
-PosChar Preprocessor::peek(size_t peek_by) {
+SourceChar Preprocessor::peek(size_t peek_by) {
   while (peek_buffer_.size() < peek_by) {
     peek_buffer_.push_back(nextChar());
   }
@@ -560,11 +571,11 @@ PosChar Preprocessor::peek(size_t peek_by) {
 
 // Processes the whole input and returns the resulting sequence of positioned
 // characters
-PosStr Preprocessor::getAll() {
-  PosChar c = get();
-  PosStr result;
+SourceString Preprocessor::getAll() {
+  SourceChar c = get();
+  SourceString result;
   while (c != '\0') {
-    result.push_back(c);
+    result.chars.push_back(c);
     c = get();
   }
 

@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "sqwhiff/preprocessor/pos_char.hpp"
+#include "sqwhiff/structures/source_string.hpp"
 
 struct MacroDefinition {
   std::vector<std::string> params;
@@ -13,7 +13,7 @@ struct MacroArg {
   int line = 1;
   int column = 1;
   std::string raw;
-  PosStr chars;
+  sqwhiff::SourceString chars;
 };
 
 typedef MacroDefinition MacroDefinition;

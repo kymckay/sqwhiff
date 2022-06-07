@@ -30,7 +30,7 @@ class PreprocessorTest : public ::testing::Test {
     return result;
   }
 
-  PosChar peek(std::string s, int i) {
+  sqwhiff::SourceChar peek(std::string s, int i) {
     std::stringstream ss(s);
     return Preprocessor(ss).peek(i);
   }

@@ -9,9 +9,12 @@
 
 #include "sqwhiff/errors/preprocessing_error.hpp"
 #include "sqwhiff/preprocessor/macro.hpp"
-#include "sqwhiff/preprocessor/pos_char.hpp"
+#include "sqwhiff/structures/source_char.hpp"
 
 namespace fs = std::filesystem;
+
+using sqwhiff::SourceChar;
+using sqwhiff::SourceString;
 
 // Regular map since macros cannot be overloaded
 using macro_storage = std::unordered_map<std::string, MacroDefinition>;
@@ -26,14 +29,14 @@ class Preprocessor {
   std::istream& stream_;
 
   // Use buffer to simplify lookahead logic with preprocessing
-  std::deque<PosChar> peek_buffer_;
+  std::deque<SourceChar> peek_buffer_;
 
-  inline void appendToBuffer(const PosStr& chars) {
-    peek_buffer_.insert(peek_buffer_.end(), chars.begin(), chars.end());
+  inline void appendToBuffer(const SourceString& ss) {
+    peek_buffer_.insert(peek_buffer_.end(), ss.chars.begin(), ss.chars.end());
   }
 
   // Position of current character required to report where there are errors
-  PosChar current_char_;
+  SourceChar current_char_;
 
   // Preprocessor directives must appear at a line start (ignoring whitespace)
   bool line_start_ = true;
@@ -49,7 +52,7 @@ class Preprocessor {
   // Whether the if clause is true or false (used to follow else)
   bool branch_condition_ = false;
 
-  inline sqwhiff::PreprocessingError error(PosChar c, std::string msg) {
+  inline sqwhiff::PreprocessingError error(SourceChar c, std::string msg) {
     return sqwhiff::PreprocessingError(c.line, c.column, c.file, msg);
   };
 
@@ -89,13 +92,13 @@ class Preprocessor {
   std::vector<MacroArg> getArgs(const std::string&);
 
   void handleDirective();
-  void includeFile(const PosStr&);
-  void defineMacro(const PosStr&);
-  void undefineMacro(const PosStr&);
-  void branchDirective(const std::string&, const PosStr&);
+  void includeFile(const SourceString&);
+  void defineMacro(const SourceString&);
+  void undefineMacro(const SourceString&);
+  void branchDirective(const std::string&, const SourceString&);
   void processWord();
 
-  PosChar nextChar();
+  SourceChar nextChar();
 
  public:
   // Constructor enables recursive reuse of the class. Used for:
@@ -115,7 +118,7 @@ class Preprocessor {
           nullptr  // Set of macros not to expand (prevents macro recursion)
 
   );
-  PosChar get();
-  PosChar peek(size_t = 1);
-  PosStr getAll();
+  SourceChar get();
+  SourceChar peek(size_t = 1);
+  SourceString getAll();
 };
