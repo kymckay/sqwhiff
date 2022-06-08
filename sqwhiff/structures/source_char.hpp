@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <string>
 
 namespace sqwhiff {
@@ -8,7 +9,7 @@ struct SourceChar {
   char character;
   int line;
   int column;
-  std::string file;
+  std::filesystem::path file;
 
   // Convenience operators for manipulating the underlying char
   operator char();

@@ -15,7 +15,7 @@ cc_library(
 cc_library(
     name = "preprocessor",
     hdrs = glob(["preprocessor/*.hpp"]),
-    srcs = glob(["preprocessor/*.cpp"]),
+    srcs = glob(["preprocessor/*.cpp"],  ["preprocessor/*.test.cpp"]),
     deps = [":structures", ":errors"],
     visibility = ["//tests:__pkg__"],
 )
@@ -86,4 +86,11 @@ cc_test(
     size = "small",
     srcs = glob(["structures/*.test.cpp"]),
     deps = [":structures", "@com_google_googletest//:gtest_main"],
+)
+
+cc_test(
+    name = "test-preprocessor",
+    size = "small",
+    srcs = glob(["preprocessor/*.test.cpp"]),
+    deps = [":preprocessor", "@com_google_googletest//:gtest_main"],
 )
