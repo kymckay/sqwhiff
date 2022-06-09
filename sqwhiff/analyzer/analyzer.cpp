@@ -1,5 +1,7 @@
 #include "sqwhiff/analyzer/analyzer.hpp"
 
+#include "sqwhiff/errors/preprocessing_error.hpp"
+
 Analyzer::Analyzer(Parser &p) : parser_(p){};
 
 error_storage Analyzer::analyze(rule_set &rules) {

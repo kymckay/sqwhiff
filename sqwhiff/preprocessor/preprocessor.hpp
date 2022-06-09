@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "sqwhiff/errors/preprocessing_error.hpp"
 #include "sqwhiff/preprocessor/macro.hpp"
 #include "sqwhiff/preprocessor/source_consumer.hpp"
 #include "sqwhiff/structures/source_char.hpp"
@@ -49,10 +48,6 @@ class Preprocessor {
   std::string branch_directive_ = "";
   // Whether the if clause is true or false (used to follow else)
   bool branch_condition_ = false;
-
-  inline sqwhiff::PreprocessingError error(SourceChar c, std::string msg) {
-    return sqwhiff::PreprocessingError(c.line, c.column, c.file, msg);
-  };
 
   void skipComment();
 

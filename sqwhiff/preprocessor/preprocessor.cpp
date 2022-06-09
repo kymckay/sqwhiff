@@ -5,6 +5,10 @@
 #include <fstream>
 #include <sstream>
 
+#include "sqwhiff/errors/preprocessing_error.hpp"
+
+using sqwhiff::PreprocessingError;
+
 Preprocessor::Preprocessor(
     std::istream& to_read, fs::path open_file, fs::path internal_dir,
     const std::unordered_set<std::string>* include_context,
@@ -111,7 +115,8 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
     }
 
     if (open_p != 0) {
-      throw error(open, "Unclosed macro arguments '" + word + "('");
+      throw PreprocessingError(open,
+                               "Unclosed macro arguments '" + word + "('");
     } else {
       // Final argument ends on closing brace
       args.push_back(arg);
@@ -147,9 +152,10 @@ void Preprocessor::handleDirective() {
 
   // Instruction must immediately following the # (no spaces allowed)
   if (instruction.empty()) {
-    throw error(hash,
-                "Invalid preprocessor directive, no instruction immediately "
-                "following the # character");
+    throw PreprocessingError(
+        hash,
+        "Invalid preprocessor directive, no instruction immediately "
+        "following the # character");
   }
 
   // Space characters (not whitespace) between the instruction and body are
@@ -180,32 +186,36 @@ void Preprocessor::handleDirective() {
     undefineMacro(body);
   } else if (instruction == "if") {
     if (branch_directive_ == instruction) {
-      throw error(hash, "Cannot nest #" + instruction + " directives");
+      throw PreprocessingError(hash,
+                               "Cannot nest #" + instruction + " directives");
     }
     branchDirective(instruction, body);
   } else if (instruction == "ifdef") {
     if (branch_directive_ == instruction) {
-      throw error(hash, "Cannot nest #" + instruction + " directives");
+      throw PreprocessingError(hash,
+                               "Cannot nest #" + instruction + " directives");
     }
     branchDirective(instruction, body);
   } else if (instruction == "ifndef") {
     if (branch_directive_ == instruction) {
-      throw error(hash, "Cannot nest #" + instruction + " directives");
+      throw PreprocessingError(hash,
+                               "Cannot nest #" + instruction + " directives");
     }
     branchDirective(instruction, body);
   } else if (instruction == "else") {
     if (branch_directive_.empty()) {
-      throw error(hash,
-                  "Cannot use #else with no preceeding #if, #ifdef or #ifndef "
-                  "directive");
+      throw PreprocessingError(
+          hash,
+          "Cannot use #else with no preceeding #if, #ifdef or #ifndef "
+          "directive");
     }
     branchDirective(instruction, body);
   } else if (instruction == "endif") {
     branch_directive_ = "";
     branch_condition_ = false;
   } else {
-    throw error(hash,
-                "Unrecognised preprocessor directive '#" + instruction + "'");
+    throw PreprocessingError(
+        hash, "Unrecognised preprocessor directive '#" + instruction + "'");
   }
 }
 
@@ -216,8 +226,8 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
   // File name must be wrapped in double quotes or angled brackets
   if (!(delimiter == '"' && delimiterEnd == '"') &&
       !(delimiter == '<' && delimiterEnd == '>')) {
-    throw error(delimiter,
-                "Malformed #include directive: " + (std::string)toInclude);
+    throw PreprocessingError(
+        delimiter, "Malformed #include directive: " + (std::string)toInclude);
     return;
   }
 
@@ -236,9 +246,10 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
   fs::path abs_path;
   if (filename.front() == '\\') {
     if (internal_dir_.empty() || !fs::is_directory(internal_dir_)) {
-      throw error(delimiter,
-                  "Invalid internal directory given to find included file: " +
-                      filename);
+      throw PreprocessingError(
+          delimiter,
+          "Invalid internal directory given to find included file: " +
+              filename);
     }
 
     sanatized.erase(sanatized.begin());
@@ -251,7 +262,8 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
 
   // Recursive inclusion of a file results in RV engine crashing
   if (isRecursiveInclude(abs_path)) {
-    throw error(delimiter, "Recursive inclusion of file: " + filename);
+    throw PreprocessingError(delimiter,
+                             "Recursive inclusion of file: " + filename);
   }
 
   // Open file as a stream
@@ -264,7 +276,7 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
 
     file.close();
   } else {
-    throw error(delimiter, "Included file not found: " + filename);
+    throw PreprocessingError(delimiter, "Included file not found: " + filename);
   }
 }
 
@@ -272,9 +284,9 @@ void Preprocessor::defineMacro(const SourceString& definition) {
   // Macro ID must start with alpha or underscore, can contain digits after
   SourceChar initial = definition.chars[0];
   if (initial != '_' && !std::isalpha(initial)) {
-    throw error(initial,
-                "Macro ID must start with an alpha character or _, found '" +
-                    std::string(1, initial) + "'");
+    throw PreprocessingError(
+        initial, "Macro ID must start with an alpha character or _, found '" +
+                     std::string(1, initial) + "'");
   }
 
   bool inParams = false;
@@ -309,10 +321,11 @@ void Preprocessor::defineMacro(const SourceString& definition) {
       // Horizontal whitespace around parameters is ignored
       else if (!std::isspace(c)) {
         if (param.empty() && c != '_' && !std::isalpha(c)) {
-          throw error(c,
-                      "Macro parameter ID must start with an alpha "
-                      "character or _, found '" +
-                          std::string(1, c) + "'");
+          throw PreprocessingError(
+              c,
+              "Macro parameter ID must start with an alpha "
+              "character or _, found '" +
+                  std::string(1, c) + "'");
         }
 
         param.push_back(c);
@@ -427,10 +440,10 @@ void Preprocessor::processWord() {
   // The real preprocessor outputs something in such cases, but for now throw
   // an error
   if (args.size() != macro_def.params.size()) {
-    throw error(initial, "Invalid number of macro arguments for '" + word +
-                             "' supplied, found " +
-                             std::to_string(args.size()) + ", expected " +
-                             std::to_string(macro_def.params.size()));
+    throw PreprocessingError(
+        initial, "Invalid number of macro arguments for '" + word +
+                     "' supplied, found " + std::to_string(args.size()) +
+                     ", expected " + std::to_string(macro_def.params.size()));
   }
 
   // Arguments are expanded before parameter replacement

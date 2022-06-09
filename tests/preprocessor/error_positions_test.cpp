@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "sqwhiff/errors/preprocessing_error.hpp"
 #include "tests/preprocessor/_test.hpp"
 
 using sqwhiff::PreprocessingError;

@@ -9,7 +9,7 @@ cc_library(
     name = "errors",
     hdrs = glob(["errors/*.hpp"]),
     srcs = glob(["errors/*.cpp"]),
-    deps = [":tokens"],
+    deps = [":structures", ":tokens"],
 )
 
 cc_library(
