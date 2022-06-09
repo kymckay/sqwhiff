@@ -13,6 +13,7 @@ struct SourceChar {
 
   // Convenience operators for manipulating the underlying char
   operator char();
+  operator char() const;
   bool operator==(char) const;
   void operator=(char);
 };

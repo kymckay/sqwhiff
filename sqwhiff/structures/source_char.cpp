@@ -3,6 +3,7 @@
 namespace sqwhiff {
 
 SourceChar::operator char() { return character; }
+SourceChar::operator char() const { return character; }
 bool SourceChar::operator==(char c) const { return character == c; }
 void SourceChar::operator=(char c) { character = c; }
 
