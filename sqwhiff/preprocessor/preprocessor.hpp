@@ -9,11 +9,13 @@
 
 #include "sqwhiff/errors/preprocessing_error.hpp"
 #include "sqwhiff/preprocessor/macro.hpp"
+#include "sqwhiff/preprocessor/source_consumer.hpp"
 #include "sqwhiff/structures/source_char.hpp"
 
 namespace fs = std::filesystem;
 
 using sqwhiff::SourceChar;
+using sqwhiff::SourceConsumer;
 using sqwhiff::SourceString;
 
 // Regular map since macros cannot be overloaded
@@ -25,8 +27,7 @@ class Preprocessor {
   fs::path open_file_;
   fs::path internal_dir_ = "";
 
-  // Reference member for polymorphism
-  std::istream& stream_;
+  SourceConsumer source_;
 
   // Use buffer to simplify lookahead logic with preprocessing
   std::deque<SourceChar> peek_buffer_;
@@ -34,9 +35,6 @@ class Preprocessor {
   inline void appendToBuffer(const SourceString& ss) {
     peek_buffer_.insert(peek_buffer_.end(), ss.chars.begin(), ss.chars.end());
   }
-
-  // Position of current character required to report where there are errors
-  SourceChar current_char_;
 
   // Preprocessor directives must appear at a line start (ignoring whitespace)
   bool line_start_ = true;
@@ -56,7 +54,6 @@ class Preprocessor {
     return sqwhiff::PreprocessingError(c.line, c.column, c.file, msg);
   };
 
-  void advance();
   void skipComment();
 
   // Stores the currently defined set of macros

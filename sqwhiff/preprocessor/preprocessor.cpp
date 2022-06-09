@@ -11,19 +11,9 @@ Preprocessor::Preprocessor(
     const std::unordered_map<std::string, MacroArg>* macro_params,
     shared_macro_storage macros_defined,
     const std::unordered_set<std::string>* macro_context)
-    : stream_(to_read) {
-  // Immediately read in the first character (not an advance, don't want to
-  // change state)
-  stream_.get(current_char_.character);
-  current_char_.line = 1;
-  current_char_.column = 1;
-  current_char_.file = open_file;
-
-  // TODO: revisit the stream handling logic to clean up excess edge case
-  // handling
-  if (stream_.eof()) {
-    current_char_ = '\0';
-  }
+    : source_(to_read) {
+  // Move to first character straight away
+  source_.advance();
 
   if (include_context != nullptr) {
     inclusion_context_ = *include_context;
@@ -32,7 +22,6 @@ Preprocessor::Preprocessor(
   // Ensure paths are absolute since CWD may later change before use
   if (!open_file.empty()) {
     open_file_ = fs::absolute(open_file);
-    current_char_.file = open_file_;
     inclusion_context_.insert(open_file_);
   }
 
@@ -58,86 +47,66 @@ Preprocessor::Preprocessor(
   }
 }
 
-void Preprocessor::advance() {
-  // Increment the line whenever a newline is passed
-  if (current_char_ == '\n') {
-    current_char_.line++;
-    current_char_.column = 0;
-    line_start_ = true;
-  } else if (line_start_ && !std::isspace(current_char_)) {
-    line_start_ = false;
-  }
-
-  stream_.get(current_char_.character);
-
-  // When end of stream is reached return EOF character
-  if (stream_.eof()) {
-    current_char_ = '\0';
-  } else {
-    current_char_.column++;
-  }
-}
-
 void Preprocessor::skipComment() {
-  if (stream_.peek() == '/') {
+  if (source_.peek() == '/') {
     // Intentionally don't skip the newline at the end (acts as a delimiter)
-    while (current_char_ != '\0' && current_char_ != '\n') {
-      advance();
+    while (source_.at() != '\0' && source_.at() != '\n') {
+      source_.advance();
     }
-  } else if (stream_.peek() == '*') {
-    while (current_char_ != '\0' &&
-           !(current_char_ == '*' && stream_.peek() == '/')) {
-      advance();
+  } else if (source_.peek() == '*') {
+    while (source_.at() != '\0' &&
+           !(source_.at() == '*' && source_.peek() == '/')) {
+      source_.advance();
     }
 
     // Skip past the block end: */
-    advance();
-    advance();
+    source_.advance();
+    source_.advance();
   }
 }
 
 std::string Preprocessor::getWord() {
   std::string word;
-  while (std::isalnum(current_char_) || current_char_ == '_') {
-    word.push_back(current_char_);
-    advance();
+  while (std::isalnum(source_.at()) || source_.at() == '_') {
+    word.push_back(source_.at());
+    source_.advance();
   }
 
   return word;
 }
 
 std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
-  SourceChar open = current_char_;
+  SourceChar open = source_.at();
 
   std::vector<MacroArg> args;
-  if (current_char_ == '(') {
-    advance();
+  if (source_.at() == '(') {
+    source_.advance();
 
     // Position of each argument applied to replacements in full expansion
     MacroArg arg;
-    arg.line = current_char_.line;
-    arg.column = current_char_.column;
+    arg.line = source_.at().line;
+    arg.column = source_.at().column;
 
     int open_p = 1;
-    while (current_char_ != '\0' && open_p != 0) {
+    while (source_.at() != '\0' && open_p != 0) {
       // Braces can be used inside arguments as long as the pairing is
       // balanced
-      if (current_char_ == '(') {
+      if (source_.at() == '(') {
         open_p++;
-      } else if (current_char_ == ')') {
+      } else if (source_.at() == ')') {
         open_p--;
       }
 
       // Commas don't split arguments within nested braces
-      if (current_char_ == ',' && open_p == 1) {
+      if (source_.at() == ',' && open_p == 1) {
         args.push_back(arg);
-        advance();
+        source_.advance();
         arg.raw.clear();
-        arg.line = current_char_.line;
-        arg.column = current_char_.column;
+        arg.line = source_.at().line;
+        arg.column = source_.at().column;
       } else if (open_p != 0) {
-        arg.raw.push_back(current_char_);
-        advance();
+        arg.raw.push_back(source_.at());
+        source_.advance();
       }
     }
 
@@ -146,7 +115,7 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
     } else {
       // Final argument ends on closing brace
       args.push_back(arg);
-      advance();
+      source_.advance();
     }
   }
 
@@ -155,24 +124,24 @@ std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
 
 void Preprocessor::handleDirective() {
   // Directive position important for errors and macros
-  SourceChar hash = current_char_;
+  SourceChar hash = source_.at();
 
   // Skip the #
-  advance();
+  source_.advance();
 
   std::string instruction;
-  while (std::isalpha(current_char_) || current_char_ == '\\') {
+  while (std::isalpha(source_.at()) || source_.at() == '\\') {
     // Even the instruction itself can be extended across lines
-    if (current_char_ == '\\') {
-      if (stream_.peek() == '\n') {
-        advance();
-        advance();
+    if (source_.at() == '\\') {
+      if (source_.peek() == '\n') {
+        source_.advance();
+        source_.advance();
       } else {
         break;
       }
     } else {
-      instruction.push_back(current_char_);
-      advance();
+      instruction.push_back(source_.at());
+      source_.advance();
     }
   }
 
@@ -185,21 +154,21 @@ void Preprocessor::handleDirective() {
 
   // Space characters (not whitespace) between the instruction and body are
   // skipped
-  while (current_char_ == ' ') {
-    advance();
+  while (source_.at() == ' ') {
+    source_.advance();
   }
 
   // Remaining logical line is the body of the directive
   SourceString body;
-  while (current_char_ != '\n' && current_char_ != '\0') {
+  while (source_.at() != '\n' && source_.at() != '\0') {
     // Logical line can be extended by escaped newlines (anywhere in the
     // directive)
-    if (current_char_ == '\\' && stream_.peek() == '\n') {
-      advance();
-      advance();
+    if (source_.at() == '\\' && source_.peek() == '\n') {
+      source_.advance();
+      source_.advance();
     } else {
-      body.chars.push_back(current_char_);
-      advance();
+      body.chars.push_back(source_.at());
+      source_.advance();
     }
   }
 
@@ -427,7 +396,7 @@ void Preprocessor::branchDirective(const std::string& instruction,
 // buffer
 void Preprocessor::processWord() {
   // Position of the macro applied to all expanded characters
-  SourceChar initial = current_char_;
+  SourceChar initial = source_.at();
 
   // May just be object like
   std::string word = getWord();
@@ -501,20 +470,20 @@ SourceChar Preprocessor::nextChar() {
   // Preprocessing does not occur within double quoted string literals
   if (!in_doubles_) {
     // Comments are irrelevant (block and line)
-    if (!expand_only_ && current_char_ == '/' &&
-        (stream_.peek() == '/' || stream_.peek() == '*')) {
+    if (!expand_only_ && source_.at() == '/' &&
+        (source_.peek() == '/' || source_.peek() == '*')) {
       skipComment();
     }
     // Preprocessor directives indicated by # at line start
-    else if (!expand_only_ && line_start_ && current_char_ == '#') {
+    else if (!expand_only_ && line_start_ && source_.at() == '#') {
       handleDirective();
       return get();
-    } else if (macro_context_.size() > 0 && current_char_ == '#') {
+    } else if (macro_context_.size() > 0 && source_.at() == '#') {
       // Concatenate the previous and following tokens (i.e. skip these
       // characters)
-      if (stream_.peek() == '#') {
-        advance();
-        advance();
+      if (source_.peek() == '#') {
+        source_.advance();
+        source_.advance();
         return get();
       }
       // Stringize the following word token
@@ -522,27 +491,29 @@ SourceChar Preprocessor::nextChar() {
         // Position will become macro position later
         SourceChar quote;
         quote = '"';
-        advance();
+        source_.advance();
 
         processWord();
         peek_buffer_.push_back(quote);
         return quote;
       }
-    } else if (std::isalpha(current_char_) || current_char_ == '_') {
+    } else if (std::isalpha(source_.at()) || source_.at() == '_') {
       processWord();
       return get();
     }
   }
 
   // Each double quote encountered inverts the context
-  if (current_char_ == '"') {
+  if (source_.at() == '"') {
     in_doubles_ = !in_doubles_;
   }
 
-  SourceChar c = current_char_;
+  SourceChar c = source_.at();
+
+  line_start_ = (c == '\n') || (line_start_ && c == ' ');
 
   // Remember to actually progress through the input
-  advance();
+  SourceChar next = source_.advance();
 
   return c;
 }

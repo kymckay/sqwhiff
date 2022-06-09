@@ -7,3 +7,14 @@ TEST_F(PreprocessorTest, SupportsExtendedLogicalLine) {
       << "Extended directive logical line should not be included in "
          "preprocessor output";
 }
+
+TEST_F(PreprocessorTest, IgnoresHashCharMidLine) {
+  EXPECT_EQ("[1] # 0", preprocess("[1] # 0"))
+      << "The hash character should only be a directive at line start";
+}
+
+// TODO: Check if whitespace before directive should appear in output
+TEST_F(PreprocessorTest, IgnoresWhitespaceAtLineStart) {
+  EXPECT_EQ("     ", preprocess("     #define A"))
+      << "A directive can be preceded by whitespace";
+}
