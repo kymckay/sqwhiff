@@ -143,6 +143,13 @@ TEST_F(PreprocessorTest, DISABLED_OnlyUndefinesFirstWord) {
       << "An undefine directive should only consume the first following word";
 }
 
+TEST_F(PreprocessorTest, ExpandsNestedMacrosAtPointOfUse) {
+  EXPECT_EQ("\n\n\nONE",
+            preprocess("#define ONE 1\n#define TWO ONE\n#undef ONE\nTWO"))
+      << "The macro in the body of TWO is only expanded when TWO is used, not "
+         "when TWO is defined";
+}
+
 TEST_F(PreprocessorTest, CanRedefineMacro) {
   EXPECT_EQ("\n1\n\n2",
             preprocess("#define TEST 1\nTEST\n#define TEST 2\nTEST"))
