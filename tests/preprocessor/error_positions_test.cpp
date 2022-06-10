@@ -22,7 +22,7 @@ TEST_F(PreprocessorTest, ErrorsAtStartOfFile) {
          "#";
 }
 
-TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroBody) {
+TEST_F(PreprocessorTest, ErrorsAtPositionInMacroBody) {
   EXPECT_THAT(
       [this] { preprocess("#define _M1(A) A\n#define _M2 _M1(2\n_M2"); },
       ::testing::Throws<PreprocessingError>(
@@ -31,9 +31,12 @@ TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroBody) {
   EXPECT_THAT(
       [this] { preprocess("#define _M1(A) A\n#define _M2 _M1(2\n_M2"); },
       ::testing::Throws<PreprocessingError>(
-          ::testing::Field(&PreprocessingError::col, ::testing::Eq(13))));
+          ::testing::Field(&PreprocessingError::col, ::testing::Eq(16))));
 }
 
+// TODO: This test is invalid because the error is with the macro use, not the
+// parameter. Once parameter count matching is re-added that is one way to test
+// for this
 TEST_F(PreprocessorTest, DISABLED_ErrorsAtPositionInMacroArguments) {
   EXPECT_THAT([this] { preprocess("#define _M1(A) A\n_M1(1 + _M1(6)"); },
               ::testing::Throws<PreprocessingError>(::testing::Field(
