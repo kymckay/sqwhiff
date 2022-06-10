@@ -11,6 +11,8 @@ class SourceString {
  public:
   std::vector<SourceChar> chars = {};
   operator std::string() const;
+
+  void append(const SourceString&);
 };
 
 }  // namespace sqwhiff

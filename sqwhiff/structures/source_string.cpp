@@ -13,4 +13,9 @@ SourceString::operator std::string() const {
   return result;
 }
 
+void SourceString::append(const SourceString& tail) {
+  chars.reserve(tail.chars.size());
+  chars.insert(chars.end(), tail.chars.begin(), tail.chars.end());
+}
+
 }  // namespace sqwhiff
