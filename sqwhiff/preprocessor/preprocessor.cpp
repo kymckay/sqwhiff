@@ -11,10 +11,8 @@ using sqwhiff::PreprocessingError;
 
 Preprocessor::Preprocessor(
     std::istream& to_read, fs::path open_file, fs::path internal_dir,
-    const std::unordered_set<std::string>* include_context,
-    const std::unordered_map<std::string, MacroArg>* macro_params,
-    shared_macro_storage macros_defined,
-    const std::unordered_set<std::string>* macro_context)
+    std::shared_ptr<MacroManager> macro_context,
+    const std::unordered_set<std::string>* include_context)
     : source_(to_read) {
   // Move to first character straight away
   source_.advance();
@@ -34,20 +32,10 @@ Preprocessor::Preprocessor(
     internal_dir_ = fs::absolute(internal_dir);
   }
 
-  // Macro definitions can carry through and are modified by inclusions
-  macros_ = macros_defined;
-  if (macros_ == nullptr) {
-    macros_ = std::make_shared<macro_storage>();
-  }
-
-  // TODO: Unsafely assuming if params given the rest is, should group macro
-  // context into a struct or similar
-  if (macro_params != nullptr) {
-    // When expanding a macro context, don't perform regular preprocessing
-    expand_only_ = true;
-
-    params_ = *macro_params;
-    macro_context_ = *macro_context;
+  if (macro_context == nullptr) {
+    macro_context_ = std::make_shared<MacroManager>();
+  } else {
+    macro_context_ = macro_context;
   }
 }
 
@@ -67,64 +55,6 @@ void Preprocessor::skipComment() {
     source_.advance();
     source_.advance();
   }
-}
-
-std::string Preprocessor::getWord() {
-  std::string word;
-  while (std::isalnum(source_.at()) || source_.at() == '_') {
-    word.push_back(source_.at());
-    source_.advance();
-  }
-
-  return word;
-}
-
-std::vector<MacroArg> Preprocessor::getArgs(const std::string& word) {
-  SourceChar open = source_.at();
-
-  std::vector<MacroArg> args;
-  if (source_.at() == '(') {
-    source_.advance();
-
-    // Position of each argument applied to replacements in full expansion
-    MacroArg arg;
-    arg.line = source_.at().line;
-    arg.column = source_.at().column;
-
-    int open_p = 1;
-    while (source_.at() != '\0' && open_p != 0) {
-      // Braces can be used inside arguments as long as the pairing is
-      // balanced
-      if (source_.at() == '(') {
-        open_p++;
-      } else if (source_.at() == ')') {
-        open_p--;
-      }
-
-      // Commas don't split arguments within nested braces
-      if (source_.at() == ',' && open_p == 1) {
-        args.push_back(arg);
-        source_.advance();
-        arg.raw.clear();
-        arg.line = source_.at().line;
-        arg.column = source_.at().column;
-      } else if (open_p != 0) {
-        arg.raw.push_back(source_.at());
-        source_.advance();
-      }
-    }
-
-    if (open_p != 0) {
-      throw PreprocessingError(open,
-                               "Unclosed macro arguments '" + word + "('");
-    } else {
-      // Final argument ends on closing brace
-      args.push_back(arg);
-      source_.advance();
-    }
-  }
-
-  return args;
 }
 
 void Preprocessor::handleDirective() {
@@ -181,7 +111,7 @@ void Preprocessor::handleDirective() {
   if (instruction == "include") {
     includeFile(body);
   } else if (instruction == "define") {
-    defineMacro(body);
+    macro_context_->define(body);
   } else if (instruction == "undef") {
     undefineMacro(body);
   } else if (instruction == "if") {
@@ -269,8 +199,8 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
   // Open file as a stream
   std::ifstream file(abs_path);
   if (file.is_open()) {
-    Preprocessor pp(file, abs_path, internal_dir_, &inclusion_context_, nullptr,
-                    macros_);
+    Preprocessor pp(file, abs_path, internal_dir_, macro_context_,
+                    &inclusion_context_);
 
     appendToBuffer(pp.getAll());
 
@@ -278,73 +208,6 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
   } else {
     throw PreprocessingError(delimiter, "Included file not found: " + filename);
   }
-}
-
-void Preprocessor::defineMacro(const SourceString& definition) {
-  // Macro ID must start with alpha or underscore, can contain digits after
-  SourceChar initial = definition.chars[0];
-  if (initial != '_' && !std::isalpha(initial)) {
-    throw PreprocessingError(
-        initial, "Macro ID must start with an alpha character or _, found '" +
-                     std::string(1, initial) + "'");
-  }
-
-  bool inParams = false;
-  bool skipSpace = false;
-  bool inBody = false;
-  std::string keyword;
-  std::string param;
-  MacroDefinition m;
-  for (SourceChar c : definition.chars) {
-    if (inBody) {
-      m.body.chars.push_back(c);
-    } else if (skipSpace) {
-      // Spaces (not whitespace) following the head are ignored
-      if (c != ' ') {
-        skipSpace = false;
-        inBody = true;
-        m.body.chars.push_back(c);
-      }
-    } else if (inParams) {
-      if (c == ',') {
-        m.params.push_back(param);
-        param.clear();
-      } else if (c == ')') {
-        // Trailing comma is valid
-        if (!param.empty()) {
-          m.params.push_back(param);
-        }
-
-        inParams = false;
-        skipSpace = true;
-      }
-      // Horizontal whitespace around parameters is ignored
-      else if (!std::isspace(c)) {
-        if (param.empty() && c != '_' && !std::isalpha(c)) {
-          throw PreprocessingError(
-              c,
-              "Macro parameter ID must start with an alpha "
-              "character or _, found '" +
-                  std::string(1, c) + "'");
-        }
-
-        param.push_back(c);
-      }
-    } else {
-      if (std::isalnum(c) || c == '_') {
-        keyword.push_back(c);
-      } else {
-        // Parameters are optional, can be object like
-        if (c == '(') {
-          inParams = true;
-        } else {
-          skipSpace = true;
-        }
-      }
-    }
-  }
-
-  (*macros_)[keyword] = m;
 }
 
 void Preprocessor::undefineMacro(const SourceString& undef) {
@@ -355,7 +218,7 @@ void Preprocessor::undefineMacro(const SourceString& undef) {
     }
   }
 
-  macros_->erase(keyword);
+  macro_context_->undefine(keyword);
 }
 
 void Preprocessor::branchDirective(const std::string& instruction,
@@ -376,9 +239,9 @@ void Preprocessor::branchDirective(const std::string& instruction,
     // TODO: if treated always true for simplicity, requires some interpretation
     follow_branch = true;
   } else if (instruction == "ifdef") {
-    follow_branch = isMacro(word);
+    follow_branch = macro_context_->isMacro(word);
   } else if (instruction == "ifndef") {
-    follow_branch = !isMacro(word);
+    follow_branch = !(macro_context_->isMacro(word));
   }
 
   // Store whether branch followed to handle else directive
@@ -405,113 +268,20 @@ void Preprocessor::branchDirective(const std::string& instruction,
   }
 }
 
-// Obtains next word and arguments if present and expands to a macro in the
-// buffer
-void Preprocessor::processWord() {
-  // Position of the macro applied to all expanded characters
-  SourceChar initial = source_.at();
-
-  // May just be object like
-  std::string word = getWord();
-
-  MacroDefinition macro_def;
-  std::vector<MacroArg> args;  // May be function like
-
-  // Parameter replacement happens before macro expansion
-  if (isParam(word)) {
-    appendToBuffer(params_.at(word).chars);
-    return;
-  } else if (isMacro(word) && !isRecursive(word)) {
-    macro_def = macros_->at(word);
-    args = getArgs(word);
-  } else {
-    // Just a normal word, push to buffer
-    // Copy properties of initial for position
-    SourceChar pc = initial;
-    for (char& c : word) {
-      pc = c;
-      peek_buffer_.push_back(pc);
-      pc.column++;
-    }
-
-    return;
-  }
-
-  // The real preprocessor outputs something in such cases, but for now throw
-  // an error
-  if (args.size() != macro_def.params.size()) {
-    throw PreprocessingError(
-        initial, "Invalid number of macro arguments for '" + word +
-                     "' supplied, found " + std::to_string(args.size()) +
-                     ", expected " + std::to_string(macro_def.params.size()));
-  }
-
-  // Arguments are expanded before parameter replacement
-  for (MacroArg& arg : args) {
-    std::stringstream arg_ss(arg.raw);
-    std::unordered_map<std::string, MacroArg> no_args;
-    Preprocessor pp(arg_ss, open_file_, internal_dir_, nullptr, &no_args,
-                    macros_, &macro_context_);
-    arg.chars = pp.getAll();
-
-    // Update reference position for all expanded argument characters
-    for (SourceChar pc : arg.chars.chars) {
-      pc.line += arg.line - 1;
-      pc.column += arg.column - 1;
-    }
-  }
-
-  // Construct a map of parameter replacements
-  std::unordered_map<std::string, MacroArg> param_map;
-  for (size_t i = 0; i < args.size(); ++i)
-    param_map[macro_def.params[i]] = args[i];
-
-  // Prepare the set of macros to ignore in the body (prevent infinite
-  // recursion)
-  std::unordered_set<std::string> body_context(macro_context_);
-  body_context.insert(word);
-
-  // Finally macro body is expanded and processed (done sequentially to
-  // preserve correct behaviour)
-  std::stringstream body_ss(macro_def.body);
-  Preprocessor pp(body_ss, open_file_, internal_dir_, nullptr, &param_map,
-                  macros_, &body_context);
-  appendToBuffer(pp.getAll());
-}
-
 SourceChar Preprocessor::nextChar() {
   // Preprocessing does not occur within double quoted string literals
   if (!in_doubles_) {
     // Comments are irrelevant (block and line)
-    if (!expand_only_ && source_.at() == '/' &&
+    if (source_.at() == '/' &&
         (source_.peek() == '/' || source_.peek() == '*')) {
       skipComment();
     }
     // Preprocessor directives indicated by # at line start
-    else if (!expand_only_ && line_start_ && source_.at() == '#') {
+    else if (line_start_ && source_.at() == '#') {
       handleDirective();
       return get();
-    } else if (macro_context_.size() > 0 && source_.at() == '#') {
-      // Concatenate the previous and following tokens (i.e. skip these
-      // characters)
-      if (source_.peek() == '#') {
-        source_.advance();
-        source_.advance();
-        return get();
-      }
-      // Stringize the following word token
-      else {
-        // Position will become macro position later
-        SourceChar quote;
-        quote = '"';
-        source_.advance();
-
-        processWord();
-        peek_buffer_.push_back(quote);
-        return quote;
-      }
     } else if (std::isalpha(source_.at()) || source_.at() == '_') {
-      processWord();
+      appendToBuffer(macro_context_->processWord(source_));
       return get();
     }
   }

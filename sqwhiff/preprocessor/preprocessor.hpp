@@ -7,20 +7,16 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "sqwhiff/preprocessor/macro.hpp"
+#include "sqwhiff/preprocessor/macro_manager.hpp"
 #include "sqwhiff/preprocessor/source_consumer.hpp"
 #include "sqwhiff/structures/source_char.hpp"
 
 namespace fs = std::filesystem;
 
+using sqwhiff::MacroManager;
 using sqwhiff::SourceChar;
 using sqwhiff::SourceConsumer;
 using sqwhiff::SourceString;
-
-// Regular map since macros cannot be overloaded
-using macro_storage = std::unordered_map<std::string, MacroDefinition>;
-// Macro definitions are modified across included files, so share the storage
-using shared_macro_storage = std::shared_ptr<macro_storage>;
 
 class Preprocessor {
   fs::path open_file_;
@@ -41,9 +37,6 @@ class Preprocessor {
   // Double quoted string literals are not preprocessed
   bool in_doubles_ = false;
 
-  // May be used recursively to expand nested macros and arguments
-  bool expand_only_ = false;
-
   // The current conditional branch directive being prebuffered
   std::string branch_directive_ = "";
   // Whether the if clause is true or false (used to follow else)
@@ -51,65 +44,30 @@ class Preprocessor {
 
   void skipComment();
 
-  // Stores the currently defined set of macros
-  shared_macro_storage macros_;
-
-  // When used in subcontext parameter replacement may take place
-  std::unordered_map<std::string, MacroArg> params_;
-
-  // Set of macros that aren't expanded in the current context to prevent
-  // recursion
-  std::unordered_set<std::string> macro_context_;
+  // Macro definitions which are shared across inclusion boundaries
+  std::shared_ptr<MacroManager> macro_context_;
 
   // Included files to error on and prevent recursion
   std::unordered_set<std::string> inclusion_context_;
-
-  inline bool isMacro(const std::string& word) {
-    return macros_->find(word) != macros_->end();
-  }
-
-  inline bool isParam(const std::string& word) {
-    return params_.find(word) != params_.end();
-  }
-
-  inline bool isRecursive(const std::string& word) {
-    return macro_context_.find(word) != macro_context_.end();
-  }
 
   inline bool isRecursiveInclude(const fs::path& path) {
     return inclusion_context_.find(path) != inclusion_context_.end();
   }
 
-  std::string getWord();
-  std::vector<MacroArg> getArgs(const std::string&);
-
   void handleDirective();
   void includeFile(const SourceString&);
-  void defineMacro(const SourceString&);
   void undefineMacro(const SourceString&);
   void branchDirective(const std::string&, const SourceString&);
-  void processWord();
 
   SourceChar nextChar();
 
  public:
   // Constructor enables recursive reuse of the class. Used for:
-  //   - Nested macro expansion
-  //   - Nested file inclusion (with macro modification)
-  Preprocessor(
-      std::istream&, fs::path = "", fs::path = "",
-      const std::unordered_set<std::string>* =
-          nullptr,  // Set of paths not to include (prevent recursion)
-      const std::unordered_map<std::string,
-                               MacroArg>* =
-          nullptr,  // Parameter map for replacement (only relevant to macro
-                    // body expansion)
-      shared_macro_storage =
-          nullptr,  // Map of defined macros for expansion (nested)
-      const std::unordered_set<std::string>* =
-          nullptr  // Set of macros not to expand (prevents macro recursion)
-
-  );
+  //   - Nested file inclusion (with shared macro modification)
+  Preprocessor(std::istream&, fs::path = "", fs::path = "",
+               std::shared_ptr<MacroManager> = nullptr,
+               // Set of paths not to include (prevent recursion)
+               const std::unordered_set<std::string>* = nullptr);
   SourceChar get();
   SourceChar peek(size_t = 1);
   SourceString getAll();

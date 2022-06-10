@@ -95,7 +95,7 @@ TEST_F(PreprocessorTest, DoesNotExpandRecusriveMacroUse) {
 }
 
 TEST_F(PreprocessorTest, ExpandsArgumentsBeforeReplacement) {
-  EXPECT_EQ("\n\n\"1\"", preprocess("#define ONE 1\n#define _S(A) #A\n_S(ONE)"))
+  EXPECT_EQ("\n\n1", preprocess("#define ONE 1\n#define _S(A) A\n_S(ONE)"))
       << "Macro expansion in arguments should take place before parameter "
          "replacement";
 }
