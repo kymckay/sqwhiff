@@ -35,11 +35,12 @@ class PreprocessorTest : public ::testing::Test {
     return Preprocessor(ss).peek(i);
   }
 
-  //  Ensure unique temporary directory exists for creation of test files
+  // Ensure unique temporary directory exists for creation of test files
   static void SetUpTestSuite() { fs::create_directory(tmp_dir_); }
 
   // Don't leave files around to ensure consistent testing environment
-  static void TearDownTestSuite() { fs::remove_all(tmp_dir_); }
+  // TODO: Investigate failure due to files in use
+  // static void TearDownTestSuite() { fs::remove_all(tmp_dir_); }
 };
 
 fs::path PreprocessorTest::tmp_dir_ = fs::temp_directory_path() / "sqwhiff";
