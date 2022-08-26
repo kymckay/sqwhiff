@@ -13,7 +13,7 @@ Preprocessor::Preprocessor(
     std::istream& to_read, fs::path open_file, fs::path internal_dir,
     std::shared_ptr<MacroManager> macro_context,
     const std::unordered_set<std::string>* include_context)
-    : source_(to_read) {
+    : source_(to_read, open_file) {
   // Move to first character straight away
   source_.advance();
 
