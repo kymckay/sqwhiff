@@ -153,7 +153,7 @@ Token Lexer::makeToken(TokenType type, std::string raw) {
   t.raw = raw;
   t.line = current_char_.line;
   t.column = current_char_.column;
-  t.file = current_char_.file;
+  t.file = current_char_.file.string();
   return t;
 }
 
