@@ -24,7 +24,7 @@ Preprocessor::Preprocessor(
   // Ensure paths are absolute since CWD may later change before use
   if (!open_file.empty()) {
     open_file_ = fs::absolute(open_file);
-    inclusion_context_.insert(open_file_);
+    inclusion_context_.insert(open_file_.string());
   }
 
   // Allow internal directory to remain empty, may not be needed

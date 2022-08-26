@@ -51,7 +51,7 @@ class Preprocessor {
   std::unordered_set<std::string> inclusion_context_;
 
   inline bool isRecursiveInclude(const fs::path& path) {
-    return inclusion_context_.find(path) != inclusion_context_.end();
+    return inclusion_context_.find(path.string()) != inclusion_context_.end();
   }
 
   void handleDirective();
