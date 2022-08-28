@@ -106,6 +106,13 @@ cc_test(
 
 # Parser tests
 cc_test(
+  name = "parser-control-flow",
+  size = "small",
+  srcs = ["parser/control_flow_test.cpp"],
+  deps = [":parser-test"],
+)
+
+cc_test(
   name = "parser-errors",
   size = "small",
   srcs = ["parser/errors_test.cpp"],
