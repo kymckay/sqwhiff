@@ -45,7 +45,7 @@ class Preprocessor {
   void skipComment();
 
   // Macro definitions which are shared across inclusion boundaries
-  std::shared_ptr<MacroManager> macro_context_;
+  std::shared_ptr<MacroManager<SourceConsumer>> macro_context_;
 
   // Included files to error on and prevent recursion
   std::unordered_set<std::string> inclusion_context_;
@@ -65,7 +65,7 @@ class Preprocessor {
   // Constructor enables recursive reuse of the class. Used for:
   //   - Nested file inclusion (with shared macro modification)
   Preprocessor(std::istream&, fs::path = "", fs::path = "",
-               std::shared_ptr<MacroManager> = nullptr,
+               std::shared_ptr<MacroManager<SourceConsumer>> = nullptr,
                // Set of paths not to include (prevent recursion)
                const std::unordered_set<std::string>* = nullptr);
   SourceChar get();
