@@ -43,3 +43,10 @@ TEST_F(ParserTest, HandlesForEachLoop) {
   EXPECT_EQ("({<NoOp>} foreach [<Dec:1>,<Dec:2>,<Dec:3>,<Dec:4>])",
             parse("{} foreach [1,2,3,4]"));
 }
+
+TEST_F(ParserTest, HandlesSwitchStructure) {
+  EXPECT_EQ(
+      "((switch <Dec:1>) do {(case <Dec:1>),((case <Dec:2>) : {<NoOp>}),(case "
+      "<Dec:3>),(default {<NoOp>}),<NoOp>})",
+      parse("switch (1) do { case 1; case 2: {}; case 3; default {}; }"));
+}
