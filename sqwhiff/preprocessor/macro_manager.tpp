@@ -1,4 +1,4 @@
-#include "sqwhiff/preprocessor/macro_manager.hpp"
+#pragma once
 
 #include <algorithm>
 
@@ -8,21 +8,28 @@
 
 namespace sqwhiff {
 
-MacroManager::MacroManager() { defined_ = std::make_shared<macro_storage>(); }
+template <class Consumer>
+MacroManager<Consumer>::MacroManager() {
+  defined_ = std::make_shared<macro_storage>();
+}
 
-bool MacroManager::isMacro(const std::string& id) {
+template <class Consumer>
+bool MacroManager<Consumer>::isMacro(const std::string& id) {
   return defined_->find(id) != defined_->end();
 }
 
-MacroDefinition MacroManager::getDefinition(const std::string& id) {
+template <class Consumer>
+MacroDefinition MacroManager<Consumer>::getDefinition(const std::string& id) {
   return defined_->at(id);
 }
 
-bool MacroManager::undefine(const std::string& id) {
+template <class Consumer>
+bool MacroManager<Consumer>::undefine(const std::string& id) {
   return defined_->erase(id) > 0;
 }
 
-void MacroManager::define(const SourceString& definition) {
+template <class Consumer>
+void MacroManager<Consumer>::define(const SourceString& definition) {
   // Will consume the definition procedurally
   auto at = definition.chars.begin();
   auto limit = definition.chars.end();
@@ -192,7 +199,8 @@ void MacroManager::define(const SourceString& definition) {
   (*defined_)[id] = std::move(result);
 }
 
-std::vector<SourceString> MacroManager::parameter_replacement(
+template <class Consumer>
+std::vector<SourceString> MacroManager<Consumer>::parameter_replacement(
     const MacroDefinition& macro, const std::vector<SourceString>& arguments) {
   std::vector<SourceString> result;
 
@@ -225,7 +233,8 @@ std::vector<SourceString> MacroManager::parameter_replacement(
   return result;
 };
 
-SourceString MacroManager::expand(
+template <class Consumer>
+SourceString MacroManager<Consumer>::expand(
     const MacroDefinition& macro, const std::vector<SourceString>& arguments,
     const std::unordered_set<std::string>& ignores) {
   SourceString expanded;
@@ -252,7 +261,8 @@ SourceString MacroManager::expand(
   return expanded;
 }
 
-SourceString MacroManager::processWord(SourceConsumer& source) {
+template <class Consumer>
+SourceString MacroManager<Consumer>::processWord(Consumer& source) {
   SourceString word = getWord(source);
 
   if (isMacro(word)) {
@@ -264,7 +274,8 @@ SourceString MacroManager::processWord(SourceConsumer& source) {
   return word;
 }
 
-SourceString MacroManager::processWord(
+template <class Consumer>
+SourceString MacroManager<Consumer>::processWord(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end,
     const std::unordered_set<std::string>& ignores) {
@@ -280,19 +291,21 @@ SourceString MacroManager::processWord(
   return word;
 }
 
-SourceString MacroManager::getWord(SourceConsumer& source) {
+template <class Consumer>
+SourceString MacroManager<Consumer>::getWord(Consumer& source) {
   SourceString word;
 
   // Assume caller checked that the initial wasn't a digit
-  while (std::isalnum(source.at()) || source.at() == '_') {
-    word.chars.push_back(source.at());
-    source.advance();
+  for (SourceChar at = source.at(); std::isalnum(at) || at == '_';
+       at = source.advance()) {
+    word.chars.push_back(at);
   }
 
   return word;
 }
 
-SourceString MacroManager::getWord(
+template <class Consumer>
+SourceString MacroManager<Consumer>::getWord(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end) {
   SourceString word;
@@ -306,7 +319,9 @@ SourceString MacroManager::getWord(
   return word;
 }
 
-std::vector<SourceString> MacroManager::getArguments(SourceConsumer& source) {
+template <class Consumer>
+std::vector<SourceString> MacroManager<Consumer>::getArguments(
+    Consumer& source) {
   std::vector<SourceString> arguments = {};
 
   SourceChar start = source.at();
@@ -360,7 +375,8 @@ std::vector<SourceString> MacroManager::getArguments(SourceConsumer& source) {
   return arguments;
 }
 
-std::vector<SourceString> MacroManager::getArguments(
+template <class Consumer>
+std::vector<SourceString> MacroManager<Consumer>::getArguments(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end,
     const std::unordered_set<std::string>& ignores) {

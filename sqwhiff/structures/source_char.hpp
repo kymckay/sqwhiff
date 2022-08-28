@@ -16,6 +16,8 @@ struct SourceChar {
   operator char() const;
   bool operator==(char) const;
   void operator=(char);
+
+  SourceChar(char c = '\0') : character(c){};
 };
 
 }  // namespace sqwhiff

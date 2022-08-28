@@ -1,21 +1,37 @@
 #include "sqwhiff/preprocessor/macro_manager.hpp"
 
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include <sstream>
 
 using sqwhiff::MacroManager;
 using sqwhiff::SourceChar;
-using sqwhiff::SourceConsumer;
 using sqwhiff::SourceString;
+using ::testing::NiceMock;
+using ::testing::Return;
+
+class MockSourceConsumer {
+ public:
+  MOCK_METHOD(SourceChar, advance, (), ());
+  MOCK_METHOD(SourceChar, peek, (), ());
+  MOCK_METHOD(SourceChar, at, (), ());
+};
 
 TEST(MacroManager, OutputsNormalWord) {
-  // TODO: Somehow mock the output of consumer for unit testing
-  std::stringstream source("allUnits");
-  SourceConsumer consumer(source);
-  consumer.advance();
+  NiceMock<MockSourceConsumer> consumer;
 
-  MacroManager manager;
+  EXPECT_CALL(consumer, at()).Times(1).WillOnce(Return(SourceChar('a')));
+  EXPECT_CALL(consumer, advance())
+      .Times(8)
+      .WillOnce(Return(SourceChar('l')))
+      .WillOnce(Return(SourceChar('l')))
+      .WillOnce(Return(SourceChar('U')))
+      .WillOnce(Return(SourceChar('n')))
+      .WillOnce(Return(SourceChar('i')))
+      .WillOnce(Return(SourceChar('t')))
+      .WillOnce(Return(SourceChar('s')))
+      .WillOnce(Return(SourceChar('\0')));
+
+  MacroManager<MockSourceConsumer> manager;
 
   SourceString output = manager.processWord(consumer);
 
