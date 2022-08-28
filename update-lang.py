@@ -89,6 +89,9 @@ def get_types(type: str) -> List[str]:
     finally:
         return types
 
+# Inject special non-command for parsing use
+binary_commands.append(binary(":", "any", "switch_type", "code"))
+
 # By evaluating the SQF array output as a Python literal a list is easily produced
 with open("supportInfo.out", "r") as file:
     supportInfo = ast.literal_eval(

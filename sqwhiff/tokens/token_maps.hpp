@@ -10,7 +10,7 @@ const std::unordered_map<char, TokenType> SQF_Token_Chars{
     {'^', TokenType::pow},    {'%', TokenType::mod},    {'#', TokenType::hash},
     {'(', TokenType::lparen}, {')', TokenType::rparen}, {'[', TokenType::lsqb},
     {']', TokenType::rsqb},   {'{', TokenType::lcurl},  {'}', TokenType::rcurl},
-};
+    {':', TokenType::keyword}};
 
 const std::unordered_map<std::string, TokenType> SQF_Token_Keywords{
     {"private", TokenType::private_op},

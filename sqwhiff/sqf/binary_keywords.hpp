@@ -8,6 +8,7 @@
 namespace SQF {
 
 const std::unordered_multimap<std::string, BinaryCommand> Binary_Keywords{
+    {":", BinaryCommand(Type::switch_type, Type::code, Type::any)},
     {"!=", BinaryCommand(Type::scalar, Type::scalar, Type::boolean)},
     {"!=", BinaryCommand(Type::boolean, Type::boolean, Type::boolean)},
     {"!=", BinaryCommand(Type::string, Type::string, Type::boolean)},
