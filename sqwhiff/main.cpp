@@ -25,7 +25,7 @@ static void show_usage() {
 }
 
 static int analyzeFile(fs::path file_path, std::string internal_root) {
-  file_path = fs::absolute(file_path);
+  file_path = fs::weakly_canonical(file_path);
   std::ifstream file_in(file_path);
 
   if (file_in.is_open()) {

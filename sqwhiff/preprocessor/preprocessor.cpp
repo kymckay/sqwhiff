@@ -23,13 +23,13 @@ Preprocessor::Preprocessor(
 
   // Ensure paths are absolute since CWD may later change before use
   if (!open_file.empty()) {
-    open_file_ = fs::absolute(open_file);
+    open_file_ = fs::weakly_canonical(open_file);
     inclusion_context_.insert(open_file_.string());
   }
 
   // Allow internal directory to remain empty, may not be needed
   if (!internal_dir.empty()) {
-    internal_dir_ = fs::absolute(internal_dir);
+    internal_dir_ = fs::weakly_canonical(internal_dir);
   }
 
   if (macro_context == nullptr) {
@@ -183,11 +183,16 @@ void Preprocessor::includeFile(const SourceString& toInclude) {
     }
 
     sanatized.erase(sanatized.begin());
-    abs_path = fs::absolute(internal_dir_ / sanatized);
+    abs_path = fs::weakly_canonical(internal_dir_ / sanatized);
   } else {
-    // Included path could be relative, set CWD to resolve correctly
-    fs::current_path(open_file_.parent_path());
-    abs_path = fs::absolute(sanatized);
+    abs_path = fs::path(sanatized);
+
+    // Included path could be relative
+    if (abs_path.is_relative()) {
+      abs_path = open_file_.parent_path() / abs_path;
+    };
+
+    abs_path = fs::weakly_canonical(abs_path);
   }
 
   // Recursive inclusion of a file results in RV engine crashing
