@@ -13,10 +13,15 @@ cc_library(
 )
 
 cc_library(
+    name = "interfaces",
+    hdrs = glob(["interfaces/*.hpp"]),
+)
+
+cc_library(
     name = "preprocessor",
-    hdrs = glob(["preprocessor/*.hpp", "preprocessor/*.tpp"]),
+    hdrs = glob(["preprocessor/*.hpp"]),
     srcs = glob(["preprocessor/*.cpp"],  ["preprocessor/*.test.cpp"]),
-    deps = [":structures", ":errors"],
+    deps = [":structures", ":errors", ":interfaces"],
     visibility = ["//tests:__pkg__"],
 )
 

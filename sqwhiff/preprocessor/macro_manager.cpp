@@ -1,4 +1,4 @@
-#pragma once
+#include "sqwhiff/preprocessor/macro_manager.hpp"
 
 #include <algorithm>
 
@@ -8,28 +8,21 @@
 
 namespace sqwhiff {
 
-template <class Consumer>
-MacroManager<Consumer>::MacroManager() {
-  defined_ = std::make_shared<macro_storage>();
-}
+MacroManager::MacroManager() { defined_ = std::make_shared<macro_storage>(); }
 
-template <class Consumer>
-bool MacroManager<Consumer>::isMacro(const std::string& id) {
+bool MacroManager::isMacro(const std::string& id) {
   return defined_->find(id) != defined_->end();
 }
 
-template <class Consumer>
-MacroDefinition MacroManager<Consumer>::getDefinition(const std::string& id) {
+MacroDefinition MacroManager::getDefinition(const std::string& id) {
   return defined_->at(id);
 }
 
-template <class Consumer>
-bool MacroManager<Consumer>::undefine(const std::string& id) {
+bool MacroManager::undefine(const std::string& id) {
   return defined_->erase(id) > 0;
 }
 
-template <class Consumer>
-void MacroManager<Consumer>::define(const SourceString& definition) {
+void MacroManager::define(const SourceString& definition) {
   // Will consume the definition procedurally
   auto at = definition.chars.begin();
   auto limit = definition.chars.end();
@@ -199,8 +192,7 @@ void MacroManager<Consumer>::define(const SourceString& definition) {
   (*defined_)[id] = std::move(result);
 }
 
-template <class Consumer>
-std::vector<SourceString> MacroManager<Consumer>::parameter_replacement(
+std::vector<SourceString> MacroManager::parameter_replacement(
     const MacroDefinition& macro, const std::vector<SourceString>& arguments) {
   std::vector<SourceString> result;
 
@@ -233,8 +225,7 @@ std::vector<SourceString> MacroManager<Consumer>::parameter_replacement(
   return result;
 };
 
-template <class Consumer>
-SourceString MacroManager<Consumer>::expand(
+SourceString MacroManager::expand(
     const MacroDefinition& macro, const std::vector<SourceString>& arguments,
     const std::unordered_set<std::string>& ignores) {
   SourceString expanded;
@@ -261,8 +252,7 @@ SourceString MacroManager<Consumer>::expand(
   return expanded;
 }
 
-template <class Consumer>
-SourceString MacroManager<Consumer>::processWord(Consumer& source) {
+SourceString MacroManager::processWord(source_consumer& source) {
   SourceString word = getWord(source);
 
   if (isMacro(word)) {
@@ -274,8 +264,7 @@ SourceString MacroManager<Consumer>::processWord(Consumer& source) {
   return word;
 }
 
-template <class Consumer>
-SourceString MacroManager<Consumer>::processWord(
+SourceString MacroManager::processWord(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end,
     const std::unordered_set<std::string>& ignores) {
@@ -291,8 +280,7 @@ SourceString MacroManager<Consumer>::processWord(
   return word;
 }
 
-template <class Consumer>
-SourceString MacroManager<Consumer>::getWord(Consumer& source) {
+SourceString MacroManager::getWord(source_consumer& source) {
   SourceString word;
 
   // Assume caller checked that the initial wasn't a digit
@@ -304,8 +292,7 @@ SourceString MacroManager<Consumer>::getWord(Consumer& source) {
   return word;
 }
 
-template <class Consumer>
-SourceString MacroManager<Consumer>::getWord(
+SourceString MacroManager::getWord(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end) {
   SourceString word;
@@ -319,9 +306,7 @@ SourceString MacroManager<Consumer>::getWord(
   return word;
 }
 
-template <class Consumer>
-std::vector<SourceString> MacroManager<Consumer>::getArguments(
-    Consumer& source) {
+std::vector<SourceString> MacroManager::getArguments(source_consumer& source) {
   std::vector<SourceString> arguments = {};
 
   SourceChar start = source.at();
@@ -375,8 +360,7 @@ std::vector<SourceString> MacroManager<Consumer>::getArguments(
   return arguments;
 }
 
-template <class Consumer>
-std::vector<SourceString> MacroManager<Consumer>::getArguments(
+std::vector<SourceString> MacroManager::getArguments(
     std::vector<SourceChar>::const_iterator& at,
     const std::vector<SourceChar>::const_iterator& end,
     const std::unordered_set<std::string>& ignores) {

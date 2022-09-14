@@ -9,11 +9,11 @@ using sqwhiff::SourceString;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-class MockSourceConsumer {
+class MockSourceConsumer : public sqwhiff::source_consumer {
  public:
-  MOCK_METHOD(SourceChar, advance, (), ());
-  MOCK_METHOD(SourceChar, peek, (), ());
-  MOCK_METHOD(SourceChar, at, (), ());
+  MOCK_METHOD(SourceChar, advance, (), (override));
+  MOCK_METHOD(SourceChar, peek, (), (override));
+  MOCK_METHOD(SourceChar, at, (), (override));
 };
 
 TEST(MacroManager, OutputsNormalWord) {
@@ -31,7 +31,7 @@ TEST(MacroManager, OutputsNormalWord) {
       .WillOnce(Return(SourceChar('s')))
       .WillOnce(Return(SourceChar('\0')));
 
-  MacroManager<MockSourceConsumer> manager;
+  MacroManager manager;
 
   SourceString output = manager.processWord(consumer);
 

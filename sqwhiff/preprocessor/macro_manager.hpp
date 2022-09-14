@@ -4,9 +4,12 @@
 #include <unordered_set>
 #include <vector>
 
+#include "sqwhiff/interfaces/abstract_consumer.hpp"
 #include "sqwhiff/structures/macro_definition.hpp"
 
 namespace sqwhiff {
+
+using source_consumer = AbstractConsumer<SourceChar>;
 
 // Regular map since macros cannot be overloaded
 using macro_storage = std::unordered_map<std::string, MacroDefinition>;
@@ -15,14 +18,13 @@ using macro_storage = std::unordered_map<std::string, MacroDefinition>;
 using shared_macro_storage = std::shared_ptr<macro_storage>;
 
 // A class for the sole purpose of managing and expanding macros recursively
-template <class Consumer>
 class MacroManager {
   // Holds the current set of macro definitions
   shared_macro_storage defined_;
 
   // Helpers for recursively processing sections of source
-  SourceString getWord(Consumer&);
-  std::vector<SourceString> getArguments(Consumer&);
+  SourceString getWord(source_consumer&);
+  std::vector<SourceString> getArguments(source_consumer&);
 
   // Helpers for recursively processing sections of extracted source
   SourceString getWord(std::vector<SourceChar>::const_iterator&,
@@ -57,9 +59,7 @@ class MacroManager {
   void define(const SourceString&);
 
   // Reads the next word from source and expands it if a macro is found
-  SourceString processWord(Consumer&);
+  SourceString processWord(source_consumer&);
 };
 
 }  // namespace sqwhiff
-
-#include "sqwhiff/preprocessor/macro_manager.tpp"
