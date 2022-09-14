@@ -2,13 +2,14 @@
 #include <filesystem>
 #include <istream>
 
+#include "sqwhiff/interfaces/abstract_consumer.hpp"
 #include "sqwhiff/structures/source_char.hpp"
 
 namespace fs = std::filesystem;
 
 namespace sqwhiff {
 
-class SourceConsumer {
+class SourceConsumer : public AbstractConsumer<SourceChar> {
   // Reference member for polymorphism
   std::istream& source_;
 
@@ -19,9 +20,9 @@ class SourceConsumer {
   SourceConsumer(std::istream&, fs::path = {});
 
   // Advance through the source by one character
-  SourceChar advance();
-  SourceChar peek();
-  SourceChar at();
+  SourceChar advance() override;
+  SourceChar peek() override;
+  SourceChar at() override;
 };
 
 }  // namespace sqwhiff

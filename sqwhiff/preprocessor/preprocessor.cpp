@@ -11,7 +11,7 @@ using sqwhiff::PreprocessingError;
 
 Preprocessor::Preprocessor(
     std::istream& to_read, fs::path open_file, fs::path internal_dir,
-    std::shared_ptr<MacroManager<SourceConsumer>> macro_context,
+    std::shared_ptr<MacroManager> macro_context,
     const std::unordered_set<std::string>* include_context)
     : source_(to_read, open_file) {
   // Move to first character straight away
@@ -33,7 +33,7 @@ Preprocessor::Preprocessor(
   }
 
   if (macro_context == nullptr) {
-    macro_context_ = std::make_shared<MacroManager<SourceConsumer>>();
+    macro_context_ = std::make_shared<MacroManager>();
   } else {
     macro_context_ = macro_context;
   }
